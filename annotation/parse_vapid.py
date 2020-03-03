@@ -302,4 +302,7 @@ class Annotation():
 if __name__ == "__main__":
 	print(in_prefix)
 	anno = Annotation(in_prefix)
-	anno.anno_df.to_csv(f"{out_dir}/{anno.qry_id}.tsv", sep="\t", index=False)
+	try:
+		anno.anno_df.to_csv(f"{out_dir}/{anno.qry_id}.tsv", sep="\t", index=False)
+	except:
+		print("Annotation dataframe does not exist.")

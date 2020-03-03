@@ -25,3 +25,5 @@ for strain in $out_dir/vapid/EPI_ISL_*/; do
 	# echo $strain/$base
 	python parse_vapid.py --in_prefix $strain/$base --out_dir $out_dir/parsed/
 done
+
+
