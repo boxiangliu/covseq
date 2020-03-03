@@ -1,7 +1,7 @@
 fasta_dir=../data/GISAID_Human_Coronavirus_fasta_clean/
 vapid_dir=../src/vapid/
 out_dir=../processed_data/parse_vapid/
-mkdir -p $out_dir
+mkdir -p $out_dir/{vapid,parsed}
 
 cat $fasta_dir/EPI_ISL_*.fasta > $fasta_dir/all.fasta
 
@@ -18,10 +18,10 @@ python3 $vapid_dir/vapid3.py \
 	--metadata_loc $fasta_dir/metadata.csv \
 	$fasta_dir/all.fasta \
 	$vapid_dir/template.sbt
-mv EPI_ISL_* $out_dir/
+mv EPI_ISL_* $out_dir/vapid/
 
-for strain in $out_dir/EPI_ISL_*/; do
+for strain in $out_dir/vapid/EPI_ISL_*/; do
 	base=$(basename $strain)
-	echo $strain/$base
-	python3 parse_vapid.py --in_prefix $strain/$base --out_dir $out_dir
+	# echo $strain/$base
+	python parse_vapid.py --in_prefix $strain/$base --out_dir $out_dir/parsed/
 done
