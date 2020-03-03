@@ -14,8 +14,8 @@ args = parser.parse_args()
 in_prefix = args.in_prefix
 out_dir = args.out_dir
 
-in_prefix = "/mnt/scratch/boxiang/projects/viraviz/processed_data/parse_vapid/vapid/EPI_ISL_402131/EPI_ISL_402131"
-out_dir = "../processed_data/parse_vapid/parsed/"
+# in_prefix = "/mnt/scratch/boxiang/projects/viraviz/processed_data/parse_vapid/vapid/EPI_ISL_402131/EPI_ISL_402131"
+# out_dir = "../processed_data/parse_vapid/parsed/"
 
 class Annotation():
 	def __init__(self, prefix):
