@@ -6,7 +6,7 @@ from Bio import SeqIO
 import pytest
 from datetime import date
 import subprocess
-
+from parse_vapid import Annotation
 
 def get_fasta_ids(fasta_fn):
 	records = SeqIO.parse(fasta_fn, format="fasta")
@@ -77,6 +77,8 @@ def call_vapid(fasta_fn, metadata_fn, out_dir):
 	return output
 
 
-def parse_vapid():
-	pass
-
+def parse_vapid_results(out_dir, ids):
+	for i in ids:
+		prefix = f"{out_dir}/{i}/{i}"
+		anno = Annotation(prefix)
+		anno.anno_df.to_csv(prefix + ".tsv", sep="\t", index=False)

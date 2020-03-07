@@ -1,4 +1,5 @@
 import pytest
+import shutil
 from annotate import *
 
 def test_annotate():
@@ -13,7 +14,7 @@ def test_create_metadata():
 		line = f.readline()
 		assert line.strip().split(",")[0] == "A"
 		assert line.strip().split(",")[-1] == "0"
-	os.rmdir("results/example/")
+	shutil.rmtree("results/example/")
 
 def test_call_vapid():
 	fasta_fn = "example.fasta"
@@ -21,3 +22,11 @@ def test_call_vapid():
 	output = call_vapid(fasta_fn, metadata_fn, \
 		out_dir="results/example/vapid/")
 	assert output.returncode == 0
+
+def test_parse_vapid():
+	out_dir = "results/example/vapid/"
+	ids = ['NC_045512.2', 'EPI_ISL_408669']
+	parse_vapid_results(out_dir, ids)
+	for i in ids:
+		assert os.path.exists(f"{out_dir}/{i}/{i}.tsv")
+		shutil.rmtree(f"{out_dir}/{i}/")
