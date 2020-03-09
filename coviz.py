@@ -1,7 +1,7 @@
 import click
 from datetime import date
 import time
-from annotation.annotate import annotate
+from annotate import annotate
 
 @click.group()
 def coviz():
