@@ -63,12 +63,12 @@ def call_vapid(fasta_fn, metadata_fn, out_dir):
 
 	ids = get_fasta_ids(fasta_fn)
 
-	cmd = f"python3 src/vapid_minimal/vapid3.py \
-	--db src/vapid_minimal/all_virus.fasta \
+	cmd = f"python3 ../src/vapid/vapid3.py \
+	--db ../src/vapid/all_virus.fasta \
 	--r NC_045512.2 \
 	--metadata_loc {metadata_fn} \
 	{fasta_fn} \
-	src/vapid_minimal/template.sbt"
+	../src/vapid/template.sbt"
 
 	cmd = cmd.split()
 	output = subprocess.run(cmd, capture_output=True)
