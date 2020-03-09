@@ -1,6 +1,7 @@
 import click
 from datetime import date
 import time
+from annotation.annotate import annotate
 
 @click.group()
 def coviz():
@@ -9,20 +10,12 @@ def coviz():
 @coviz.command()
 @click.option("-f", "--fasta", type=str, required=True, \
 	help="Fasta file containing one or more virus strains.")
-@click.option("-d", "--date", \
-	type=click.DateTime(formats=["%Y-%m-%d"]), \
-	default=str(date.today()), show_default=True, \
-	help="When was the virus sequenced?")
-@click.option("-r", "--region", type=str, default="Sunnyvale, CA", \
-	show_default=True, help="Where was the virus obtained?")
-@click.option("-c", "--coverage", type=int, default=0, \
-	show_default=True, help="What is the sequencing depth?")
-
-def annotate(fasta, date, region, coverage):
+@click.option("-o", "--out_dir", type=str, required=False, \
+	help="Output directory", default="results", show_default=True)
+def annotate_interface(fasta, out_dir):
 	click.echo(f"FASTA file: {fasta}")
-	click.echo(f"date: {date}")
-	click.echo(f"region: {region}")
-	click.echo(f"coverage: {coverage}")
+	click.echo(f"Output directory: {out_dir}")
+	annotate(fasta, out_dir)
 
 # @coviz.command()
 # def predict():

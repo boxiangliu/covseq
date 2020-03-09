@@ -7,6 +7,8 @@ import pytest
 from datetime import date
 import subprocess
 from parse_vapid import Annotation
+import glob
+import shutil
 
 def get_fasta_ids(fasta_fn):
 	records = SeqIO.parse(fasta_fn, format="fasta")
@@ -24,13 +26,14 @@ def create_metadata(ids, out_dir):
 	if not os.path.exists(out_dir):
 		os.makedirs(out_dir)
 
-	with open(f"{out_dir}/metadata.csv", "w") as f:
+	out_fn = f"{out_dir}/metadata.csv"
+	with open(out_fn, "w") as f:
 		f.write("strain,collection-date,country,coverage\n")
 
 		for id_ in ids:
 			out = ",".join([id_, today, region, coverage])
 			f.write(out + "\n")
-
+	return out_fn
 
 def mafft_is_installed():
 	try:
@@ -77,8 +80,27 @@ def call_vapid(fasta_fn, metadata_fn, out_dir):
 	return output
 
 
-def parse_vapid_results(out_dir, ids):
+def parse_vapid(out_dir, ids):
 	for i in ids:
 		prefix = f"{out_dir}/{i}/{i}"
 		anno = Annotation(prefix)
 		anno.anno_df.to_csv(prefix + ".tsv", sep="\t", index=False)
+
+
+def clean(in_dir, out_dir):
+	for i in glob.glob(f"{in_dir}/*"):
+		base = os.path.basename(i)
+		os.makedirs(f"{out_dir}/{base}", exist_ok=True)
+		shutil.move(f"{i}/{base}.tbl", f"{out_dir}/{base}/")
+		shutil.move(f"{i}/{base}.tsv", f"{out_dir}/{base}/")
+	shutil.rmtree(in_dir)
+
+
+def annotate(fasta_fn, out_dir):
+	ids = get_fasta_ids(fasta_fn)
+	metadata_fn = create_metadata(ids, out_dir)
+	vapid_dir = f"{out_dir}/vapid/"
+	call_vapid(fasta_fn, metadata_fn, vapid_dir)
+	parse_vapid(vapid_dir, ids)
+	annotation_dir = f"{out_dir}/annotation/"
+	clean(vapid_dir, annotation_dir)
