@@ -35,6 +35,15 @@ def create_metadata(ids, out_dir):
 			f.write(out + "\n")
 	return out_fn
 
+
+def load_mafft():
+	try:
+		cmd = "module load mafft".split()
+		subprocess.run(cmd)
+	except:
+		pass
+
+
 def mafft_is_installed():
 	try:
 		subprocess.run(["mafft", "--version"]) 
@@ -52,6 +61,8 @@ def tbl2asn_is_installed():
 
 
 def call_vapid(fasta_fn, metadata_fn, out_dir):
+
+	load_mafft()
 	if not mafft_is_installed():
 		raise Exception("mafft is not installed. Visit https://mafft.cbrc.jp/alignment/software/")
 	
