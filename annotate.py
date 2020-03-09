@@ -9,6 +9,7 @@ import subprocess
 from parse_vapid import Annotation
 import glob
 import shutil
+import click
 
 def get_fasta_ids(fasta_fn):
 	records = SeqIO.parse(fasta_fn, format="fasta")
@@ -104,9 +105,15 @@ def clean(in_dir, out_dir):
 		os.makedirs(f"{out_dir}/{base}", exist_ok=True)
 		shutil.move(f"{i}/{base}.tbl", f"{out_dir}/{base}/")
 		shutil.move(f"{i}/{base}.tsv", f"{out_dir}/{base}/")
-	shutil.rmtree(in_dir)
+		shutil.rmtree(i)
+	os.rmdir(in_dir)
 
 
+@click.command()
+@click.option("-f", "--fasta", type=str, required=True, \
+	help="Fasta file containing one or more virus strains.")
+@click.option("-o", "--out_dir", type=str, required=False, \
+	help="Output directory", default="results", show_default=True)
 def annotate(fasta_fn, out_dir):
 	ids = get_fasta_ids(fasta_fn)
 	metadata_fn = create_metadata(ids, out_dir)
