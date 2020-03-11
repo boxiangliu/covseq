@@ -9,7 +9,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        annotate=annotate:annotate
+        annotate=annotation:annotate
         predict=orf_prediction:predict
     ''',
 )

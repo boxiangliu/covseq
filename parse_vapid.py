@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 from Bio import SeqIO, SeqFeature, Seq
 import ipdb
-parser = argparse.ArgumentParser(description='Parse virus genome annotation.')
-parser.add_argument("--in_prefix", type=str,
-					help="Prefix for results from VAPID.")
-parser.add_argument("--out_dir", type=str,
-					help="Output directory.")
-args = parser.parse_args()
-in_prefix = args.in_prefix
-out_dir = args.out_dir
+# parser = argparse.ArgumentParser(description='Parse virus genome annotation.')
+# parser.add_argument("--in_prefix", type=str,
+# 					help="Prefix for results from VAPID.")
+# parser.add_argument("--out_dir", type=str,
+# 					help="Output directory.")
+# args = parser.parse_args()
+# in_prefix = args.in_prefix
+# out_dir = args.out_dir
 
 # in_prefix = "/mnt/scratch/boxiang/projects/viraviz/processed_data/parse_vapid/vapid/EPI_ISL_402131/EPI_ISL_402131"
 # out_dir = "../processed_data/parse_vapid/parsed/"
@@ -299,10 +299,10 @@ class Annotation():
 		self.anno_df = merged.sort_values("ref_coord")
 
 
-if __name__ == "__main__":
-	print(in_prefix)
-	anno = Annotation(in_prefix)
-	try:
-		anno.anno_df.to_csv(f"{out_dir}/{anno.qry_id}.tsv", sep="\t", index=False)
-	except:
-		print("Annotation dataframe does not exist.")
+# if __name__ == "__main__":
+# 	print(in_prefix)
+# 	anno = Annotation(in_prefix)
+# 	try:
+# 		anno.anno_df.to_csv(f"{out_dir}/{anno.qry_id}.tsv", sep="\t", index=False)
+# 	except:
+# 		print("Annotation dataframe does not exist.")
