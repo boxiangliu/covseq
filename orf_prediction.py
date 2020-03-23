@@ -39,3 +39,5 @@ def predict(fasta, out_dir):
 	run_glimmer3_iterated(fasta, f"{out_dir}/orf_prediction/")
 	clean(f"{out_dir}/orf_prediction/", out_dir)
 
+if __name__ == "__main__":
+    predict()
