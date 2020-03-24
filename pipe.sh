@@ -1,3 +1,7 @@
+# Download COVID-19 sequences from GISAID:
+# Accessed March 24, 2020
+python3 download/download_gisaid.py -u username -p password --out_dir /Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/
+
 /mnt/scratch/boxiang/projects/open_reading_frame/src/glimmer3.02/scripts/g3-from-training.csh \
     /mnt/scratch/boxiang/projects/open_reading_frame/data/COVID19_dna.txt \
     /mnt/scratch/boxiang/projects/open_reading_frame/data/COVID19.nh \
