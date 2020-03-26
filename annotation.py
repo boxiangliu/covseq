@@ -121,5 +121,6 @@ def annotate(fasta, out_dir):
 	parse_vapid(vapid_dir, ids)
 	clean(vapid_dir, out_dir)
 
+
 if __name__ == "__main__":
-    annotate()
+	annotate()
