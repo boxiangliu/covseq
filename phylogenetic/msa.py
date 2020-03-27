@@ -34,11 +34,11 @@ def msa(fin, fout):
 def construct_tree(fin, out_prefix):
 	print("Contructing evolutionary tree...")
 	start = time.time()
-	cmd = f"iqtree -s {fin} -pre {out_prefix}"
+	cmd = f"iqtree -s {fin} -pre {out_prefix} -m GTR -T AUTO"
 	output = subprocess.run(cmd, shell=True, capture_output=True)
 	duration = time.time() - start 
 	print(f"Duration: {str(duration)}")
 
-make_input(in_dir, out_dir)
-msa(f"{out_dir}/gisaid.fasta", f"{out_dir}/gisaid.ali")
+# make_input(in_dir, out_dir)
+# msa(f"{out_dir}/gisaid.fasta", f"{out_dir}/gisaid.ali")
 construct_tree(f"{out_dir}/gisaid.ali", f"{out_dir}/gisaid")
