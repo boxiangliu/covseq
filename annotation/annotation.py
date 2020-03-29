@@ -43,6 +43,14 @@ class Annotation():
 		work_dir = f"{out_dir}/{qry.id}"
 		os.makedirs(work_dir, exist_ok=True)
 		
+		op_sys = subprocess.run("uname", capture_output=True).stdout
+		if op_sys == b"Linux\n":
+			mafft = "ext/mafft-linux64/mafft.bat"
+		elif op_sys == b"Darwin\n":
+			mafft = "ext/mafft-mac/mafft.bat"
+		else:
+			raise Exception("Coviz only supports Linux and MacOS!")
+
 		mafft_in_fn = f"{work_dir}/{qry.id}.fa"
 		with open(mafft_in_fn, "w") as f:
 			f.write(f">{ref.id}\n")
@@ -51,7 +59,7 @@ class Annotation():
 			f.write(f"{str(qry.seq)}\n")
 
 		mafft_out_fn = f"{work_dir}/{qry.id}.ali"
-		cmd = f"mafft {mafft_in_fn} > {mafft_out_fn}"
+		cmd = f"{mafft} {mafft_in_fn} > {mafft_out_fn}"
 		output = subprocess.run(cmd, shell=True, capture_output=True)
 
 		return mafft_out_fn
