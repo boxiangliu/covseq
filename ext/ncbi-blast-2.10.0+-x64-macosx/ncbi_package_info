@@ -1,0 +1,278 @@
+PACKAGE_NAME: blast
+PACKAGE_VERSION: 2.10.0
+PACKAGE_SIGNATURE: Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+PACKAGE_CONFIG: IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+
+>>>>>  blastp
+
+blastp: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:09:44
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  blastp
+
+
+
+>>>>>  blastn
+
+blastn: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:09:35
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  blastn
+
+
+
+>>>>>  blastx
+
+blastx: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:09:52
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  blastx
+
+
+
+>>>>>  tblastn
+
+tblastn: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:14:08
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  tblastn
+
+
+
+>>>>>  tblastx
+
+tblastx: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:14:18
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  tblastx
+
+
+
+>>>>>  psiblast
+
+psiblast: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:13:15
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  psiblast
+
+
+
+>>>>>  rpsblast
+
+rpsblast: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:13:25
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  rpsblast
+
+
+
+>>>>>  rpstblastn
+
+rpstblastn: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:13:35
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  rpstblastn
+
+
+
+>>>>>  makembindex
+
+makembindex: 0.0.0
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:12:58
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  makembindex
+
+
+
+>>>>>  segmasker
+
+segmasker: 1.0.0
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:13:52
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  segmasker
+
+
+
+>>>>>  dustmasker
+
+dustmasker: 1.0.0
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:12:21
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  dustmasker
+
+
+
+>>>>>  windowmasker
+
+windowmasker: 1.0.0
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:14:34
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  windowmasker
+
+ window-masker-algorithm:1.0.0
+
+ windowmasker-statistics-algorithm-version:1.0.0
+
+ windowmasker-statistics-format-version:ascii 1.0.0
+
+ windowmasker-statistics-format-version:binary 1.0.0
+
+ windowmasker-statistics-format-version:oascii 1.0.0
+
+ windowmasker-statistics-format-version:obinary 1.0.0
+
+
+
+>>>>>  deltablast
+
+deltablast: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:12:10
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  deltablast
+
+
+
+>>>>>  makeblastdb
+
+makeblastdb: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:12:44
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  makeblastdb
+
+
+
+>>>>>  blastdbcmd
+
+blastdbcmd: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:09:19
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  blastdbcmd
+
+
+
+>>>>>  blastdb_aliastool
+
+blastdb_aliastool: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:08:47
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  blastdb_aliastool
+
+
+
+>>>>>  convert2blastmask
+
+convert2blastmask: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:10:04
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  convert2blastmask
+
+
+
+>>>>>  blastdbcheck
+
+blastdbcheck: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:09:10
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  blastdbcheck
+
+
+
+>>>>>  makeprofiledb
+
+makeprofiledb: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:13:06
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  makeprofiledb
+
+
+
+>>>>>  blast_formatter
+
+blast_formatter: 2.10.0+
+ Package: blast 2.10.0, build Dec  3 2019 18:49:28
+ Package-Config:  IntelMAC : clang : ./c++/compilers/unix/Clang.sh --without-dll --with-bin-release --without-debug --without-pcre --with-mt --with-openmp --with-flat-makefile --with-ncbi-public --with-experimental=Int8GI --without-vdb --without-gnutls --without-gcrypt --with-build-root-sfx=--IntelMAC-clang --with-flat-makefile --with-ncbi-public --without-ccache --without-caution --without-runpath --without-makefile-auto-update --with-projects=scripts/projects/blast/project.lst --with-internal
+ Build-Signature:  Clang_1100-ReleaseMT64--x86_64-apple-darwin18.7.0-xcoremake2
+ Build-Date:  Dec  3 2019 19:08:28
+ Build-ID:  3170C31B-F7CC-4947-AC1D-158B1F2879D5
+ Production-Version:  20190928
+ Built-As:  blast_formatter
+
+
+
+
