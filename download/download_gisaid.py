@@ -201,7 +201,10 @@ def main(out_dir, username, password):
 
 
 if __name__ == "__main__":
-	page_num = 1
+	page_num = 35
+	username = "lbxjollier" 
+	password = "71RwYNz4nljy" 
+	out_dir = "/Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/"
 	while True:
 		main(out_dir, username, password)
 

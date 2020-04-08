@@ -5,7 +5,7 @@ import time
 from Bio import SeqIO
 
 in_dir = "../data/gisaid/"
-out_dir = "../processed_data/phylogenetic/msa/"
+out_dir = "../processed_data/phylogenetic/tree/"
 os.makedirs(out_dir, exist_ok=True)
 
 
