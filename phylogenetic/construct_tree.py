@@ -23,6 +23,7 @@ def make_input(in_dir, out_dir):
 				fout.write(str(fasta.seq) + "\n")
 		print(f"Total: {counter} sequences.")
 
+
 def msa(fin, fout):
 	print("Aligning with MAFFT...")
 	start = time.time()
@@ -30,6 +31,7 @@ def msa(fin, fout):
 	output = subprocess.run(cmd, shell=True, capture_output=True)
 	duration = time.time() - start
 	print(f"Duration: {str(duration)}")
+
 
 def construct_tree(fin, out_prefix):
 	print("Contructing evolutionary tree...")

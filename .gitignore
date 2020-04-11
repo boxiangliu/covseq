@@ -6,3 +6,4 @@ src/
 __pycache__/
 ._*
 *.egg-info/
+.Rproj.user
