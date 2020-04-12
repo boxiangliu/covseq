@@ -1,17 +1,9 @@
 import glob
 import os
-import gzip
+import click
 from Bio import SeqIO
-in_dir = "../data/"
-sub_dirs = ["gisaid", "ncbi", "cngb", "embl"]
-out_fn = "../data/aggregated/fasta/raw.fasta"
-cgnb_metadata = "../data/cngb/metadata/CNGBdb_VirusDIP_excel20200411_all(24)_57b4ce53c4d6c49c978596677a112211.csv"
 
-print("#########################")
-print("# Concatenate all FASTA #")
-print("#########################")
-print(f"Input: {in_dir}")
-print(f"Output: {out_fn}")
+SUB_DIRS = ["gisaid", "ncbi", "cngb", "embl"]
 
 
 def get_cngb_id_map(in_fn):
@@ -50,9 +42,19 @@ def concatenate_fasta(in_dir, sub_dirs, out_fn, cngb_id_map):
 	print(f"Combined {counter} sequences!")
 
 
-def main():
+@click.command()
+@click.option("--in_dir", "-i", type=str, help="Input directory.")
+@click.option("--out_fn", "-o", type=str, help="Output file.")
+@click.option("--cgnb_metadata", type=str, help="CGNB metadata for normalizing header.")
+def main(in_dir, out_fn, cgnb_metadata):
+	print("#########################")
+	print("# Concatenate all FASTA #")
+	print("#########################")
+	print(f"Input: {in_dir}")
+	print(f"Output: {out_fn}")
+
 	cngb_id_map = get_cngb_id_map(cgnb_metadata)
-	concatenate_fasta(in_dir, sub_dirs, out_fn, cngb_id_map)
+	concatenate_fasta(in_dir, SUB_DIRS, out_fn, cngb_id_map)
 
 if __name__ == "__main__":
 	main()

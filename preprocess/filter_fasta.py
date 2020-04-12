@@ -1,17 +1,7 @@
 import os
 import hashlib
+import click
 from Bio import SeqIO
-
-in_fn = "../data/aggregated/fasta/raw.fasta"
-out_dir = "../processed_data/preprocess/filter_fasta/"
-os.makedirs(out_dir, exist_ok=True)
-final_fn = "../data/aggregated/fasta/preprocessed.fasta"
-
-print("#############################")
-print("# Filtering FASTA sequences #")
-print("#############################")
-print(f"Input: {in_fn}")
-print(f"Output: {final_fn}")
 
 
 def remove_duplicates(in_fn, out_dir):
@@ -64,7 +54,18 @@ def count_ambiguous_base(in_fn, out_fn):
 			fout.write(f"{record.description}\t{ambi_base}\t{length}\t{proportion}\n")
 
 
-def main():
+@click.command()
+@click.option("--in_fn", "-i", type=str, help="Input file.")
+@click.option("--out_dir", type=str, help="Directory to put intermediate files.")
+@click.option("--final_fn", type=str, help="Final fasta file.")
+def main(in_fn, out_dir, final_fn):
+	print("#############################")
+	print("# Filtering FASTA sequences #")
+	print("#############################")
+	print(f"Input: {in_fn}")
+	print(f"Output: {final_fn}")
+	
+	os.makedirs(out_dir, exist_ok=True)
 	_, non_redundant = remove_duplicates(in_fn, out_dir)
 	get_genome_length(non_redundant, f"{out_dir}/genome_lengths.tsv")
 	filter_complete_genome(non_redundant, final_fn, cutoff=25000)

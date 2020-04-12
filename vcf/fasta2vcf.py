@@ -1,52 +1,11 @@
 import os
 import subprocess
 import glob
-from collections import defaultdict
-from collections import OrderedDict, Callable
-
-class DefaultOrderedDict(OrderedDict):
-	# Source: http://stackoverflow.com/a/6190500/562769
-	def __init__(self, default_factory=None, *a, **kw):
-		if (default_factory is not None and
-		   not isinstance(default_factory, Callable)):
-			raise TypeError('first argument must be callable')
-		OrderedDict.__init__(self, *a, **kw)
-		self.default_factory = default_factory
-
-	def __getitem__(self, key):
-		try:
-			return OrderedDict.__getitem__(self, key)
-		except KeyError:
-			return self.__missing__(key)
-
-	def __missing__(self, key):
-		if self.default_factory is None:
-			raise KeyError(key)
-		self[key] = value = self.default_factory()
-		return value
-
-	def __reduce__(self):
-		if self.default_factory is None:
-			args = tuple()
-		else:
-			args = self.default_factory,
-		return type(self), args, None, None, self.items()
-
-	def copy(self):
-		return self.__copy__()
-
-	def __copy__(self):
-		return type(self)(self.default_factory, self)
-
-	def __deepcopy__(self, memo):
-		import copy
-		return type(self)(self.default_factory,
-						  copy.deepcopy(self.items()))
-
-	def __repr__(self):
-		return 'OrderedDefaultDict(%s, %s)' % (self.default_factory,
-											   OrderedDict.__repr__(self))
-
+from Bio import SeqIO
+import click
+import sys
+sys.path.append(".")
+from utils import DefaultOrderedDict
 
 def get_sequence_length(fasta):
 	seq_length = 0
@@ -58,8 +17,6 @@ def get_sequence_length(fasta):
 	return seq_length
 
 def align(ref_fasta, qry_fasta, out_prefix):
-	print("Aligning reference and query sequences...")
-
 	mafft_in_fn = f"{out_prefix}.fasta"
 	with open(mafft_in_fn, "w") as fout:
 		for fn in [ref_fasta, qry_fasta]:
@@ -76,7 +33,6 @@ def align(ref_fasta, qry_fasta, out_prefix):
 
 
 def parse_align(align_fn):
-	print("Parsing alignment...")
 	ref = ""
 	qry = ""
 	n_record = 0
@@ -165,36 +121,63 @@ def save_vcf(ref_variant, qry_variant, qry_name, out_fn):
 				f.write(f"1\t{coord}\t{id_}\t{rv}\t{qv}\t.\tPASS\t.\tGT\t1\n")
 
 
-def main():
-	in_dir = "../data/gisaid/"
-	ref_fasta = "../data/reference/NC_045512.2.fasta"
-	out_dir = "../processed_data/fasta2vcf/fasta2vcf"
+def postprocess_vcf(vcf_fn, ref_fn):
+	'''Normalize, rename ID, bgzip and tabix'''
+	cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Oz -o {vcf_fn}.gz"
+	output1 = subprocess.run(cmd, shell=True, capture_output=True)
+	cmd = f"tabix -p vcf {vcf_fn}.gz"
+	output2 = subprocess.run(cmd, shell=True, capture_output=True)
+
+
+def cleanup(out_prefix):
+	os.remove(f"{out_prefix}.ali")
+	os.remove(f"{out_prefix}.fasta")
+	os.remove(f"{out_prefix}.vcf")
+
+
+@click.command()
+@click.option("--fasta_fn", "-f", type=str, help="Input FASTA file.")
+@click.option("--ref_fn", "-r", type=str, help="Reference FASTA file.")
+@click.option("--out_dir", "-o", type=str, help="Output directory.")
+@click.option("--verbose", "-v", is_flag=True, default=False)
+def main(fasta_fn, ref_fn, out_dir, verbose):
+	print("################")
+	print("# FASTA to VCF #")
+	print("################")
+	print(f"FASTA: {fasta_fn}")
+	print(f"Reference: {ref_fn}")
+	print(f"Output: {out_dir}")
+
 	os.makedirs(out_dir, exist_ok=True)
-	print(os.getcwd())
-	for qry_fasta in glob.glob(f"{in_dir}/*.fasta"):
-		print(qry_fasta)
 
-		seq_length = get_sequence_length(qry_fasta)
-		if seq_length < 29000:
-			print("Too short. Skip!")
-			continue
-		
-		qry_name = os.path.basename(qry_fasta).replace('.fasta', "")
-		print(f"Query Name: {qry_name}")
+	for qry_record in SeqIO.parse(fasta_fn, "fasta"):
+		qry_id = qry_record.id
+		print(f"Query Name: {qry_id}")
 
-		out_prefix = f"{out_dir}/{qry_name}"
+		out_prefix = f"{out_dir}/{qry_id}"
 
-		print("Aligning...")
-		align_fn = align(ref_fasta, qry_fasta, out_prefix)
+		if verbose: print("Aligning...")
+		with open("qry.fasta", "w") as f:
+			SeqIO.write(qry_record, f, "fasta")
+		align_fn = align(ref_fn, "qry.fasta", out_prefix)
+		os.remove("qry.fasta")
+
+		if verbose: print("Parsing alignment...")
 		ref, qry = parse_align(align_fn)
 
-		print("Making VCF...")
+
+		if verbose: print("Making VCF...")
 		ref_variant, qry_variant = align2vcf(ref, qry)
 
 		out_fn = f"{out_prefix}.vcf"
-		print(f"Saving VCF to {out_fn}")
-		save_vcf(ref_variant, qry_variant, qry_name, out_fn)
+		if verbose: print(f"Saving VCF to {out_fn}")
+		save_vcf(ref_variant, qry_variant, qry_id, out_fn)
 
+		if verbose: print(f"Normalize, update ID, and index.")
+		postprocess_vcf(out_fn, ref_fn)
+
+		if verbose: print(f"Removing .ali, .fasta, and .vcf files.")
+		cleanup(out_prefix)
 
 if __name__ == "__main__":
 	main()

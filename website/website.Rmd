@@ -24,9 +24,21 @@ print(p)
 ```
 
 
-```{r}
+```{r ambiguous bases}
 in_fn = "../../processed_data/preprocess/filter_fasta/ambiguous_bases.tsv"
 ambiguous_bases = fread(in_fn, sep="\t", col.names = c("description", "count", "length", "proportion"))
 p = ggplot(ambiguous_bases, aes(x=proportion + 1e-5)) + geom_histogram(bins=1000) + scale_x_log10()
 print(p)
 ```
+
+
+```{r mutation count}
+in_fn = "../../processed_data/vcf/filter_samples/mutation_count.tsv"
+mutation_count = fread(in_fn, sep="\t", col.names=c("sample", "mutation"))
+p = ggplot(mutation_count, aes(x=mutation)) + geom_histogram(bins=300) + scale_y_sqrt() + scale_x_log10(breaks=c(1,10,100,150,1000,10000)) + geom_vline(xintercept=150, color="red", linetype="dashed")
+print(p)
+```
+
+
+
+
