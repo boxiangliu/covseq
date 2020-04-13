@@ -21,11 +21,11 @@ python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../proces
 # Conclusion: remove samples with > 150 mutations.
 
 # Merge VCF files:
-bash merge_vcfs/merge_vcfs.sh
+bash vcf/merge_vcfs.sh ../processed_data/vcf/filter_samples/ ../data/aggregated/vcf/merged/ ../data/reference/NC_045512.2.fasta
 
 # Filter sites with >2 alleles
 # Also filter sites within the poly-A tail
-bash merge_vcfs/filter_sites.sh
+bash vcf/filter_sites.sh ../data/aggregated/vcf/merged/merged.vcf.gz ../data/aggregated/vcf/merged/filtered
 
 # Plot the mutation distribution:
 python3 mutation_distribution/plot_sample_per_mutation.py
@@ -34,8 +34,9 @@ python3 mutation_distribution/plot_sample_per_mutation.py
 python3 mutation_distribution/plot_mutation_over_time.py
 
 # Make phenotype table:
-python3 phenotype/phenotype.py
-
+python3 phenotype/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/ -o ../data/aggregated/metadata/individual/gisaid.tsv
+python3 phenotype/parse_ncbi_metadata.py
+python3 phenotype/parse_embl_metadata.py
 
 # Profile annotation.py
 bash annotation/profile_annotation.sh 
