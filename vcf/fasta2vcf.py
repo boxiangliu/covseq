@@ -7,14 +7,15 @@ import sys
 sys.path.append(".")
 from utils import DefaultOrderedDict
 
-def get_sequence_length(fasta):
-	seq_length = 0
-	with open(fasta) as f:
-		for line in f:
-			if line.startswith(">"):
-				continue
-			seq_length += len(line.strip())
-	return seq_length
+
+def get_IDs_from_align_file(align_fn):
+	ID = []
+	for record in SeqIO.parse(align_fn, "fasta"):
+		ID.append(record.id)
+	if len(ID) > 2:
+		print("Alignment file have >2 sequences. Using the first 2 sequences.")
+	return ID[0], ID[1]
+
 
 def align(ref_fasta, qry_fasta, out_prefix):
 	mafft_in_fn = f"{out_prefix}.fasta"
@@ -53,7 +54,7 @@ def parse_align(align_fn):
 	return ref, qry
 
 
-def align2vcf(ref, qry):
+def align2variant(ref, qry):
 	assert len(ref) == len(qry)
 	ref_coord = 0
 	qry_coord = 0
@@ -121,63 +122,98 @@ def save_vcf(ref_variant, qry_variant, qry_name, out_fn):
 				f.write(f"1\t{coord}\t{id_}\t{rv}\t{qv}\t.\tPASS\t.\tGT\t1\n")
 
 
-def postprocess_vcf(vcf_fn, ref_fn):
+def postprocess_vcf(vcf_fn, ref_fn, compress_vcf):
 	'''Normalize, rename ID, bgzip and tabix'''
-	cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Oz -o {vcf_fn}.gz"
-	output1 = subprocess.run(cmd, shell=True, capture_output=True)
-	cmd = f"tabix -p vcf {vcf_fn}.gz"
-	output2 = subprocess.run(cmd, shell=True, capture_output=True)
+	if compress_vcf:
+		print("Normalizing and compressing VCF.")
+		cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Oz -o {vcf_fn}.gz"
+		output1 = subprocess.run(cmd, shell=True, capture_output=True)
+		print(output1.stderr)
+		assert os.path.exists(f"{vcf_fn}.gz")
+		cmd = f"tabix -p vcf {vcf_fn}.gz"
+		output2 = subprocess.run(cmd, shell=True, capture_output=True)
+
+	else:
+		print("Normalizing VCF.")
+		cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Ov -o {vcf_fn}"
+		output1 = subprocess.run(cmd, shell=True, capture_output=True)
 
 
-def cleanup(out_prefix):
+def cleanup(out_prefix, compress_vcf):
 	os.remove(f"{out_prefix}.ali")
 	os.remove(f"{out_prefix}.fasta")
-	os.remove(f"{out_prefix}.vcf")
+	if compress_vcf:
+		os.remove(f"{out_prefix}.vcf")
 
 
-@click.command()
-@click.option("--fasta_fn", "-f", type=str, help="Input FASTA file.")
-@click.option("--ref_fn", "-r", type=str, help="Reference FASTA file.")
-@click.option("--out_dir", "-o", type=str, help="Output directory.")
-@click.option("--verbose", "-v", is_flag=True, default=False)
-def main(fasta_fn, ref_fn, out_dir, verbose):
+def align2vcf(align_fn, ref_fn, qry_id, out_prefix, compress_vcf, clean_up, verbose=False):
+	if verbose: print("Parsing alignment...")
+	ref, qry = parse_align(align_fn)
+
+	if verbose: print("Making VCF...")
+	ref_variant, qry_variant = align2variant(ref, qry)
+
+	out_fn = f"{out_prefix}.vcf"
+	if verbose: print(f"Saving VCF to {out_fn}")
+	save_vcf(ref_variant, qry_variant, qry_id, out_fn)
+
+	if verbose: print(f"Normalize, update ID, and index.")
+	postprocess_vcf(out_fn, ref_fn, compress_vcf)
+
+	if clean_up:
+		if verbose: print(f"Removing .ali, .fasta, and .vcf files.")
+		cleanup(out_prefix, compress_vcf)
+
+
+def fasta2vcf(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbose):
 	print("################")
 	print("# FASTA to VCF #")
 	print("################")
 	print(f"FASTA: {fasta_fn}")
 	print(f"Reference: {ref_fn}")
+	print(f"Align: {align_fn}")
 	print(f"Output: {out_dir}")
+	print(f"Compress VCF: {compress_vcf}")
+	print(f"Clean up: {clean_up}")
+	print(f"Verbose: {verbose}")
 
 	os.makedirs(out_dir, exist_ok=True)
 
-	for qry_record in SeqIO.parse(fasta_fn, "fasta"):
-		qry_id = qry_record.id
-		print(f"Query Name: {qry_id}")
-
+	# If user set align_fn option.
+	if align_fn:
+		ref_id, qry_id = get_IDs_from_align_file(align_fn)
 		out_prefix = f"{out_dir}/{qry_id}"
 
-		if verbose: print("Aligning...")
-		with open("qry.fasta", "w") as f:
-			SeqIO.write(qry_record, f, "fasta")
-		align_fn = align(ref_fn, "qry.fasta", out_prefix)
-		os.remove("qry.fasta")
+		align2vcf(align_fn, ref_fn, qry_id, \
+			out_prefix, compress_vcf, clean_up, verbose)
 
-		if verbose: print("Parsing alignment...")
-		ref, qry = parse_align(align_fn)
+	# If align_fn is empty, start from fasta_fn + ref_fn.
+	else:
+		for qry_record in SeqIO.parse(fasta_fn, "fasta"):
+			qry_id = qry_record.id
+			print(f"Query Name: {qry_id}")
 
+			out_prefix = f"{out_dir}/{qry_id}"
 
-		if verbose: print("Making VCF...")
-		ref_variant, qry_variant = align2vcf(ref, qry)
+			if verbose: print("Aligning...")
+			with open("qry.fasta", "w") as f:
+				SeqIO.write(qry_record, f, "fasta")
+			align_fn = align(ref_fn, "qry.fasta", out_prefix)
+			os.remove("qry.fasta")
 
-		out_fn = f"{out_prefix}.vcf"
-		if verbose: print(f"Saving VCF to {out_fn}")
-		save_vcf(ref_variant, qry_variant, qry_id, out_fn)
+			align2vcf(align_fn, ref_fn, qry_id, \
+				out_prefix, compress_vcf, clean_up, verbose)
 
-		if verbose: print(f"Normalize, update ID, and index.")
-		postprocess_vcf(out_fn, ref_fn)
-
-		if verbose: print(f"Removing .ali, .fasta, and .vcf files.")
-		cleanup(out_prefix)
+@click.command()
+@click.option("--fasta_fn", "-f", type=str, help="Input FASTA file.")
+@click.option("--ref_fn", "-r", type=str, help="Reference FASTA file.")
+@click.option("--align_fn", "-a", type=str, help="Alignment FASTA file. If align_fn is set, program will prioritize align_fn over fasta_fn + ref_fn. Note: align_fn must contain only 1 reference followed by only 1 query sequence.")
+@click.option("--out_dir", "-o", type=str, help="Output directory.")
+@click.option("--compress_vcf", type=bool, default=True, help="Whether to compress VCF file. Default to True.")
+@click.option("--clean_up", type=bool, default=True, help="Whether to clean up files such as .ali and .fasta.")
+@click.option("--verbose", "-v", is_flag=True, default=False)
+def main(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbose):
+	fasta2vcf(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbose)
 
 if __name__ == "__main__":
 	main()

@@ -5,6 +5,9 @@ from collections import defaultdict, OrderedDict
 import numpy as np
 import pandas as pd
 from Bio import SeqIO, SeqFeature, Seq
+import sys
+sys.path.append(".")
+from vcf.fasta2vcf import fasta2vcf
 
 
 def read_fasta(fasta_fn):
@@ -20,6 +23,11 @@ def read_ref_genbank():
 
 class Annotation():
 	def __init__(self, qry, ref_gbk, out_dir):
+		'''
+		qry: a SeqIO FASTA object.
+		ref_gbk: a SeqIO genbank object.
+		out_dir: output directory.
+		'''
 		self.qry = qry
 		self.ref_gbk = ref_gbk
 		self.out_dir = out_dir
@@ -32,10 +40,10 @@ class Annotation():
 			print("Query sequence should have at least 29000 nucleotides! Aborting...")
 			return 
 
-		align_fn = self.align(self.ref_gbk, self.qry, self.out_dir)
-		nucleotide = self.parse_align(align_fn)
-		nucleotide = self.get_mutation(nucleotide)
-		self.transfer_feature(self.ref_gbk, nucleotide)
+		self.align(self.ref_gbk, self.qry, self.out_dir)
+		self.parse_align(self.align_fn)
+		self.get_mutation(self.nt_df)
+		self.transfer_feature(self.ref_gbk, self.nt_df)
 
 
 	def align(self, ref, qry, out_dir):
@@ -51,7 +59,7 @@ class Annotation():
 		else:
 			raise Exception("Coviz only supports Linux and MacOS!")
 
-		mafft_in_fn = f"{work_dir}/{qry.id}.fa"
+		mafft_in_fn = f"{work_dir}/{qry.id}.fasta"
 		with open(mafft_in_fn, "w") as f:
 			f.write(f">{ref.id}\n")
 			f.write(f"{str(ref.seq)}\n")
@@ -62,7 +70,8 @@ class Annotation():
 		cmd = f"{mafft} {mafft_in_fn} > {mafft_out_fn}"
 		output = subprocess.run(cmd, shell=True, capture_output=True)
 
-		return mafft_out_fn
+		self.align_fn = mafft_out_fn
+
 
 	def parse_align(self, align_fn):
 		print("Parsing alignment...")
@@ -98,7 +107,7 @@ class Annotation():
 			"qry_nt": align["qry"]
 			})
 
-		return nt_df 
+		self.nt_df = nt_df 
 
 	def get_mutation(self, nt_df):
 		print("Finding nucleotide mutations between ref. and query sequences...")
@@ -108,7 +117,7 @@ class Annotation():
 		nt_df["nt_mut"] = [f"{i},{j}" if i!=j else "same" \
 			for i,j in zip(ref_nt, qry_nt)]
 
-		return nt_df
+		self.nt_df = nt_df
 
 
 	def transfer_feature(self, ref_gbk, nt_df):
@@ -303,7 +312,10 @@ def annotate(fasta, out_dir):
 		anno = Annotation(qry, ref_gbk, out_dir)
 		anno.run()
 		anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
-
+		print(anno.align_fn)
+		fasta2vcf(fasta_fn=None, ref_fn=None, \
+			align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
+			compress_vcf=False, clean_up=True, verbose=False)
 
 if __name__ == "__main__":
 	annotate()
