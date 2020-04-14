@@ -215,10 +215,10 @@ def main(out_dir, username, password):
 
 if __name__ == "__main__":
 	page_num = 1
-	finished = False
-	username = "lbxjollier" 
-	password = "71RwYNz4nljy" 
-	out_dir = "/Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/metadata/"
+	# finished = False
+	# username = "lbxjollier" 
+	# password = "71RwYNz4nljy" 
+	# out_dir = "/Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/metadata/"
 	while not finished:
 		# main(out_dir, username, password)
 		main()
