@@ -95,8 +95,15 @@ def parse_embl(embl):
 @click.option("--embl_fn", "-g", type=str, help="Input genbank file.")
 @click.option("--out_fn", "-o", type=str, help="Output TSV file.")
 def main(embl_fn, out_fn):
+	print("#################")
+	print("# EMBL metadata #")
+	print("#################")
+	print(f"EMBL: {embl_fn}")
+	print(f"Output: {out_fn}")
+
 	embl = SeqIO.parse(embl_fn, "embl")
 	embl_df = parse_embl(embl)
+	embl_df["Data_Source"] = "EMBL"
 	embl_df.to_csv(out_fn, index=False, sep="\t")
 
 if __name__ == "__main__":

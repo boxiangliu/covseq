@@ -79,6 +79,18 @@ def go_to_EpiCov_browser(main_driver):
 	time.sleep(5)
 
 
+def sort_by_submission_date(main_driver):
+	print("Sorting by submission date...")
+	submission_date = main_driver.find_element_by_xpath("//a[@class='yui-dt-sortable'][text()='Submission Date']")
+	submission_date.click()
+	time.sleep(10)
+	submission_date = main_driver.find_element_by_xpath("//a[@class='yui-dt-sortable'][text()='Submission Date']")
+	submission_date.click()
+	time.sleep(10)
+	submission_date = main_driver.find_element_by_xpath("//a[@class='yui-dt-sortable'][text()='Submission Date']")
+	assert submission_date.get_property("title") == "Click to sort ascending"
+
+
 def crawl_metadata(main_driver, out_fn):
 	table_str = ""
 	table = main_driver.find_element_by_tag_name("table")
@@ -115,7 +127,7 @@ def find_page(main_driver):
 
 def crawl(main_driver, out_dir):
 	global page_num
-
+	global finished
 	print("Crawling webpage")
 	while True:
 		table = main_driver.find_elements_by_class_name('sys-datatable')[0]
@@ -126,11 +138,10 @@ def crawl(main_driver, out_dir):
 				continue
 			accession_id = tr.text.split("\n")[2]
 
-			if os.path.exists(f"{out_dir}/{accession_id}.fasta") \
-				and os.path.exists(f"{out_dir}/{accession_id}.pdf") \
-				and os.path.exists(f"{out_dir}/{accession_id}.info"):
+			if os.path.exists(f"{out_dir}/{accession_id}.info"):
 				print(f"{accession_id} already downloaded!")
 				continue
+				# finished = True
 			else:
 				print(f"Downloading {accession_id}...")
 
@@ -148,21 +159,22 @@ def crawl(main_driver, out_dir):
 			main_driver.switch_to.frame(iframe)
 			back_btn = None
 			crawl_metadata(main_driver, f"{out_dir}/{accession_id}.info")
-			for btn in main_driver.find_elements_by_class_name('sys-form-button'):
-				if 'Download Metadata' in btn.text:
-					print("Downloading Metadata...")
-					btn.click()
-					time.sleep(5)
-				if 'Download FASTA' in btn.text:
-					print("Downloading FASTA...")
-					btn.click()
-					time.sleep(5)
-				if 'Back' in btn.text:
-					back_btn = btn
-			if back_btn is None:
-				raise Exception('Back button missing!')
-			print("Going back...")
+			# for btn in main_driver.find_elements_by_class_name('sys-form-button'):
+				# if 'Download Metadata' in btn.text:
+				# 	print("Downloading Metadata...")
+				# 	btn.click()
+				# 	time.sleep(5)
+				# if 'Download FASTA' in btn.text:
+				# 	print("Downloading FASTA...")
+				# 	btn.click()
+				# 	time.sleep(5)
+				# if 'Back' in btn.text:
+					# back_btn = btn
+			# if back_btn is None:
+				# raise Exception('Back button missing!')
+			back_btn = main_driver.find_element_by_xpath("//button[text()='Back']")
 			back_btn.click()
+			print("Going back...")
 			time.sleep(5)
 
 		next_btn = main_driver.find_elements_by_class_name('yui-pg-next')
@@ -192,6 +204,7 @@ def main(out_dir, username, password):
 		login(main_driver, username, password)
 		go_to_EpiCov(main_driver)
 		go_to_EpiCov_browser(main_driver)
+		sort_by_submission_date(main_driver)
 		find_page(main_driver)
 		crawl(main_driver, out_dir)
 	except Exception as e:
@@ -201,10 +214,11 @@ def main(out_dir, username, password):
 
 
 if __name__ == "__main__":
-	page_num = 35
+	page_num = 1
+	finished = False
 	username = "lbxjollier" 
 	password = "71RwYNz4nljy" 
-	out_dir = "/Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/"
-	while True:
-		main(out_dir, username, password)
-
+	out_dir = "/Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/metadata/"
+	while not finished:
+		# main(out_dir, username, password)
+		main()

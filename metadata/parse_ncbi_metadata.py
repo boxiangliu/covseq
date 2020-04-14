@@ -78,8 +78,15 @@ def parse_genbank(gb):
 @click.option("--gb_fn", "-g", type=str, help="Input genbank file.")
 @click.option("--out_fn", "-o", type=str, help="Output TSV file.")
 def main(gb_fn, out_fn):
+	print("#################")
+	print("# NCBI metadata #")
+	print("#################")
+	print(f"NCBI: {gb_fn}")
+	print(f"Output: {out_fn}")
+
 	gb = SeqIO.parse(gb_fn, "genbank")
 	genbank_df = parse_genbank(gb)
+	genbank_df["Data_Source"] = "NCBI"
 	genbank_df.to_csv(out_fn, index=False, sep="\t")
 
 

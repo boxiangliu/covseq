@@ -3,11 +3,7 @@ import os
 import subprocess
 import time
 from Bio import SeqIO
-
-in_dir = "../data/gisaid/"
-out_dir = "../processed_data/phylogenetic/tree/"
-os.makedirs(out_dir, exist_ok=True)
-
+import click
 
 def make_input(in_dir, out_dir):
 	with open(f"{out_dir}/gisaid.fasta", "w") as fout:
@@ -41,6 +37,22 @@ def construct_tree(fin, out_prefix):
 	duration = time.time() - start 
 	print(f"Duration: {str(duration)}")
 
-# make_input(in_dir, out_dir)
-# msa(f"{out_dir}/gisaid.fasta", f"{out_dir}/gisaid.ali")
-construct_tree(f"{out_dir}/gisaid.ali", f"{out_dir}/gisaid")
+
+@click.command()
+@click.option("--in_fn", "-i", type=str, help="Input FASTA file.")
+@click.option("--out_dir", "-o", type=str, help="Output directory.")
+@click.option("--make_tree", "-t", is_flag=True, default=False)
+def main(in_fn, out_dir, make_tree):
+	print("##############")
+	print("# MSA / Tree #")
+	print("##############")
+	print(f"FASTA: {in_fn}")
+	print(f"Output: {out_dir}")
+
+	os.makedirs(out_dir, exist_ok=True)
+	msa(in_fn, f"{out_dir}/preprocessed.ali")
+	if make_tree: construct_tree(f"{out_dir}/preprocessed.ali", f"{out_dir}/preprocessed")
+
+
+if __name__ == "__main__":
+	main()

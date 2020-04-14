@@ -8,6 +8,12 @@ out_fn = "../data/aggregated/metadata/individual/cngb.tsv"
 @click.option("--in_fn", "-i", type=str, help="Input CNGB file.")
 @click.option("--out_fn", "-o", type=str, help="Output CNGB file.")
 def main(in_fn, out_fn):
+	print("#################")
+	print("# CNGB metadata #")
+	print("#################")
+	print(f"CNGB: {in_fn}")
+	print(f"Output: {out_fn}")
+
 	df = pd.read_csv(in_fn)
 	old2new = {"Sequence ID": "Accession_ID",
 		"Organism": "Type",
@@ -17,8 +23,7 @@ def main(in_fn, out_fn):
 		"Submitter organization": "Submitting_Lab", 
 		"Sequencing technology/Platform": "Sequencing_Technology",
 		"Assembly method": "Assembly_Method", 
-		"Virus name": "Virus", 
-		"Submitter": "Authors"}
+		"Virus name": "Virus"}
 
 	df.rename(columns=old2new, inplace=True)
 	df.drop(["Tax ID","Length","Originating Lab", "Literature", "Files", "Browse"], axis=1, inplace=True)

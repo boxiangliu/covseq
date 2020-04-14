@@ -23,41 +23,41 @@ def read_sample_info(in_dir):
 
 
 def samples2columns(samples):
-	column_names = ["Accession ID",
-	"Virus name",
-	"Type",
-	"Passage details/history",
-	"Collection date",
-	"Location",
-	"Host",
-	"Additional location information",
-	"Gender",
-	"Patient age",
-	"Patient status",
-	"Specimen source",
-	"Additional host information",
-	"Outbreak",
-	"Last vaccinated",
-	"Treatment",
-	"Sequencing technology",
-	"Assembly method",
-	"Coverage",
-	"Originating lab",
-	"Sample ID given by the sample provider",
-	"Submitting lab",
-	"Sample ID given by the submitting laboratory",
-	"Authors",
-	"Submitter",
-	"Submission Date"]
+	column_names = {"Accession ID": "Accession_ID",
+	"Virus name": "Virus",
+	"Type": "Type",
+	"Passage details/history": "Passage_Details/History",
+	"Collection date": "Collection_Date",
+	"Location": "Location",
+	"Host": "Host",
+	"Additional location information": "Additional_Location_Information",
+	"Gender": "Patient_Gender",
+	"Patient age": "Patient_Age",
+	"Patient status": "Patient_Status",
+	"Specimen source": "Specimen_Source",
+	"Additional host information": "Additional_Host_Information",
+	"Outbreak": "Outbreak",
+	"Last vaccinated": "Last_Vaccinated",
+	"Treatment": "Treatment",
+	"Sequencing technology": "Sequencing_Technology",
+	"Assembly method": "Assembly_Method",
+	"Coverage": "Coverage",
+	"Originating lab": "Originating_Lab",
+	"Sample ID given by the sample provider": "Sample_ID_Given_by_the_Sample_Provider",
+	"Submitting lab": "Submitting_Lab",
+	"Sample ID given by the submitting laboratory": "Sample_ID_Given_by_the_Submitting_Laboratory",
+	"Authors": "Authors",
+	"Submitter": "Submitter",
+	"Submission Date": "Submission_Date"}
 
 	columns = defaultdict(list)
 
 	for s in samples:
-		for c in column_names:
-			if c in s:
-				columns[c].append(s[c])
+		for k, v in column_names.items():
+			if k in s:
+				columns[v].append(s[k])
 			else:
-				columns[c].append("")
+				columns[v].append("")
 
 	return columns
 
@@ -66,12 +66,19 @@ def samples2columns(samples):
 @click.option("--metadata_dir", "-m", type=str, help="Directory where GISAID metadata is located.")
 @click.option("--out_fn", "-o", type=str, help="Output file name.")
 def main(metadata_dir, out_fn):
-	# in_dir = "../data/gisaid/metadata/"
-	# out_dir = "../processed_data/phenotype/"
+	print("###################")
+	print("# GISAID metadata #")
+	print("###################")
+	print(f"GISAID: {metadata_dir}")
+	print(f"Output: {out_fn}")
+
+	metadata_dir = "../data/gisaid/metadata/"
+	out_fn = "../data/aggregated/metadata/gisaid.tsv"
 
 	samples = read_sample_info(metadata_dir)
 	columns = samples2columns(samples)
 	df = pd.DataFrame(columns)
+	df["Data_Source"] = "GISAID"
 	df.to_csv(out_fn, sep="\t", index=False)
 
 if __name__ == "__main__":
