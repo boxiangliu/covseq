@@ -1,25 +1,14 @@
 import pandas as pd
 import click
 
-SOURCES = ["gisaid","ncbi","embl","cngb"]
+SOURCES = ["gisaid_acknowledgement","ncbi","embl","cngb"]
 COLUMNS = ["Accession_ID",
 	"Virus",
-	"Type",
 	"Data_Source",
 	"Collection_Date",
 	"Location",
-	"Host",
-	"Patient_Gender",
-	"Patient_Age",
-	"Patient_Status",
-	"Specimen_Source",
-	"Sequencing_Technology",
-	"Assembly_Method",
-	"Coverage",
 	"Submitting_Lab",
-	"Authors",
-	"Submitter",
-	"Submission_Date"]
+	"Authors"]
 
 @click.command()
 @click.option("--in_dir", "-i", type=str, help="Input directory.")

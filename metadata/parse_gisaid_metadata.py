@@ -65,21 +65,32 @@ def samples2columns(samples):
 @click.command()
 @click.option("--metadata_dir", "-m", type=str, help="Directory where GISAID metadata is located.")
 @click.option("--out_fn", "-o", type=str, help="Output file name.")
-def main(metadata_dir, out_fn):
+@click.option("--type", "-t", type=str, help="Type of metadata file (detail, acknowledgement).")
+def main(metadata_dir, out_fn, type):
 	print("###################")
 	print("# GISAID metadata #")
 	print("###################")
 	print(f"GISAID: {metadata_dir}")
 	print(f"Output: {out_fn}")
 
-	metadata_dir = "../data/gisaid/metadata/"
-	out_fn = "../data/aggregated/metadata/gisaid.tsv"
-
-	samples = read_sample_info(metadata_dir)
-	columns = samples2columns(samples)
-	df = pd.DataFrame(columns)
-	df["Data_Source"] = "GISAID"
-	df.to_csv(out_fn, sep="\t", index=False)
+	if type == "detail":
+		samples = read_sample_info(metadata_dir)
+		columns = samples2columns(samples)
+		df = pd.DataFrame(columns)
+		df["Data_Source"] = "GISAID"
+		df.to_csv(out_fn, sep="\t", index=False)
+	elif type == "acknowledgement":
+		# metadata_dir = "../data/gisaid/metadata/acknowledgement/"
+		fn = f"{metadata_dir}/gisaid_cov2020_acknowledgement_table.xls"
+		df = pd.read_excel(fn, skiprows=[0,1,3])
+		df["Data_Source"] = "GISAID"
+		df.rename(columns={"Accession ID": "Accession_ID", \
+			"Virus name": "Virus", "Collection date": "Collection_Date", \
+			"Originating lab": "Originating_Lab", \
+			"Submitting lab": "Submitting_Lab"}, inplace=True)
+		df.to_csv(out_fn, sep="\t", index=False)
+	else:
+		raise Exception(f"{type} is not recognized.")
 
 if __name__ == "__main__":
 	main()

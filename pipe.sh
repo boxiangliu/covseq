@@ -34,7 +34,8 @@ python3 mutation_distribution/plot_sample_per_mutation.py
 python3 mutation_distribution/plot_mutation_over_time.py
 
 # Make phenotype table:
-python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/ -o ../data/aggregated/metadata/gisaid.tsv
+python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/detail/ -o ../data/aggregated/metadata/gisaid_detail.tsv --type detail
+python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/acknowledgement/ -o ../data/aggregated/metadata/gisaid_acknowledgement.tsv --type acknowledgement
 python3 metadata/parse_ncbi_metadata.py --gb_fn ../data/ncbi/metadata/sequence.gb -o ../data/aggregated/metadata/ncbi.tsv
 python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence_update_20200411-0207.txt -o ../data/aggregated/metadata/embl.tsv
 python3 metadata/rename_cngb_metadata.py --in_fn "../data/cngb/metadata/CNGBdb_VirusDIP_excel20200411_all(24)_57b4ce53c4d6c49c978596677a112211.csv" --out_fn ../data/aggregated/metadata/cngb.tsv
