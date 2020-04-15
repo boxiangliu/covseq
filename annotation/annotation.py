@@ -8,7 +8,7 @@ from Bio import SeqIO, SeqFeature, Seq
 import sys
 sys.path.append(".")
 from vcf.fasta2vcf import fasta2vcf
-
+from utils import DefaultOrderedDict
 
 def read_fasta(fasta_fn):
 	fasta = list(SeqIO.parse(fasta_fn, "fasta"))
@@ -44,6 +44,7 @@ class Annotation():
 		self.parse_align(self.align_fn)
 		self.get_mutation(self.nt_df)
 		self.transfer_feature(self.ref_gbk, self.nt_df)
+		self.get_orf(self.ref_gbk, self.nt_df)
 
 
 	def align(self, ref, qry, out_dir):
@@ -109,6 +110,7 @@ class Annotation():
 
 		self.nt_df = nt_df 
 
+
 	def get_mutation(self, nt_df):
 		print("Finding nucleotide mutations between ref. and query sequences...")
 		ref_nt = nt_df["ref_nt"]
@@ -120,181 +122,218 @@ class Annotation():
 		self.nt_df = nt_df
 
 
+	@staticmethod
+	def init_protein_annotation(location):
+		start = location.start
+		end = location.end
+		protein_anno = OrderedDict()
+		for i in range(start, end):
+			'''Each entry in protein_anno has 4 elements:
+				1) amino acid (default: "", meaning missing value)
+				2) frame (default: -1, meaning missing value)
+				3) ribosomal slippage (default: 0, meaning no shift)
+				4) RNA editing (default: "", meaning no editing)
+			'''
+			protein_anno[i] = OrderedDict({"aa": "", "frame": -1, "ribo_slip": 0, "rna_edit": ""})
+		return protein_anno
+
+
+	@staticmethod
+	def update_protein_annotation(location, seq, protein_anno):
+
+		feature = SeqFeature.SeqFeature(location)
+		protein = feature.translate(seq, cds=False)
+
+		start = location.start
+		end = location.end
+
+		if (end - start + 1) % 3 == 1:
+			end -= 1
+		elif (end - start + 1) % 3 == 2:
+			end -= 2
+
+		for i in range(start, end+1):
+
+			feature_pos = i - start
+			feature_frame = feature_pos % 3
+			aa = protein[feature_pos // 3]
+			protein_anno[i]["aa"] = aa
+
+			if protein_anno[i]["frame"] != -1:
+				frame_diff = protein_anno[i]["frame"] - feature_frame - 3
+				protein_anno[i]["ribo_slip"] = frame_diff
+
+			protein_anno[i]["frame"] = feature_frame
+
+		return protein_anno
+
+
+	@staticmethod
+	def get_protein_anno(location, seq):
+		protein_anno = Annotation.init_protein_annotation(location)
+
+		if isinstance(location, SeqFeature.FeatureLocation):
+			
+			protein_anno = Annotation.update_protein_annotation(location, seq, protein_anno)
+
+		elif isinstance(location, SeqFeature.CompoundLocation):
+			
+			for location in location.__dict__["parts"]:
+				protein_anno = Annotation.update_protein_annotation(location, seq, protein_anno)
+
+		else: 
+
+			raise Exception(type(location) + " not defined!")
+
+		return protein_anno
+
+
+	@staticmethod
+	def transfer_simple_location(start, end, fro, to):
+		new_start = int(to[fro == start].values[0])
+		new_end = int(to[fro == end].values[0])
+		location = SeqFeature.FeatureLocation(new_start, new_end)
+		return location
+
+
+	@staticmethod
+	def transfer_location(location, fro, to):
+
+		if isinstance(location, SeqFeature.FeatureLocation):
+			# FeatureLocation has only 1 start and 1 end.
+			new_location = Annotation.transfer_simple_location(location.start, \
+				location.end, fro, to)
+
+		elif isinstance(location, SeqFeature.CompoundLocation):
+			# CompoundLocation has multiple locations.
+			loc_0 = location.__dict__["parts"][0]
+			new_location = Annotation.transfer_simple_location(loc_0.start, \
+				loc_0.end, fro, to)
+
+			for loc_i in location.__dict__["parts"][1:]:
+				new_location += Annotation.transfer_simple_location(loc_i.start, \
+					loc_i.end, fro, to)
+
+		else:
+			raise Exception(type(location) + " not defined!")
+		
+		return new_location
+
+
+	@staticmethod
+	def dict2df(dict_, colnames, key2col=True):
+		
+		container = defaultdict(list)
+		
+		if key2col == True:
+		
+			for k, v in dict_.items():
+				container[colnames[0]].append(k)
+				for i, v_i in enumerate(v.values()):
+					container[colnames[1+i]].append(v_i)
+		
+		else:
+		
+			for k, v in dict_.items():
+				for i, v_i in enumerate(v.values()):
+					container[colnames[i]].append(v_i)
+		
+		df = pd.DataFrame(container)
+		
+		return df
+
+
+	@staticmethod
+	def compare_aa(x, y):
+		if x=="" and y=="":
+			return ""
+		elif x=="":
+			return f"-,{y}"
+		elif y=="":
+			return f"{x},-"
+		elif x != y:
+			return f"{x},{y}"
+		else:
+			return "same"
+
+
+	def get_orf(self, ref_gbk, nt_df):
+		print("Getting ORF annotation...")
+		orf = DefaultOrderedDict(list)
+		for ref_feature in ref_gbk.features:
+			if ref_feature.type == "CDS":
+				gene = ref_feature.qualifiers["gene"][0]
+				product = ref_feature.qualifiers["product"][0]
+				location = Annotation.transfer_location(ref_feature.location, \
+					nt_df["ref_coord"], nt_df["qry_coord"])
+				start = int(location.start)
+				end = int(location.end)
+				rna_length = location.end - location.start
+				ribosomal_slippage = "Yes" \
+					if "ribosomal_slippage" in ref_feature.qualifiers else "No"
+				strand = "+"
+				frame = location.start % 3
+				if frame == 0: frame = 3
+
+				orf["gene"].append(gene)
+				orf["product"].append(product)
+				orf["start"].append(start)
+				orf["end"].append(end)
+				orf["strand"].append(strand)
+				orf["frame"].append(frame)
+				orf["rna_length"].append(rna_length)
+				orf["ribosomal_slippage"].append(ribosomal_slippage)
+		orf = pd.DataFrame(orf)
+		self.orf = orf
+
+
 	def transfer_feature(self, ref_gbk, nt_df):
 		print("Starting transfering CDS fetaures from ref to query...")
-		def init_protein_annotation(location):
-			start = location.start
-			end = location.end
-			protein_anno = OrderedDict()
-			for i in range(start, end):
-				'''Each entry in protein_anno has 4 elements:
-					1) amino acid (default: "", meaning missing value)
-					2) frame (default: -1, meaning missing value)
-					3) ribosomal slippage (default: 0, meaning no shift)
-					4) RNA editing (default: "", meaning no editing)
-				'''
-				protein_anno[i] = OrderedDict({"aa": "", "frame": -1, "ribo_slip": 0, "rna_edit": ""})
-			return protein_anno
 
-
-		def update_protein_annotation(location, seq, protein_anno):
-
-			feature = SeqFeature.SeqFeature(location)
-			protein = feature.translate(seq, cds=False)
-
-			start = location.start
-			end = location.end
-
-			if (end - start + 1) % 3 == 1:
-				end -= 1
-			elif (end - start + 1) % 3 == 2:
-				end -= 2
-
-			for i in range(start, end+1):
-
-				feature_pos = i - start
-				feature_frame = feature_pos % 3
-				aa = protein[feature_pos // 3]
-				protein_anno[i]["aa"] = aa
-
-				if protein_anno[i]["frame"] != -1:
-					frame_diff = protein_anno[i]["frame"] - feature_frame - 3
-					protein_anno[i]["ribo_slip"] = frame_diff
-
-				protein_anno[i]["frame"] = feature_frame
-
-			return protein_anno
-
-
-		def get_protein_anno(location, seq):
-			protein_anno = init_protein_annotation(location)
-
-			if isinstance(location, SeqFeature.FeatureLocation):
-				
-				protein_anno = update_protein_annotation(location, seq, protein_anno)
-
-			elif isinstance(location, SeqFeature.CompoundLocation):
-				
-				for location in location.__dict__["parts"]:
-					protein_anno = update_protein_annotation(location, seq, protein_anno)
-
-			else: 
-
-				raise Exception(type(location) + " not defined!")
-
-			return protein_anno
-
-
-		def transfer_simple_location(start, end, fro, to):
-			new_start = int(to[fro == start].values[0])
-			new_end = int(to[fro == end].values[0])
-			location = SeqFeature.FeatureLocation(new_start, new_end)
-			return location
-
-
-		def transfer_location(location, fro, to):
-
-			if isinstance(location, SeqFeature.FeatureLocation):
-				# FeatureLocation has only 1 start and 1 end.
-				new_location = transfer_simple_location(location.start, \
-					location.end, fro, to)
-
-			elif isinstance(location, SeqFeature.CompoundLocation):
-				# CompoundLocation has multiple locations.
-				loc_0 = location.__dict__["parts"][0]
-				new_location = transfer_simple_location(loc_0.start, \
-					loc_0.end, fro, to)
-
-				for loc_i in location.__dict__["parts"][1:]:
-					new_location += transfer_simple_location(loc_i.start, \
-						loc_i.end, fro, to)
-
-			else:
-				raise Exception(type(location) + " not defined!")
-			
-			return new_location
-
-
-		def dict2df(dict_, colnames, key2col=True):
-			
-			container = defaultdict(list)
-			
-			if key2col == True:
-			
-				for k, v in dict_.items():
-					container[colnames[0]].append(k)
-					for i, v_i in enumerate(v.values()):
-						container[colnames[1+i]].append(v_i)
-			
-			else:
-			
-				for k, v in dict_.items():
-					for i, v_i in enumerate(v.values()):
-						container[colnames[i]].append(v_i)
-			
-			df = pd.DataFrame(container)
-			
-			return df
-
-
-		def compare_aa(x, y):
-			if x=="" and y=="":
-				return ""
-			elif x=="":
-				return f"-,{y}"
-			elif y=="":
-				return f"{x},-"
-			elif x != y:
-				return f"{x},{y}"
-			else:
-				return "same"
-
-
-		protein_container = OrderedDict()
-
+		gene_container = OrderedDict()
 		for ref_feature in ref_gbk.features:
 
 			if ref_feature.type == "CDS":
 
-				protein_name = ref_feature.qualifiers["product"][0].replace(" ","_")
-				print(f" - ORF: {protein_name}")
+				gene = ref_feature.qualifiers["gene"][0].replace(" ","_")
+				print(f" - ORF: {gene}")
 				
 				print(f" - Annotating reference protein...")
-				ref_protein_anno = get_protein_anno(ref_feature.location, ref_gbk.seq)
+				ref_protein_anno = self.get_protein_anno(ref_feature.location, ref_gbk.seq)
 
 				print(f" - Transfering features from reference to query...")
-				qry_location = transfer_location(ref_feature.location, \
+				qry_location = self.transfer_location(ref_feature.location, \
 					nt_df["ref_coord"], nt_df["qry_coord"])
 				qry_seq = Seq.Seq("".join(nt_df["qry_nt"].tolist()).replace("-",""))
-				qry_protein_anno = get_protein_anno(qry_location, qry_seq)
+				qry_protein_anno = self.get_protein_anno(qry_location, qry_seq)
 
 
 				print(" - Converting protein annotations into DataFrames...")
-				colnames = ["qry_coord", f"{protein_name}:qry_aa",f"{protein_name}:frame",
-					f"{protein_name}:ribo_slip",f"{protein_name}:rna_edit"]
-				qry_protein_df = dict2df(qry_protein_anno, colnames)
+				colnames = ["qry_coord", f"{gene}:qry_aa",f"{gene}:frame",
+					f"{gene}:ribo_slip",f"{gene}:rna_edit"]
+				qry_protein_df = self.dict2df(qry_protein_anno, colnames)
 				qry_protein_df["qry_coord"] = qry_protein_df["qry_coord"].astype("Int64")
 
 
-				colnames = ["ref_coord", f"{protein_name}:ref_aa", "placeholder1", 
+				colnames = ["ref_coord", f"{gene}:ref_aa", "placeholder1", 
 					"placeholder2", "placeholder3"]
-				ref_protein_df = dict2df(ref_protein_anno, colnames)
+				ref_protein_df = self.dict2df(ref_protein_anno, colnames)
 				ref_protein_df["ref_coord"] = ref_protein_df["ref_coord"].astype("Int64")
 				ref_protein_df.drop(["placeholder1", "placeholder2", "placeholder3"], axis=1, inplace=True)
 
-				protein_container[protein_name]={"ref": ref_protein_df, "qry": qry_protein_df}
+				gene_container[gene]={"ref": ref_protein_df, "qry": qry_protein_df}
 
 
 		print("Finding amino acid mutations...")
 		merged = nt_df
 
-		for k, v in protein_container.items():
+		for k, v in gene_container.items():
 			merged = pd.merge(merged, v["ref"], on="ref_coord", how="outer")
 			merged = pd.merge(merged, v["qry"], on="qry_coord", how="outer")
 			ref_aa = merged[f"{k}:ref_aa"].fillna("").tolist()
 			qry_aa = merged[f"{k}:qry_aa"].fillna("").tolist()
 
-			merged[f"{k}:aa_mut"] = [compare_aa(i,j) \
+			merged[f"{k}:aa_mut"] = [self.compare_aa(i,j) \
 				for i, j in zip(ref_aa, qry_aa)]
 
 		self.anno_df = merged.sort_values("ref_coord")
@@ -312,7 +351,7 @@ def annotate(fasta, out_dir):
 		anno = Annotation(qry, ref_gbk, out_dir)
 		anno.run()
 		anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
-		print(anno.align_fn)
+		anno.orf.to_csv(f"{out_dir}/{qry.id}/{qry.id}_orf.tsv", sep="\t", index=False)
 		fasta2vcf(fasta_fn=None, ref_fn=None, \
 			align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
 			compress_vcf=False, clean_up=True, verbose=False)
