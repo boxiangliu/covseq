@@ -28,7 +28,7 @@ def align(ref_fasta, qry_fasta, out_prefix):
 
 	mafft_out_fn = f"{out_prefix}.ali"
 	cmd = f"mafft {mafft_in_fn} > {mafft_out_fn}"
-	output = subprocess.run(cmd, shell=True, capture_output=True)
+	output = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
 
 	return mafft_out_fn
 
@@ -126,16 +126,15 @@ def postprocess_vcf(vcf_fn, ref_fn, compress_vcf):
 	if compress_vcf:
 		print("Normalizing and compressing VCF.")
 		cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Oz -o {vcf_fn}.gz"
-		output1 = subprocess.run(cmd, shell=True, capture_output=True)
-		print(output1.stderr)
+		output1 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
 		assert os.path.exists(f"{vcf_fn}.gz")
 		cmd = f"tabix -p vcf {vcf_fn}.gz"
-		output2 = subprocess.run(cmd, shell=True, capture_output=True)
+		output2 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
 
 	else:
 		print("Normalizing VCF.")
 		cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Ov -o {vcf_fn}"
-		output1 = subprocess.run(cmd, shell=True, capture_output=True)
+		output1 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
 
 
 def cleanup(out_prefix, compress_vcf):

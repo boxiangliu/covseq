@@ -13,7 +13,7 @@ python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_d
 
 
 # Converting FASTA to VCF: 
-python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r ../data/reference/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
+python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r data/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
 
 
 # Plot the distribution of mutations:
@@ -21,7 +21,7 @@ python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../proces
 # Conclusion: remove samples with > 150 mutations.
 
 # Merge VCF files:
-bash vcf/merge_vcfs.sh ../processed_data/vcf/filter_samples/ ../data/aggregated/vcf/merged/ ../data/reference/NC_045512.2.fasta
+bash vcf/merge_vcfs.sh ../processed_data/vcf/filter_samples/ ../data/aggregated/vcf/merged/ data/NC_045512.2.fasta
 
 # Filter sites with >2 alleles
 # Also filter sites within the poly-A tail
