@@ -1,11 +1,71 @@
 ---
 title: "Browse and Download"
-output: html_document
+output:
+  rmarkdown::html_document:
+    theme: cerulean
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(root.dir = '/Users/boxiang/Documents/work/Baidu/projects/viraviz/scripts/')
+library(data.table)
+library(ggplot2)
+library(knitr)
+library(rmarkdown)
+library(DT)
+library(cowplot)
+library(lubridate)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(countrycode)
+```
 
 Covseq is a curated database of COVID-19 genomic sequence variants. Sequences are collected from four major repositories: [GISAID](https://www.gisaid.org/), [NCBI genbank](https://www.ncbi.nlm.nih.gov/genbank/sars-cov-2-seqs/), [EMBL](https://www.ebi.ac.uk/ena/pathogens/covid-19) and [CNGB](https://db.cngb.org/virus/ncov). Covseq hosts a growing list of non-redundant sequences (X sequences as of `r format(Sys.time(), '%d %B, %Y')`). Covseq also hosts a manually curated list of functional variants of COVID-19. You can download these data here. 
 
 Covseq also integrated an interactive portal to upload COVID-19 sequences for visualization and analysis. Once you upload one or more custom sequences, Covseq will analyze the sequence and present results about genes and mutations. You will be able to explore the viral genome via a browser track and download VCF files and open reading frame predictions. 
+
+
+## 
+```{r metadata, echo=FALSE}
+metadata = fread("../../data/aggregated/metadata/merged_in_vcf.tsv")
+```
+
+
+```{r display source, echo=FALSE}
+data_source = metadata[, list(raw_data = .N), by="Data_Source"]
+total = sum(data_source[,raw_data])
+data_source = rbind(data_source, data.table(Data_Source="Total",raw_data=total))
+DT::datatable(data_source)
+```
+
+```{r display metadata, echo=FALSE, warning = FALSE}
+DT::datatable(metadata[,list(Accession_ID, Data_Source, Collection_Date, Country, Region)], filter = 'bottom', caption = 'Table 2: COVID-19 genomic sequence data source, collection date, and location.', colnames = c('Accession ID', 'Data Source', 'Collection Date', 'Country', "Region"))
+```
+
+```{r sequence vs time, echo=FALSE, warning=FALSE, fig.height=5, fig.width=12}
+parsed_date = parse_date_time(metadata[,Collection_Date], c("y", "ym", "ymd"))
+metadata$year_mon = sprintf("%s-%s",year(parsed_date), month(parsed_date))
+metadata$week = week(parsed_date)
+week_start = floor_date(parsed_date, unit="weeks")
+week_end = ceiling_date(parsed_date, unit="weeks")
+metadata$date_range = sprintf("%s to %s", week_start, week_end)
+metadata$week_start = week_start
+seq_vs_time = metadata[, list(num=.N), by=c("week_start","Data_Source")]
+ggplot(seq_vs_time, aes(x=week_start,y=num,fill=Data_Source)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle=0), legend.position = "bottom") + ylab("Number of Virus Collected/Sequenced") + xlab(NULL) + scale_fill_discrete(name="Source")
+```
+
+```{r map, echo=FALSE, warning=FALSE, fig.height=5, fig.width=12}
+world = ne_countries(scale="medium", returnclass="sf")
+world$iso3c = countrycode(world$sovereignt, origin="country.name", destination = "iso3c")
+metadata$iso3c = countrycode(metadata$Country, origin="country.name", destination = "iso3c")
+seq_vs_ctry = metadata[, list(num_seq=.N), by="iso3c"]
+to_plot = merge(world, seq_vs_ctry, by="iso3c", all.x=TRUE)
+to_plot[is.na(to_plot$num_seq),]$num_seq = 0 
+ggplot(data = to_plot) +
+    theme_bw() + geom_sf(aes(fill=num_seq)) + scale_fill_viridis_c(option = "plasma", trans = "sqrt")
+
+```
 
 ## Download Lastest Dataset
 You can download COVID-19 genomic variant in VCF format [here](https://drive.google.com/drive/folders/1_mivRZxjO3Dhfr3mKi4Sa7VcuV42cyav?usp=sharing). 
@@ -21,32 +81,16 @@ This file contains all sites across all virus samples. Details of our analysis p
 Based on merged.vcf.gz, we removed samples with an excessive number of mutations, loci with more than 2 alleles, and loci within the poly-A tail. 
 
 
-## Analysis Pipeline {#pipeline}
-
-We used an analysis pipeline 
 ## Functional Variants
 
 
-## Additional Information
-
-
-
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(root.dir = '/Users/boxiang/Documents/work/Baidu/projects/viraviz/scripts/')
-library(data.table)
-library(ggplot2)
-```
-
-```{r remove_duplicates}
+```{r remove_duplicates, eval = FALSE, echo = FALSE}
 in_fn = "../../processed_data/preprocess/filter_fasta/duplicated.tsv"
 duplicated = fread(in_fn, sep="\t")
 sum(duplicated$duplicated == 1)
 ```
 
-```{r}
+```{r genome length, eval = FALSE, echo = FALSE}
 in_fn = "../../processed_data/preprocess/filter_fasta/genome_lengths.tsv"
 genome_lengths = fread(in_fn, sep="\t", col.names = c("description", "length"))
 p = ggplot(genome_lengths, aes(x=length)) + geom_histogram(bins=100) + scale_y_sqrt() + geom_vline(xintercept = 25000, color="red", linetype="dashed") + geom_text(x = 25000, y = 30, label = "Cutoff = 25000", color="red", hjust=1.1, size = 5)
@@ -54,7 +98,7 @@ print(p)
 ```
 
 
-```{r ambiguous bases}
+```{r ambiguous bases, eval = FALSE, echo = FALSE}
 in_fn = "../../processed_data/preprocess/filter_fasta/ambiguous_bases.tsv"
 ambiguous_bases = fread(in_fn, sep="\t", col.names = c("description", "count", "length", "proportion"))
 p = ggplot(ambiguous_bases, aes(x=proportion + 1e-5)) + geom_histogram(bins=1000) + scale_x_log10()
@@ -62,7 +106,7 @@ print(p)
 ```
 
 
-```{r mutation count}
+```{r mutation count, eval = FALSE, echo = FALSE}
 in_fn = "../../processed_data/vcf/filter_samples/mutation_count.tsv"
 mutation_count = fread(in_fn, sep="\t", col.names=c("sample", "mutation"))
 p = ggplot(mutation_count, aes(x=mutation)) + geom_histogram(bins=300) + scale_y_sqrt() + scale_x_log10(breaks=c(1,10,100,150,1000,10000)) + geom_vline(xintercept=150, color="red", linetype="dashed")

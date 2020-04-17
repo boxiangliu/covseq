@@ -27,6 +27,9 @@ bash vcf/merge_vcfs.sh ../processed_data/vcf/filter_samples/ ../data/aggregated/
 # Also filter sites within the poly-A tail
 bash vcf/filter_sites.sh ../data/aggregated/vcf/merged/merged.vcf.gz ../data/aggregated/vcf/merged/filtered
 
+# Annotation mutation:
+bash snpEff/snpEff.sh ../data/aggregated/vcf/merged/filtered.vcf.gz ../data/aggregated/vcf/merged/annotated
+
 # Plot the mutation distribution:
 python3 mutation_distribution/plot_sample_per_mutation.py
 
@@ -39,7 +42,7 @@ python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata
 python3 metadata/parse_ncbi_metadata.py --gb_fn ../data/ncbi/metadata/sequence.gb -o ../data/aggregated/metadata/ncbi.tsv
 python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence_update_20200411-0207.txt -o ../data/aggregated/metadata/embl.tsv
 python3 metadata/rename_cngb_metadata.py --in_fn "../data/cngb/metadata/CNGBdb_VirusDIP_excel20200411_all(24)_57b4ce53c4d6c49c978596677a112211.csv" --out_fn ../data/aggregated/metadata/cngb.tsv
-python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_fn ../data/aggregated/metadata/merged.tsv
+python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ../data/aggregated/metadata/merged --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
 
 
 # MSA / Phylogenetic tree:

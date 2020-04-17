@@ -17,12 +17,12 @@ def read_fasta(fasta_fn):
 	return fasta
 
 
-def read_ref_genbank():
-	return next(SeqIO.parse("data/ref.gbk", "genbank"))
+def read_ref_genbank(gbk_fn):
+	return next(SeqIO.parse(gbk_fn, "genbank"))
 
 
 class Annotation():
-	def __init__(self, qry, ref_gbk, out_dir):
+	def __init__(self, qry, ref_gbk, out_dir, verbose):
 		'''
 		qry: a SeqIO FASTA object.
 		ref_gbk: a SeqIO genbank object.
@@ -31,24 +31,25 @@ class Annotation():
 		self.qry = qry
 		self.ref_gbk = ref_gbk
 		self.out_dir = out_dir
+		self.verbose = verbose
 
 	def run(self):
-		print("Start annotating the query sequence...")
+		print("Start annotating the query sequence.")
 		print(f"Query ID: {self.qry.id}")
 		print(f"Ref. ID: {self.ref_gbk.id}")
 		if len(self.qry.seq) < 29000:
-			print("Query sequence should have at least 29000 nucleotides! Aborting...")
+			print("Query sequence should have at least 29000 nucleotides! Aborting.")
 			return 
 
 		self.align(self.ref_gbk, self.qry, self.out_dir)
 		self.parse_align(self.align_fn)
 		self.get_mutation(self.nt_df)
-		self.transfer_feature(self.ref_gbk, self.nt_df)
+		self.transfer_feature(self.ref_gbk, self.nt_df, self.verbose)
 		self.get_orf(self.ref_gbk, self.nt_df)
 
 
 	def align(self, ref, qry, out_dir):
-		print("Aligning reference and query sequences...")
+		print("Aligning reference and query sequences.")
 		work_dir = f"{out_dir}/{qry.id}"
 		os.makedirs(work_dir, exist_ok=True)
 		
@@ -75,7 +76,7 @@ class Annotation():
 
 
 	def parse_align(self, align_fn):
-		print("Parsing alignment...")
+		print("Parsing alignment.")
 		align = defaultdict(list)
 		coord = defaultdict(list)
 		header = 0
@@ -112,7 +113,7 @@ class Annotation():
 
 
 	def get_mutation(self, nt_df):
-		print("Finding nucleotide mutations between ref. and query sequences...")
+		print("Finding nucleotide mutations between ref. and query sequences.")
 		ref_nt = nt_df["ref_nt"]
 		qry_nt = nt_df["qry_nt"]
 
@@ -258,7 +259,7 @@ class Annotation():
 
 
 	def get_orf(self, ref_gbk, nt_df):
-		print("Getting ORF annotation...")
+		print("Getting ORF annotation.")
 		orf = DefaultOrderedDict(list)
 		for ref_feature in ref_gbk.features:
 			if ref_feature.type == "CDS":
@@ -287,8 +288,8 @@ class Annotation():
 		self.orf = orf
 
 
-	def transfer_feature(self, ref_gbk, nt_df):
-		print("Starting transfering CDS fetaures from ref to query...")
+	def transfer_feature(self, ref_gbk, nt_df, verbose):
+		print("Starting transfering CDS fetaures from ref to query.")
 
 		gene_container = OrderedDict()
 		for ref_feature in ref_gbk.features:
@@ -296,19 +297,19 @@ class Annotation():
 			if ref_feature.type == "CDS":
 
 				gene = ref_feature.qualifiers["gene"][0].replace(" ","_")
-				print(f" - ORF: {gene}")
+				if verbose: print(f" - ORF: {gene}")
 				
-				print(f" - Annotating reference protein...")
+				if verbose: print(f" - Annotating reference protein.")
 				ref_protein_anno = self.get_protein_anno(ref_feature.location, ref_gbk.seq)
 
-				print(f" - Transfering features from reference to query...")
+				if verbose: print(f" - Transfering features from reference to query.")
 				qry_location = self.transfer_location(ref_feature.location, \
 					nt_df["ref_coord"], nt_df["qry_coord"])
 				qry_seq = Seq.Seq("".join(nt_df["qry_nt"].tolist()).replace("-",""))
 				qry_protein_anno = self.get_protein_anno(qry_location, qry_seq)
 
 
-				print(" - Converting protein annotations into DataFrames...")
+				if verbose: print(" - Converting protein annotations into DataFrames.")
 				colnames = ["qry_coord", f"{gene}:qry_aa",f"{gene}:frame",
 					f"{gene}:ribo_slip",f"{gene}:rna_edit"]
 				qry_protein_df = self.dict2df(qry_protein_anno, colnames)
@@ -324,7 +325,7 @@ class Annotation():
 				gene_container[gene]={"ref": ref_protein_df, "qry": qry_protein_df}
 
 
-		print("Finding amino acid mutations...")
+		print("Finding amino acid mutations.")
 		merged = nt_df
 
 		for k, v in gene_container.items():
@@ -344,15 +345,36 @@ class Annotation():
 	help="Fasta file containing one or more virus strains.")
 @click.option("-o", "--out_dir", type=str, required=False, \
 	help="Output directory", default="results", show_default=True)
-def annotate(fasta, out_dir):
+@click.option("--gbk_fn", "-g", type=str, required=False, \
+	help="Genbank file.", default="data/NC_045512.2.gbk", \
+	show_default=True)
+@click.option("--ref_fn", "-r", type=str, required=False,\
+	help="Reference FASTA file.", default="data/NC_045512.2.fasta", \
+	show_default=True)
+@click.option("--verbose", "-v", is_flag=True, default=False, \
+	help="Verbosity")
+def annotate(fasta, out_dir, gbk_fn, ref_fn, verbose):
+
+	print("##################")
+	print("# Annotate FASTA #")
+	print("##################")
+	print(f"FASTA: {fasta}")
+	print(f"Output: {out_dir}")
+	print(f"Genbank: {gbk_fn}")
+	print(f"Reference: {ref_fn}")
+	print(f"Verbose: {verbose}")
+
+
 	qries = read_fasta(fasta)
-	ref_gbk = read_ref_genbank()
+	ref_gbk = read_ref_genbank(gbk_fn)
 	for qry in qries:
-		anno = Annotation(qry, ref_gbk, out_dir)
+		anno = Annotation(qry, ref_gbk, out_dir, verbose)
 		anno.run()
 		anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
 		anno.orf.to_csv(f"{out_dir}/{qry.id}/{qry.id}_orf.tsv", sep="\t", index=False)
-		fasta2vcf(fasta_fn=None, ref_fn=None, \
+
+		print("Making VCF.")
+		fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
 			align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
 			compress_vcf=False, clean_up=True, verbose=False)
 

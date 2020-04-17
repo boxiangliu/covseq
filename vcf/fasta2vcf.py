@@ -105,7 +105,7 @@ def save_vcf(ref_variant, qry_variant, qry_name, out_fn):
 		f.write('##fileformat=VCFv4.2\n')
 		f.write('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">\n')
 		f.write('##FILTER=<ID=PASS,Description="All filters passed">\n')
-		f.write('##contig=<ID=1,length=29903,assembly=NC_045512.2>\n')
+		f.write('##contig=<ID=NC_045512.2,length=29903,assembly=NC_045512.2>\n')
 		f.write(f"#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t{qry_name}\n")
 		for coord in ref_variant.keys():
 			if coord == 0: # skip coord = 0
@@ -118,8 +118,7 @@ def save_vcf(ref_variant, qry_variant, qry_name, out_fn):
 			qv_is_canonical = all([x in ["A","T","G","C"] for x in qv])
 
 			if rv_is_canonical and qv_is_canonical:
-				id_ = f"1_{coord}_{rv[:5]}_{qv[:5]}"
-				f.write(f"1\t{coord}\t{id_}\t{rv}\t{qv}\t.\tPASS\t.\tGT\t1\n")
+				f.write(f"NC_045512.2\t{coord}\t.\t{rv}\t{qv}\t.\tPASS\t.\tGT\t1\n")
 
 
 def postprocess_vcf(vcf_fn, ref_fn, compress_vcf):
@@ -166,17 +165,6 @@ def align2vcf(align_fn, ref_fn, qry_id, out_prefix, compress_vcf, clean_up, verb
 
 
 def fasta2vcf(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbose):
-	print("################")
-	print("# FASTA to VCF #")
-	print("################")
-	print(f"FASTA: {fasta_fn}")
-	print(f"Reference: {ref_fn}")
-	print(f"Align: {align_fn}")
-	print(f"Output: {out_dir}")
-	print(f"Compress VCF: {compress_vcf}")
-	print(f"Clean up: {clean_up}")
-	print(f"Verbose: {verbose}")
-
 	os.makedirs(out_dir, exist_ok=True)
 
 	# If user set align_fn option.
@@ -213,6 +201,17 @@ def fasta2vcf(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbo
 @click.option("--clean_up", type=bool, default=True, help="Whether to clean up files such as .ali and .fasta.")
 @click.option("--verbose", "-v", is_flag=True, default=False)
 def main(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbose):
+	print("################")
+	print("# FASTA to VCF #")
+	print("################")
+	print(f"FASTA: {fasta_fn}")
+	print(f"Reference: {ref_fn}")
+	print(f"Align: {align_fn}")
+	print(f"Output: {out_dir}")
+	print(f"Compress VCF: {compress_vcf}")
+	print(f"Clean up: {clean_up}")
+	print(f"Verbose: {verbose}")
+
 	fasta2vcf(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbose)
 
 if __name__ == "__main__":
