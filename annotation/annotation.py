@@ -53,7 +53,7 @@ class Annotation():
 		work_dir = f"{out_dir}/{qry.id}"
 		os.makedirs(work_dir, exist_ok=True)
 		
-		op_sys = subprocess.run("uname", capture_output=True).stdout
+		op_sys = subprocess.check_output("uname")
 		if op_sys == b"Linux\n":
 			mafft = "ext/mafft-linux64/mafft.bat"
 		elif op_sys == b"Darwin\n":
@@ -70,7 +70,7 @@ class Annotation():
 
 		mafft_out_fn = f"{work_dir}/{qry.id}.ali"
 		cmd = f"{mafft} {mafft_in_fn} > {mafft_out_fn}"
-		output = subprocess.run(cmd, shell=True, capture_output=True)
+		output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, shell=True)
 
 		self.align_fn = mafft_out_fn
 
@@ -340,19 +340,6 @@ class Annotation():
 		self.anno_df = merged.sort_values("ref_coord")
 
 
-@click.command()
-@click.option("-f", "--fasta", type=str, required=True, \
-	help="Fasta file containing one or more virus strains.")
-@click.option("-o", "--out_dir", type=str, required=False, \
-	help="Output directory", default="results", show_default=True)
-@click.option("--gbk_fn", "-g", type=str, required=False, \
-	help="Genbank file.", default="data/NC_045512.2.gbk", \
-	show_default=True)
-@click.option("--ref_fn", "-r", type=str, required=False,\
-	help="Reference FASTA file.", default="data/NC_045512.2.fasta", \
-	show_default=True)
-@click.option("--verbose", "-v", is_flag=True, default=False, \
-	help="Verbosity")
 def annotate(fasta, out_dir, gbk_fn, ref_fn, verbose):
 
 	print("##################")
@@ -363,7 +350,6 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, verbose):
 	print(f"Genbank: {gbk_fn}")
 	print(f"Reference: {ref_fn}")
 	print(f"Verbose: {verbose}")
-
 
 	qries = read_fasta(fasta)
 	ref_gbk = read_ref_genbank(gbk_fn)
@@ -378,5 +364,23 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, verbose):
 			align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
 			compress_vcf=False, clean_up=True, verbose=False)
 
+
+@click.command()
+@click.option("-f", "--fasta", type=str, required=True, \
+	help="Fasta file containing one or more virus strains.")
+@click.option("-o", "--out_dir", type=str, required=False, \
+	help="Output directory", default="results", show_default=True)
+@click.option("--gbk_fn", "-g", type=str, required=False, \
+	help="Genbank file.", default="data/NC_045512.2.gbk", \
+	show_default=True)
+@click.option("--ref_fn", "-r", type=str, required=False,\
+	help="Reference FASTA file.", default="data/NC_045512.2.fasta", \
+	show_default=True)
+@click.option("--verbose", "-v", is_flag=True, default=False, \
+	help="Verbosity")
+def main(fasta, out_dir, gbk_fn, ref_fn, verbose):
+	annotate(fasta, out_dir, gbk_fn, ref_fn, verbose)
+
+
 if __name__ == "__main__":
-	annotate()
+	main()

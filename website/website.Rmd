@@ -82,7 +82,11 @@ Based on merged.vcf.gz, we removed samples with an excessive number of mutations
 
 
 ## Functional Variants
+```{r}
+annotation = fread("../../processed_data/snpEff/parse_snpEff/annotated.tsv")
+DT::datatable(metadata[,list(Accession_ID, Data_Source, Collection_Date, Country, Region)], filter = 'bottom', caption = 'Table 2: COVID-19 genomic sequence data source, collection date, and location.', colnames = c('Accession ID', 'Data Source', 'Collection Date', 'Country', "Region"))
 
+```
 
 ```{r remove_duplicates, eval = FALSE, echo = FALSE}
 in_fn = "../../processed_data/preprocess/filter_fasta/duplicated.tsv"

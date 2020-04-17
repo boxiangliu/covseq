@@ -29,6 +29,7 @@ bash vcf/filter_sites.sh ../data/aggregated/vcf/merged/merged.vcf.gz ../data/agg
 
 # Annotation mutation:
 bash snpEff/snpEff.sh ../data/aggregated/vcf/merged/filtered.vcf.gz ../data/aggregated/vcf/merged/annotated
+python3 snpEff/parse_snpEff.py --vcf_fn ../data/aggregated/vcf/merged/annotated.vcf.gz --out_fn ../processed_data/snpEff/parse_snpEff/annotated.tsv
 
 # Plot the mutation distribution:
 python3 mutation_distribution/plot_sample_per_mutation.py
