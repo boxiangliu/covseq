@@ -345,6 +345,8 @@ def run_snpEff(vcf_fn, out_fn):
 	print("Running snpEff.")
 	cmd = f"java -jar ext/snpEff/snpEff.jar NC_045512.2 {vcf_fn} > {out_fn}"
 	output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, shell=True)
+	os.remove("snpEff_genes.txt")
+	os.remove("snpEff_summary.html")
 
 
 def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose):
