@@ -150,15 +150,45 @@ Finally we will remove multi-allelic variants and variants within the poly-A tai
 bash vcf/filter_sites.sh ../data/aggregated/vcf/merged/merged.vcf.gz ../data/aggregated/vcf/merged/filtered
 ```
 
-
-
-
 ### Annotate VCF files 
 
+Finally we will annotate VCF files using [snpEff](http://snpeff.sourceforge.net/), which is included in this Git repository. 
+
+1. Annotate VCF file using snpEff
+
+```
+bash snpEff/snpEff.sh ../data/aggregated/vcf/merged/filtered.vcf.gz ../data/aggregated/vcf/merged/annotated
+```
 
 
-### Merging metadata 
+2. Parse VCF annotation into CSV format
 
+```
+python3 snpEff/parse_snpEff.py --vcf_fn ../data/aggregated/vcf/merged/annotated.vcf.gz --out_fn ../processed_data/snpEff/parse_snpEff/annotated.tsv
+```
+
+
+### Merging metadata
+
+Last but not least we aggregate all metadata: 
+
+1. Preprocess metadata from GISAID, NCBI, EMBL and CNGB. 
+```
+# GISAID 
+python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/acknowledgement/ -o ../data/aggregated/metadata/gisaid_acknowledgement.tsv --type acknowledgement
+# NCBI
+python3 metadata/parse_ncbi_metadata.py --gb_fn ../data/ncbi/metadata/sequence.gb -o ../data/aggregated/metadata/ncbi.tsv
+# EMBL
+python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence_update_20200411-0207.txt -o ../data/aggregated/metadata/embl.tsv
+# CNGB
+python3 metadata/rename_cngb_metadata.py --in_fn "../data/cngb/metadata/CNGBdb_VirusDIP_excel20200411_all(24)_57b4ce53c4d6c49c978596677a112211.csv" --out_fn ../data/aggregated/metadata/cngb.tsv
+```
+
+
+2. Merge metadata.
+```
+python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ../data/aggregated/metadata/merged --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
+```
 
 
 ## Frequently Asked Questions
