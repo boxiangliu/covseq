@@ -12,7 +12,7 @@ python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/
 python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_dir ../processed_data/preprocess/filter_fasta/ --final_fn ../data/aggregated/fasta/preprocessed.fasta
 
 
-# Converting FASTA to VCF: 
+# Converting FASTA to VCF:
 python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r data/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
 
 
