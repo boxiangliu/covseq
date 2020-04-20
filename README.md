@@ -46,6 +46,12 @@ annotation/annotation.py --help
 
 To replicate all results in on `covseq.baidu.com/browse`, please follow instructions below. 
 
+
+### Preliminaries 
+
+You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). 
+
+
 ### Download genomic data and metadata
 
 The first step is to download data from repositories. All steps assume `covseq` repo as the working directory. 
@@ -103,14 +109,56 @@ Next we will remove incomplete genomes (number of nucleotide < 25000).
 python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_dir ../processed_data/preprocess/filter_fasta/ --final_fn ../data/aggregated/fasta/preprocessed.fasta
 ```
 
-Note that this command will create a ../processed_data/preprocess/filter_fasta/ to store intermedite files. 
+Note that this command will create a `../processed_data/preprocess/filter_fasta/` to store intermedite files. 
 
 
 ### Call variants
 
+Now we have preprocessed FASTA files, let's call variants from nucleotide sequences, using the RefSeq sequence `NC_045512.2` as the reference.
+
+1. Call variants 
+```
+python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r data/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
+```
+
+This command will create a directory called `../data/aggregated/vcf/individual/`, where VCF files from individual FASTA files will reside.
+
+
+Some FASTA files have large numbers of sequencing errors and will produce abnormally long lists of variants. Let's filter them out.
+
+2. Filter out variants with > 150 mutations. 
+```
+python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../processed_data/vcf/filter_samples/ -c 150
+```
+
+Here we have chosen 150 as a default because a clear gap exists between samples with <150 mutations and samples with >1000 mutations with nothing in between. However, feel free to adjust this parameter to fit your needs. 
+
+
+Next we need to merge VCF files and normalize each record. 
+
+3. Merge VCF files
+
+```
+bash vcf/merge_vcfs.sh ../processed_data/vcf/filter_samples/ ../data/aggregated/vcf/merged/ data/NC_045512.2.fasta
+```
+
+Finally we will remove multi-allelic variants and variants within the poly-A tail. 
+
+4. Filter variants
+
+```
+bash vcf/filter_sites.sh ../data/aggregated/vcf/merged/merged.vcf.gz ../data/aggregated/vcf/merged/filtered
+```
+
+
+
+
 ### Annotate VCF files 
 
+
+
 ### Merging metadata 
+
 
 
 ## Frequently Asked Questions
