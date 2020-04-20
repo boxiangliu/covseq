@@ -193,6 +193,8 @@ python3 metadata/rename_cngb_metadata.py --in_fn <../data/cngb/metadata/CNGBdb_V
 python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ../data/aggregated/metadata/merged --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
 ```
 
+All done! You have now generated all the data on the CoV-Seq website. 
+
 
 ## Frequently Asked Questions
 Please see [FAQ](example.com) here. 
