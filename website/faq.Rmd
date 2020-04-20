@@ -1,0 +1,93 @@
+---
+title: "Frequently Asked Questions"
+output:
+  rmarkdown::html_document:
+    theme: cerulean
+    css: style.css
+---
+
+<style>
+body{
+  font-family: Helvetica;
+  font-size: 14pt;
+}
+</style>
+
+## What is the rationale behind CoV-Seq? 
+
+COVID-19 has been declared a global pandemic and scientists are working around the clock to understand its genome and evolution. Everyday, thousands of raw genomic sequences are being uploaded to public repositories. To keep pace with novel mutations, scientists need to frequently download, analyze and interpret new results, this process is labor-intensive and time-consuming. On the other hand, scientists with limited programming knowledge need a straight-forward way to analyze and visualize SARS-CoV-2 genomic sequences. Therefore, we established CoV-Seq to accomplish two objectives: 
+
+1. Aggregate, analyze, and annotate genomic sequences to facilitate sharing and reuse of publicly available data.
+2. Provide a turn-key solution to analyze genomic sequences, including 
+    - Variant calls; 
+    - ORF predictions; 
+    - Interactive genomic visualization.
+    
+All of the above are designed specifically for SARS-CoV-2. 
+
+
+## Something is wrong with the website or the source code. What should I do? 
+
+Please file a bug report [here](https://github.com/boxiangliu/covseq/issues). Please help us by providing as much information as possible. 
+
+If you are running the source code, please provide the following: 
+
+ - A minimum example to reproduce the bug; 
+ - Expected result; 
+ - Full error message; 
+ - Your operating system. 
+ 
+If you are using the website, please provide the following:
+
+ - Your input/uploads to the website; 
+ - Step-by-step instructions to reproduce the error;
+ - A screenshot of the error message; 
+ - Your browser information.
+
+
+## Where do the genomic data come from? {#databases}
+
+SARS-CoV-2 genomic data are downloaded from GISAID, NCBI, EMBL, and CNGB. Please following the links below to read more about these databases: 
+
+- [GISAID](https://www.gisaid.org/)
+- [NCBI Genbank](https://www.ncbi.nlm.nih.gov/genbank/sars-cov-2-seqs/)
+- [EMBL Pathogens](https://www.ebi.ac.uk/ena/pathogens/covid-19)
+- [CNGB VirusDIP](https://db.cngb.org/virus/ncov)
+
+
+## Can you share the FASTA files? 
+
+Unfortunately, GISAID restricts sharing of genomic sequences. Since GISAID makes up a majority of our sequences, it does not make sense to share the remainder sequences piecemeal. That said, users are encouraged to [register](https://www.gisaid.org/registration/register/) on GISAID and request sequences directly. Registrations are not required for NCBI, EMBL, or CNGB. Please follow this [question](#databases) for download. 
+
+
+## Which reference sequence was used for alignment and variant calling?
+
+We used the reference sequence [NC_045512.2](https://www.ncbi.nlm.nih.gov/nuccore/NC_045512) from NCBI RefSeq.
+
+
+## Will my files be kept confidential? 
+
+Your files will be kept confidential and will be removed from our server after your exist the browser session. 
+
+
+## Why does the VCF file only contain a subset of sequences from GISAID/NCBI/EMBL/CNGB?
+
+We remove incomplete genomes (some genomes only contain one gene) before alignment because it is difficult to distinguish incomplete genomes from large indels in the alignment file. Incomplete genomes are marked in the metadata file on this [page](http://flask-320.eba-xs7nerpb.us-west-2.elasticbeanstalk.com/browse).  
+
+
+## How many sequences can I upload at once? {#too-many-sequences}
+
+Under normal server load, each sequence will take ~3 seconds to be analyzed and displayed. We do not set a limit on the number of sequences you can upload, but we ask you to be considerate because a large job may slow down the server for other users. If you have more than 50 sequences, it may be better to run the [source code](https://github.com/boxiangliu/covseq) on your local machine.
+
+
+## I have a large number of sequences and the server takes too long to analyze them. 
+
+See this question: [how many sequences can I upload at once?](#too-many-sequences)
+
+
+## How often is CoV-Seq updated? 
+We update CoV-seq twice every week, on Wednesday and Sunday. 
+
+
+## How do I cite this project? 
+We are preparing a manuscript for submission. In the time being, please cite this paper as: `Liu B and Liu K. (2020) CoV-Seq: Coronavirus Sequence Database and Visualization`.

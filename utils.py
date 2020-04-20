@@ -58,12 +58,20 @@ class VCF():
 
 
 	def read_vcf_header(self, vcf_fn):
-		with gzip.open(vcf_fn, "r") as f:
-			for line in f:
-				line = line.decode("utf-8").strip()
-				if line.startswith("#CHROM"):
-					split_line = line.split("\t")
-					split_line[0] = "CHROM"
+		if ".gz" in vcf_fn:
+			with gzip.open(vcf_fn, "r") as f:
+				for line in f:
+					line = line.decode("utf-8").strip()
+					if line.startswith("#CHROM"):
+						split_line = line.split("\t")
+						split_line[0] = "CHROM"
+		else:
+			with open(vcf_fn, "r") as f:
+				for line in f:
+					line = line.strip()
+					if line.startswith("#CHROM"):
+						split_line = line.split("\t")
+						split_line[0] = "CHROM"
 		return split_line
 
 

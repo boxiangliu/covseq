@@ -9,6 +9,7 @@ import sys
 sys.path.append(".")
 from vcf.fasta2vcf import fasta2vcf
 from utils import DefaultOrderedDict
+from snpEff.parse_snpEff import HEADERS, parse_snpEff
 
 def read_fasta(fasta_fn):
 	fasta = list(SeqIO.parse(fasta_fn, "fasta"))
@@ -340,7 +341,13 @@ class Annotation():
 		self.anno_df = merged.sort_values("ref_coord")
 
 
-def annotate(fasta, out_dir, gbk_fn, ref_fn, verbose):
+def run_snpEff(vcf_fn, out_fn):
+	print("Running snpEff.")
+	cmd = f"java -jar ext/snpEff/snpEff.jar NC_045512.2 {vcf_fn} > {out_fn}"
+	output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, shell=True)
+
+
+def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose):
 
 	print("##################")
 	print("# Annotate FASTA #")
@@ -363,6 +370,10 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, verbose):
 		fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
 			align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
 			compress_vcf=False, clean_up=True, verbose=False)
+		if snpeff:
+			run_snpEff(f"{out_dir}/{qry.id}/{qry.id}.vcf", f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
+			snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
+			snpEff.to_csv(f"{out_dir}/{qry.id}/{qry.id}.snpEff.tsv", index=False, sep="\t")
 
 
 @click.command()
@@ -376,10 +387,12 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, verbose):
 @click.option("--ref_fn", "-r", type=str, required=False,\
 	help="Reference FASTA file.", default="data/NC_045512.2.fasta", \
 	show_default=True)
+@click.option("--snpeff", type=bool, default=True, \
+	help="Whether to run snpEff", show_default=True)
 @click.option("--verbose", "-v", is_flag=True, default=False, \
 	help="Verbosity")
-def main(fasta, out_dir, gbk_fn, ref_fn, verbose):
-	annotate(fasta, out_dir, gbk_fn, ref_fn, verbose)
+def main(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose):
+	annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose)
 
 
 if __name__ == "__main__":

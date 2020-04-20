@@ -11,7 +11,7 @@ HEADERS = ["ALLELE", "EFFECT", "IMPACT", \
 	"CDNA_POS", "CDS_POS", \
 	"AA_POS", "DISTANCE", "ERRORS"]
 
-def parse_annotation(vcf_fn):
+def parse_snpEff(vcf_fn):
 	vcf = VCF(vcf_fn)
 	ANN_0 = [x.split(",")[0].replace("ANN=","") for x in vcf.rowdata["INFO"]]
 	container = DefaultOrderedDict(list)
@@ -28,7 +28,7 @@ def parse_annotation(vcf_fn):
 @click.option("--vcf_fn", "-v", type=str, help="VCF file input.")
 @click.option("--out_fn", "-o", type=str, help="Output file.")
 def main(vcf_fn, out_fn):
-	snpEff = parse_annotation(vcf_fn)
+	snpEff = parse_snpEff(vcf_fn)
 	snpEff.to_csv(out_fn, index=False, sep="\t")
 
 if __name__ == "__main__":

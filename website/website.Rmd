@@ -1,5 +1,12 @@
+<script>
+   $(document).ready(function() {
+     $head = $('#header');
+     $head.prepend('<img src=\"figure/1x/logo.png\" style=\"float: left;width: 75px;\"/>')
+   });
+</script>
+
 ---
-title: "Browse and Download"
+title: "CoV-Seq: Coronavirus Sequence Database"
 output:
   rmarkdown::html_document:
     theme: cerulean
@@ -21,6 +28,32 @@ library(rnaturalearthdata)
 library(countrycode)
 ```
 
+<style>
+.column-left{
+  float: left;
+  width: 33%;
+  text-align: left;
+}
+.column-center{
+  display: inline-block;
+  width: 33%;
+  text-align: center;
+}
+.column-right{
+  float: right;
+  width: 33%;
+  text-align: right;
+}
+</style>
+
+
+
+  
+<br />  
+<br />
+<br />
+<br />
+  
 Covseq is a curated database of COVID-19 genomic sequence variants. Sequences are collected from four major repositories: [GISAID](https://www.gisaid.org/), [NCBI genbank](https://www.ncbi.nlm.nih.gov/genbank/sars-cov-2-seqs/), [EMBL](https://www.ebi.ac.uk/ena/pathogens/covid-19) and [CNGB](https://db.cngb.org/virus/ncov). Covseq hosts a growing list of non-redundant sequences (X sequences as of `r format(Sys.time(), '%d %B, %Y')`). Covseq also hosts a manually curated list of functional variants of COVID-19. You can download these data here. 
 
 Covseq also integrated an interactive portal to upload COVID-19 sequences for visualization and analysis. Once you upload one or more custom sequences, Covseq will analyze the sequence and present results about genes and mutations. You will be able to explore the viral genome via a browser track and download VCF files and open reading frame predictions. 
@@ -82,10 +115,9 @@ Based on merged.vcf.gz, we removed samples with an excessive number of mutations
 
 
 ## Functional Variants
-```{r}
+```{r variant annotation, echo=FALSE, warning=FALSE}
 annotation = fread("../../processed_data/snpEff/parse_snpEff/annotated.tsv")
-DT::datatable(metadata[,list(Accession_ID, Data_Source, Collection_Date, Country, Region)], filter = 'bottom', caption = 'Table 2: COVID-19 genomic sequence data source, collection date, and location.', colnames = c('Accession ID', 'Data Source', 'Collection Date', 'Country', "Region"))
-
+DT::datatable(annotation[,list(ALLELE, EFFECT, IMPACT, GENE,HGVS_C,HGVS_P, CDS_POS, AA_POS, DISTANCE)], filter = 'bottom', caption = 'Table 3: Genomic Variant Annotation from SnpEff.', colnames = c("Alt", "Effect", "Impact", "Gene","HGVS.C", "HGVS.P", "CDS position", "AA position", "Distance"))
 ```
 
 ```{r remove_duplicates, eval = FALSE, echo = FALSE}

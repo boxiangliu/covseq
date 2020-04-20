@@ -1,0 +1,17 @@
+#nextsteps {
+   color: blue;
+}
+
+.emphasized {
+   font-size: 2.0em;
+}
+
+.row {
+  display: flex;
+}
+
+.column {
+  flex: 50%;
+}
+
+

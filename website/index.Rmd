@@ -1,0 +1,85 @@
+---
+title: 
+output:
+  rmarkdown::html_document:
+    theme: cerulean
+---
+
+<style>
+body{
+  font-family: Helvetica;
+  font-size: 16pt;
+}
+</style>
+
+<div class="row" style="padding-top: 30px;">
+<div class="col-sm-3">
+```{r logo, echo=FALSE, out.height="200px"}
+knitr::include_graphics("figure/1x/logo.png")
+```
+</div>
+
+<div class="col-sm-9">
+<h1 style="font-size:45px">COVID-19 Genomic Sequence Database and Visualization</h1>
+</div>
+
+</div>
+<div class="row">
+
+<div class="col-sm-7">
+## Introduction
+
+```{r read metadata, echo=FALSE}
+library(data.table)
+metadata = fread("../../data/aggregated/metadata/merged.tsv")
+```
+CoV-Seq is a suite of tools and datasets for analysis and visualization of genomes of SARS-CoV-2, the virus that causes COVID-19. Sequences are collected from four major repositories: [GISAID](https://www.gisaid.org/), [NCBI](https://www.ncbi.nlm.nih.gov/genbank/sars-cov-2-seqs/), [EMBL](https://www.ebi.ac.uk/ena/pathogens/covid-19) and [CNGB](https://db.cngb.org/virus/ncov). CoV-Seq hosts a growing list of full genomic sequences (`r nrow(metadata)` sequences as of `r format(Sys.time(), '%d %B, %Y')`), and derives genetic variants from these sequences. You can browse and download these variants and their annotations below (Data and Analysis). CoV-Seq also provides an interactive genome visualizer to upload your own sequences and to get analysis results immediately from the web server (Interactive Visualization). 
+
+
+<div class="row">
+
+<div class="col-sm-6">
+<a href="http://flask-320.eba-xs7nerpb.us-west-2.elasticbeanstalk.com/browse"><button type="button" class="btn btn-primary btn-lg btn-block">Data and Analysis</button></a>
+</div>
+
+<div class="col-sm-6">
+<a href="http://flask-320.eba-xs7nerpb.us-west-2.elasticbeanstalk.com/browse"><button type="button" class="btn btn-warning btn-lg btn-block">Interactive Visualization</button></a>
+</div>
+
+</div>
+
+<div class="row">
+
+<div class="col-sm-6">
+<a href="https://github.com/boxiangliu/covseq"><button type="button" class="btn btn-success btn-lg btn-block">Source Code</button></a>
+</div>
+
+<div class="col-sm-6">
+<a href="http://flask-320.eba-xs7nerpb.us-west-2.elasticbeanstalk.com/faq"><button type="button" class="btn btn-danger btn-lg btn-block">FAQ</button></a>
+</div>
+
+</div>
+
+
+</div>
+  
+<div class="col-sm-5">
+
+## News
+- 04-10-2020: CoV-Seq beta testing.
+- 03-23-2020: Data collected from GISAID, NCBI, EMBL, and CNGB. 
+
+## Resources
+- [LitCovid](https://www.ncbi.nlm.nih.gov/research/coronavirus/): Literature on COVID-19
+- [Nextstrain](https://nextstrain.org/ncov/global): COVID-19 Genomic epidemiology
+- [CORD-19](https://www.kaggle.com/allen-institute-for-ai/CORD-19-research-challenge): COVID-19 Open Research Dataset
+- [Tracker](https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6): Global COVID-19 case counts
+
+
+## Share CoV-Seq
+
+<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>    
+
+</div>
+</div>
+
