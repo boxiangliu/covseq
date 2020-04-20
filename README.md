@@ -173,15 +173,18 @@ python3 snpEff/parse_snpEff.py --vcf_fn ../data/aggregated/vcf/merged/annotated.
 Last but not least we aggregate all metadata: 
 
 1. Preprocess metadata from GISAID, NCBI, EMBL and CNGB. 
+
+Replace `../data/embl/metadata/ena_sequence.txt` and `../data/cngb/metadata/CNGBdb_VirusDIP.csv` below to your own files. 
+
 ```
 # GISAID 
 python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/acknowledgement/ -o ../data/aggregated/metadata/gisaid_acknowledgement.tsv --type acknowledgement
 # NCBI
 python3 metadata/parse_ncbi_metadata.py --gb_fn ../data/ncbi/metadata/sequence.gb -o ../data/aggregated/metadata/ncbi.tsv
 # EMBL
-python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence_update_20200411-0207.txt -o ../data/aggregated/metadata/embl.tsv
+python3 metadata/parse_embl_metadata.py --embl_fn <../data/embl/metadata/ena_sequence.txt> -o ../data/aggregated/metadata/embl.tsv
 # CNGB
-python3 metadata/rename_cngb_metadata.py --in_fn "../data/cngb/metadata/CNGBdb_VirusDIP_excel20200411_all(24)_57b4ce53c4d6c49c978596677a112211.csv" --out_fn ../data/aggregated/metadata/cngb.tsv
+python3 metadata/rename_cngb_metadata.py --in_fn <../data/cngb/metadata/CNGBdb_VirusDIP.csv> --out_fn ../data/aggregated/metadata/cngb.tsv
 ```
 
 
