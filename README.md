@@ -89,7 +89,9 @@ We will preprocess the data by first concatenating all FASTA files and standardi
 
 1. Concatenate all FASTA files standardize FASTA headers
 
-`python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata <../data/cngb/metadata/CNGBdb_VirusDIP.csv>`
+```
+python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata <../data/cngb/metadata/CNGBdb_VirusDIP.csv>
+```
 
 Replace `../data/cngb/metadata/CNGBdb_VirusDIP.csv` with your own CNGB metadata file.
 
@@ -97,7 +99,9 @@ Next we will remove incomplete genomes (number of nucleotide < 25000).
 
 2. Filter out incomplete genomes. 
 
-`python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_dir ../processed_data/preprocess/filter_fasta/ --final_fn ../data/aggregated/fasta/preprocessed.fasta`
+```
+python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_dir ../processed_data/preprocess/filter_fasta/ --final_fn ../data/aggregated/fasta/preprocessed.fasta
+```
 
 Note that this command will create a ../processed_data/preprocess/filter_fasta/ to store intermedite files. 
 
