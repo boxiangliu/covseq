@@ -34,7 +34,7 @@ The filename `Guangzhou_GZ8H0001_2020` comes from the FASTA header in `data/GZ8H
 3. \*.snpEff.vcf: variant calls annotated with snpEff
 4. \*.snpEff.tsv: parsed VCF annotations
 
-That's it. You can now use the VCF and annotations for downstream analysis. 
+**That's it**. You can now use the VCF and annotations for downstream analysis. 
 
 For all options, run 
 
@@ -62,8 +62,8 @@ To download data from NCBI:
 
 1. Go to https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=SARS-CoV-2,%20taxid:2697049
 2. Click "Select Columns" (upper-right corner) -> Add all columns -> Apply
-3. To download FASTA sequences: Download -> Select Nucleotide (under Sequence data) -> Select Download All Records -> Select Use default -> Download -> Move all fasta file into `../data/ncbi/fasta/`
-4. To download metadata: Download -> Select CSV format (under Current table view result) -> Select Download All Records -> Click Select All -> Download -> `../data/ncbi/metadata/`
+3. To download FASTA sequences: Download -> Select Nucleotide (under Sequence data) -> Select Download All Records -> Select Use default -> Download -> Move FASTA files into `../data/ncbi/fasta/`
+4. To download metadata: Download -> Select CSV format (under Current table view result) -> Select Download All Records -> Click Select All -> Download -> Move metadata into `../data/ncbi/metadata/`
 
 
 To download data from EMBL:
@@ -85,6 +85,21 @@ To download data from CNGB:
 
 ### Preprocess
 
+We will preprocess the data by first concatenating all FASTA files and standardize FASTA headers 
+
+1. Concatenate all FASTA files standardize FASTA headers
+
+`python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata <../data/cngb/metadata/CNGBdb_VirusDIP.csv>`
+
+Replace `../data/cngb/metadata/CNGBdb_VirusDIP.csv` with your own CNGB metadata file.
+
+Next we will remove incomplete genomes (number of nucleotide < 25000). 
+
+2. Filter out incomplete genomes. 
+
+`python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_dir ../processed_data/preprocess/filter_fasta/ --final_fn ../data/aggregated/fasta/preprocessed.fasta`
+
+Note that this command will create a ../processed_data/preprocess/filter_fasta/ to store intermedite files. 
 
 
 ### Call variants
