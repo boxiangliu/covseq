@@ -8,7 +8,7 @@ from Bio import SeqIO, SeqFeature, Seq
 import sys
 sys.path.append(".")
 from vcf.fasta2vcf import fasta2vcf
-from utils import DefaultOrderedDict
+from utils import DefaultOrderedDict, VCF
 from snpEff.parse_snpEff import HEADERS, parse_snpEff
 
 def read_fasta(fasta_fn):
@@ -259,15 +259,18 @@ class Annotation():
 			return "same"
 
 
-	def get_orf(self, ref_gbk, nt_df):
+	def get_orf(self, ref_gbk, nt_df, ref_coordinate=False):
 		print("Getting ORF annotation.")
 		orf = DefaultOrderedDict(list)
 		for ref_feature in ref_gbk.features:
 			if ref_feature.type == "CDS":
 				gene = ref_feature.qualifiers["gene"][0]
 				product = ref_feature.qualifiers["product"][0]
-				location = Annotation.transfer_location(ref_feature.location, \
-					nt_df["ref_coord"], nt_df["qry_coord"])
+				if ref_coordinate:
+					location = ref_feature.location
+				else:
+					location = Annotation.transfer_location(ref_feature.location, \
+						nt_df["ref_coord"], nt_df["qry_coord"])
 				start = int(location.start)
 				end = int(location.end)
 				rna_length = location.end - location.start
@@ -277,14 +280,14 @@ class Annotation():
 				frame = location.start % 3
 				if frame == 0: frame = 3
 
-				orf["gene"].append(gene)
-				orf["product"].append(product)
-				orf["start"].append(start)
-				orf["end"].append(end)
-				orf["strand"].append(strand)
-				orf["frame"].append(frame)
-				orf["rna_length"].append(rna_length)
-				orf["ribosomal_slippage"].append(ribosomal_slippage)
+				orf["Gene"].append(gene)
+				orf["Product"].append(product)
+				orf["Start"].append(start)
+				orf["End"].append(end)
+				orf["Strand"].append(strand)
+				orf["Frame"].append(frame)
+				orf["RNA_length"].append(rna_length)
+				orf["Ribo_Slip"].append(ribosomal_slippage)
 		orf = pd.DataFrame(orf)
 		self.orf = orf
 
@@ -349,7 +352,25 @@ def run_snpEff(vcf_fn, out_fn):
 	os.remove("snpEff_summary.html")
 
 
-def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose):
+def vcf_intersect_orf(vcf_fn, orf):
+	intersect = []
+	vcf = VCF(vcf_fn)
+	for i, v_row in vcf.rowdata.iterrows():
+		intersect.append("Intergenic")
+		pos = v_row["POS"]
+		for j, o_row in orf.iterrows():
+			if o_row["Start"] <= pos and pos <= o_row["End"]:
+				if intersect[i] == "Intergenic":
+					intersect[i] = o_row["Gene"]
+				else:
+					intersect[i] += f",{o_row['Gene']}"
+	out = vcf.rowdata[["CHROM", "POS", "REF", "ALT"]].copy()
+	out.rename(columns={"CHROM": "Chromosome", "POS": "Position", "REF": "Reference", "ALT": "Alternative"}, inplace=True)
+	out["ORF"] = intersect
+	return out
+
+
+def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 
 	print("##################")
 	print("# Annotate FASTA #")
@@ -372,6 +393,12 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose):
 		fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
 			align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
 			compress_vcf=False, clean_up=True, verbose=False)
+
+		if internal:
+			anno.get_orf(anno.ref_gbk, anno.nt_df, ref_coordinate=True)
+			intersect = vcf_intersect_orf(f"{out_dir}/{qry.id}/{qry.id}.vcf", anno.orf)
+			intersect.to_csv(f"{out_dir}/{qry.id}/{qry.id}.display.tsv", index=False, sep="\t")
+
 		if snpeff:
 			run_snpEff(f"{out_dir}/{qry.id}/{qry.id}.vcf", f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
 			snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
@@ -393,8 +420,10 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose):
 	help="Whether to run snpEff", show_default=True)
 @click.option("--verbose", "-v", is_flag=True, default=False, \
 	help="Verbosity")
-def main(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose):
-	annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose)
+@click.option("--internal", is_flag=True, default=False, \
+	help="Internal Use.")
+def main(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
+	annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal)
 
 
 if __name__ == "__main__":
