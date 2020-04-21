@@ -1,10 +1,10 @@
 # Download COVID-19 sequences from GISAID:
 # Accessed March 24, 2020
-python3 download/download_gisaid.py -u lbxjollier -p 71RwYNz4nljy --out_dir /Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/metadata/
+python3 download/download_gisaid.py -u <username> -p <password> --out_dir /Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/metadata/
 
 # Concatenate all FASTA records.
 # Standardize all headers.
-python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata "../data/cngb/metadata/CNGBdb_VirusDIP_excel20200411_all(24)_57b4ce53c4d6c49c978596677a112211.csv"
+python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata ../data/cngb/metadata/CNGBdb_VirusDIP.csv
 
 # Filter FASTA records.
 # Remove duplicates.
@@ -16,7 +16,7 @@ python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_d
 python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r data/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
 
 
-# Plot the distribution of mutations:
+# Remove samples with too many mutations:
 python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../processed_data/vcf/filter_samples/ -c 150
 # Conclusion: remove samples with > 150 mutations.
 
@@ -38,11 +38,12 @@ python3 mutation_distribution/plot_sample_per_mutation.py
 python3 mutation_distribution/plot_mutation_over_time.py
 
 # Make phenotype table:
-python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/detail/ -o ../data/aggregated/metadata/gisaid_detail.tsv --type detail
+# python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/detail/ -o ../data/aggregated/metadata/gisaid_detail.tsv --type detail
 python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/acknowledgement/ -o ../data/aggregated/metadata/gisaid_acknowledgement.tsv --type acknowledgement
-python3 metadata/parse_ncbi_metadata.py --gb_fn ../data/ncbi/metadata/sequence.gb -o ../data/aggregated/metadata/ncbi.tsv
-python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence_update_20200411-0207.txt -o ../data/aggregated/metadata/embl.tsv
-python3 metadata/rename_cngb_metadata.py --in_fn "../data/cngb/metadata/CNGBdb_VirusDIP_excel20200411_all(24)_57b4ce53c4d6c49c978596677a112211.csv" --out_fn ../data/aggregated/metadata/cngb.tsv
+# python3 metadata/parse_ncbi_metadata.py --gb_fn ../data/ncbi/metadata/sequence.gb -o ../data/aggregated/metadata/ncbi.tsv
+python3 metadata/parse_ncbi_metadata.py --csv_fn ../data/ncbi/metadata/sequences.csv -o ../data/aggregated/metadata/ncbi.tsv
+python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence.txt -o ../data/aggregated/metadata/embl.tsv
+python3 metadata/rename_cngb_metadata.py --in_fn ../data/cngb/metadata/CNGBdb_VirusDIP.csv --out_fn ../data/aggregated/metadata/cngb.tsv
 python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ../data/aggregated/metadata/merged --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
 
 

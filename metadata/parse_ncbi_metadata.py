@@ -74,20 +74,38 @@ def parse_genbank(gb):
 	return genbank_df
 
 
+def parse_csv(in_fn):
+	df = pd.read_csv(in_fn)
+	rename = {"Accession": "Accession_ID",
+	"Release_Date": "Submission_Date",
+	"Geo_Location": "Location", 
+	"Isolation_Source": "Specimen_Source"}
+	df.rename(columns=rename, inplace=True)
+	df["Data_Source"] = "NCBI"
+	df["Submission_Date"] = [x.split("T")[0] for x in df["Submission_Date"].tolist()]
+	return df
+
+
 @click.command()
 @click.option("--gb_fn", "-g", type=str, help="Input genbank file.")
+@click.option("--csv_fn", "-c", type=str, help="Input csv file.")
 @click.option("--out_fn", "-o", type=str, help="Output TSV file.")
-def main(gb_fn, out_fn):
+def main(gb_fn, csv_fn, out_fn):
 	print("#################")
 	print("# NCBI metadata #")
 	print("#################")
-	print(f"NCBI: {gb_fn}")
+	print(f"Genbank: {gb_fn}")
+	print(f"CVS: {csv_fn}")
 	print(f"Output: {out_fn}")
 
-	gb = SeqIO.parse(gb_fn, "genbank")
-	genbank_df = parse_genbank(gb)
-	genbank_df["Data_Source"] = "NCBI"
-	genbank_df.to_csv(out_fn, index=False, sep="\t")
+	if gb_fn:
+		gb = SeqIO.parse(gb_fn, "genbank")
+		genbank_df = parse_genbank(gb)
+		genbank_df["Data_Source"] = "NCBI"
+		genbank_df.to_csv(out_fn, index=False, sep="\t")
+	elif csv_fn:
+		csv_df = parse_csv(csv_fn)
+		csv_df.to_csv(out_fn, index=False, sep="\t")
 
 
 if __name__ == "__main__":

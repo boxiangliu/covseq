@@ -1,12 +1,5 @@
-<script>
-   $(document).ready(function() {
-     $head = $('#header');
-     $head.prepend('<img src=\"figure/1x/logo.png\" style=\"float: left;width: 75px;\"/>')
-   });
-</script>
-
 ---
-title: "CoV-Seq: Coronavirus Sequence Database"
+title: 
 output:
   rmarkdown::html_document:
     theme: cerulean
@@ -14,7 +7,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(root.dir = '/Users/boxiang/Documents/work/Baidu/projects/viraviz/scripts/')
+knitr::opts_chunk$set(root.dir = '/Users/boxiang/Documents/work/Baidu/projects/covseq/scripts/')
 library(data.table)
 library(ggplot2)
 library(knitr)
@@ -28,38 +21,33 @@ library(rnaturalearthdata)
 library(countrycode)
 ```
 
-<style>
-.column-left{
-  float: left;
-  width: 33%;
-  text-align: left;
-}
-.column-center{
-  display: inline-block;
-  width: 33%;
-  text-align: center;
-}
-.column-right{
-  float: right;
-  width: 33%;
-  text-align: right;
-}
-</style>
 
-
-
+<div class="jumbotron">
+  <h2 class="display-3">Download CoV-Seq Datasets</h2>
+  <hr class="my-10">
+  <div class="row">
   
-<br />  
-<br />
-<br />
-<br />
+  <div class="col-sm-6">
+  <p>Download SARS-CoV-2 variants and annotations</p>
+  </div>
   
-Covseq is a curated database of COVID-19 genomic sequence variants. Sequences are collected from four major repositories: [GISAID](https://www.gisaid.org/), [NCBI genbank](https://www.ncbi.nlm.nih.gov/genbank/sars-cov-2-seqs/), [EMBL](https://www.ebi.ac.uk/ena/pathogens/covid-19) and [CNGB](https://db.cngb.org/virus/ncov). Covseq hosts a growing list of non-redundant sequences (X sequences as of `r format(Sys.time(), '%d %B, %Y')`). Covseq also hosts a manually curated list of functional variants of COVID-19. You can download these data here. 
+  <div class="col-sm-6">
+  <p>Download aggregated metadata</p>
+  </div>
+  </div>
+  
+  <div class="row">
+  
+  <div class="col-sm-6">
+  <a class="btn btn-primary btn-lg" href="https://drive.google.com/drive/folders/1_mivRZxjO3Dhfr3mKi4Sa7VcuV42cyav" role="button">Download VCF</a>
+  </div>
+  
+  <div class="col-sm-6">
+  <a class="btn btn-primary btn-lg" href="#" role="button">Download Metadata</a>
+  </div>
+  </div>
+</div>
 
-Covseq also integrated an interactive portal to upload COVID-19 sequences for visualization and analysis. Once you upload one or more custom sequences, Covseq will analyze the sequence and present results about genes and mutations. You will be able to explore the viral genome via a browser track and download VCF files and open reading frame predictions. 
-
-
-## 
 ```{r metadata, echo=FALSE}
 metadata = fread("../../data/aggregated/metadata/merged_in_vcf.tsv")
 ```
@@ -69,13 +57,15 @@ metadata = fread("../../data/aggregated/metadata/merged_in_vcf.tsv")
 data_source = metadata[, list(raw_data = .N), by="Data_Source"]
 total = sum(data_source[,raw_data])
 data_source = rbind(data_source, data.table(Data_Source="Total",raw_data=total))
-DT::datatable(data_source)
 ```
 
+## Browse All Sequences
 ```{r display metadata, echo=FALSE, warning = FALSE}
-DT::datatable(metadata[,list(Accession_ID, Data_Source, Collection_Date, Country, Region)], filter = 'bottom', caption = 'Table 2: COVID-19 genomic sequence data source, collection date, and location.', colnames = c('Accession ID', 'Data Source', 'Collection Date', 'Country', "Region"))
+DT::datatable(metadata[,list(Accession_ID, Data_Source, Collection_Date, Country, Region)], filter = 'bottom', caption = 'Table 1: COVID-19 genomic sequence data source, collection date, and location.', colnames = c('Accession ID', 'Data Source', 'Collection Date', 'Country', "Region"))
 ```
 
+
+## Number of sequence collected each week
 ```{r sequence vs time, echo=FALSE, warning=FALSE, fig.height=5, fig.width=12}
 parsed_date = parse_date_time(metadata[,Collection_Date], c("y", "ym", "ymd"))
 metadata$year_mon = sprintf("%s-%s",year(parsed_date), month(parsed_date))
@@ -88,6 +78,8 @@ seq_vs_time = metadata[, list(num=.N), by=c("week_start","Data_Source")]
 ggplot(seq_vs_time, aes(x=week_start,y=num,fill=Data_Source)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle=0), legend.position = "bottom") + ylab("Number of Virus Collected/Sequenced") + xlab(NULL) + scale_fill_discrete(name="Source")
 ```
 
+
+## Number of sequences by country of origin
 ```{r map, echo=FALSE, warning=FALSE, fig.height=5, fig.width=12}
 world = ne_countries(scale="medium", returnclass="sf")
 world$iso3c = countrycode(world$sovereignt, origin="country.name", destination = "iso3c")
@@ -100,24 +92,11 @@ ggplot(data = to_plot) +
 
 ```
 
-## Download Lastest Dataset
-You can download COVID-19 genomic variant in VCF format [here](https://drive.google.com/drive/folders/1_mivRZxjO3Dhfr3mKi4Sa7VcuV42cyav?usp=sharing). 
 
-Two VCF files exists in this folder: 
-
-1. merged.vcf.gz 
-
-This file contains all sites across all virus samples. Details of our analysis pipeline can be found [here](#test). 
-
-2. filtered.vcf.gz 
-
-Based on merged.vcf.gz, we removed samples with an excessive number of mutations, loci with more than 2 alleles, and loci within the poly-A tail. 
-
-
-## Functional Variants
+## Look up variants annotations
 ```{r variant annotation, echo=FALSE, warning=FALSE}
 annotation = fread("../../processed_data/snpEff/parse_snpEff/annotated.tsv")
-DT::datatable(annotation[,list(ALLELE, EFFECT, IMPACT, GENE,HGVS_C,HGVS_P, CDS_POS, AA_POS, DISTANCE)], filter = 'bottom', caption = 'Table 3: Genomic Variant Annotation from SnpEff.', colnames = c("Alt", "Effect", "Impact", "Gene","HGVS.C", "HGVS.P", "CDS position", "AA position", "Distance"))
+DT::datatable(annotation[,list(POS, REF, ALT, EFFECT, IMPACT, GENE,HGVS_C,HGVS_P, CDS_POS, AA_POS, DISTANCE)], filter = 'bottom', caption = 'Table 3: Genomic Variant Annotation from SnpEff.', colnames = c("Pos", "Ref", "Alt", "Effect", "Impact", "Gene","HGVS.C", "HGVS.P", "CDS position", "AA position", "Distance"))
 ```
 
 ```{r remove_duplicates, eval = FALSE, echo = FALSE}

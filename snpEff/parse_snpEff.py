@@ -13,13 +13,19 @@ HEADERS = ["ALLELE", "EFFECT", "IMPACT", \
 
 def parse_snpEff(vcf_fn):
 	vcf = VCF(vcf_fn)
-	ANN_0 = [x.split(",")[0].replace("ANN=","") for x in vcf.rowdata["INFO"]]
 	container = DefaultOrderedDict(list)
+	container["POS"] = vcf.rowdata["POS"].tolist()
+	container["REF"] = vcf.rowdata["REF"].tolist()
+	container["ALT"] = vcf.rowdata["ALT"].tolist()
+
+	ANN_0 = [x.split(",")[0].replace("ANN=","") for x in vcf.rowdata["INFO"]]
 	for ann in ANN_0:
 		split_ann = ann.split("|")
 		assert len(split_ann) == 16
 		for i, field in enumerate(split_ann):
 			container[HEADERS[i]].append(field)
+	assert container["ALT"] == container["ALLELE"]
+	del container["ALLELE"]
 	parsed = pd.DataFrame(container)
 	return parsed
 
