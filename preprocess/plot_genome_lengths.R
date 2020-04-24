@@ -1,4 +1,18 @@
-in_fn = "../../processed_data/preprocess/filter_fasta/genome_lengths.tsv"
+library(data.table)
+library(ggplot2)
+library(cowplot)
+in_fn = "../processed_data/preprocess/filter_fasta/genome_lengths.tsv"
+out_dir = "../processed_data/preprocess/plot_genome_lengths/"
+if (!dir.exists(out_dir)) {dir.create(out_dir)}
+
 genome_lengths = fread(in_fn, sep="\t", col.names = c("description", "length"))
-p = ggplot(genome_lengths, aes(x=length)) + geom_histogram(bins=100) + scale_y_sqrt() + geom_vline(xintercept = 25000, color="red", linetype="dashed") + geom_text(x = 25000, y = 30, label = "Cutoff = 25000", color="red", hjust=1.1, size = 5)
+p = ggplot(genome_lengths, aes(x=length)) + 
+	geom_histogram(bins=100) + 
+	scale_y_sqrt(breaks=c(0,100,1000,2500,5000,7500,10000,12500)) + 
+	geom_vline(xintercept = 25000, color="red", linetype="dashed") + 
+	scale_x_continuous(breaks=c(0,5000,10000,15000,20000,25000,30000)) +
+	xlab("SARS-CoV-2 Sequence Lengths") + 
+	ylab("Frequency")
 print(p)
+
+save_plot(sprintf("%s/genome_lengths.pdf", out_dir), p, base_width=6, base_height=3)
