@@ -22,6 +22,7 @@ python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../proces
 
 # Merge VCF files:
 bash vcf/merge_vcfs.sh ../processed_data/vcf/filter_samples/ ../data/aggregated/vcf/merged/ data/NC_045512.2.fasta
+python vcf/count_mutation_per_site.py --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz --out_dir ../processed_data/vcf/count_mutation_per_site/
 
 # Filter sites with >2 alleles
 # Also filter sites within the poly-A tail
