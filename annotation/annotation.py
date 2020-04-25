@@ -38,8 +38,8 @@ class Annotation():
 		print("Start annotating the query sequence.")
 		print(f"Query ID: {self.qry.id}")
 		print(f"Ref. ID: {self.ref_gbk.id}")
-		if len(self.qry.seq) < 29000:
-			print("Query sequence should have at least 29000 nucleotides! Aborting.")
+		if len(self.qry.seq) < 25000:
+			print("Query sequence should have at least 25,000 nucleotides! Aborting.")
 			return 
 
 		self.align(self.ref_gbk, self.qry, self.out_dir)
@@ -90,7 +90,7 @@ class Annotation():
 					else:
 						strain = "qry"
 
-					counter = 0
+					counter = 1
 				else:
 					for base in line.strip():
 						align[strain].append(base)
@@ -271,13 +271,13 @@ class Annotation():
 				else:
 					location = Annotation.transfer_location(ref_feature.location, \
 						nt_df["ref_coord"], nt_df["qry_coord"])
-				start = int(location.start)
+				start = int(location.start) + 1
 				end = int(location.end)
-				rna_length = location.end - location.start
+				rna_length = location.end - location.start + 1
 				ribosomal_slippage = "Yes" \
 					if "ribosomal_slippage" in ref_feature.qualifiers else "No"
 				strand = "+"
-				frame = location.start % 3
+				frame = (location.start + 1) % 3
 				if frame == 0: frame = 3
 
 				orf["Gene"].append(gene)
