@@ -14,7 +14,7 @@ python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_d
 
 # Converting FASTA to VCF:
 python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r data/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
-
+python3 vcf/count_mutations_per_sample.py --vcf_dir ../data/aggregated/vcf/individual/ --out_dir ../processed_data/vcf/count_mutations_per_sample/
 
 # Remove samples with too many mutations:
 python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../processed_data/vcf/filter_samples/ -c 150
@@ -46,7 +46,7 @@ python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata
 python3 metadata/parse_ncbi_metadata.py --csv_fn ../data/ncbi/metadata/sequences.csv -o ../data/aggregated/metadata/ncbi.tsv
 python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence.txt -o ../data/aggregated/metadata/embl.tsv
 python3 metadata/rename_cngb_metadata.py --in_fn ../data/cngb/metadata/CNGBdb_VirusDIP.csv --out_fn ../data/aggregated/metadata/cngb.tsv
-python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ../data/aggregated/metadata/merged --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
+python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ../data/aggregated/metadata/merged --genome_length_fn ../processed_data/preprocess/filter_fasta/genome_lengths.tsv --duplicate_seq_fn ../processed_data/preprocess/filter_fasta/duplicate_seq.tsv --num_variant_fn ../processed_data/vcf/count_mutations_per_sample/mutations_per_sample.tsv --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
 
 
 # MSA / Phylogenetic tree:

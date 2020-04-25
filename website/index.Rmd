@@ -39,11 +39,11 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 <div class="row">
 
 <div class="col-sm-6">
-<a href="http://flask-320.eba-xs7nerpb.us-west-2.elasticbeanstalk.com/browse"><button type="button" class="btn btn-primary btn-lg btn-block">Data and Analysis</button></a>
+<a href="http://covseq.baidu.com/browse"><button type="button" class="btn btn-primary btn-lg btn-block">Data and Analysis</button></a>
 </div>
 
 <div class="col-sm-6">
-<a href="http://flask-320.eba-xs7nerpb.us-west-2.elasticbeanstalk.com/browse"><button type="button" class="btn btn-warning btn-lg btn-block">Interactive Visualization</button></a>
+<a href="http://covseq.baidu.com/upload"><button type="button" class="btn btn-warning btn-lg btn-block">Interactive Visualization</button></a>
 </div>
 
 </div>
@@ -55,7 +55,7 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 </div>
 
 <div class="col-sm-6">
-<a href="http://flask-320.eba-xs7nerpb.us-west-2.elasticbeanstalk.com/faq"><button type="button" class="btn btn-danger btn-lg btn-block">FAQ</button></a>
+<a href="http://covseq.baidu.com/faq"><button type="button" class="btn btn-danger btn-lg btn-block">FAQ</button></a>
 </div>
 
 </div>
@@ -66,6 +66,7 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 <div class="col-sm-5">
 
 ## News
+- 04-20-2020: Lastest update with 12940 SARS-CoV-2 genomes. 
 - 04-10-2020: CoV-Seq beta testing.
 - 03-23-2020: Data collected from GISAID, NCBI, EMBL, and CNGB. 
 

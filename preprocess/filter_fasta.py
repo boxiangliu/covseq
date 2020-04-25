@@ -2,32 +2,33 @@ import os
 import hashlib
 import click
 from Bio import SeqIO
+from collections import defaultdict
 
+def detect_duplicate_by_seq(in_fn, out_dir):
+	print("Removing duplicates by sequence.")
+	id2hash = dict()
+	hash2id = defaultdict(list)
 
-def remove_duplicates(in_fn, out_dir):
-	print("Removing duplicates.")
-	hash_set = set()
-	out_table_fn = f"{out_dir}/duplicated.tsv"
-	out_fasta_fn = f"{out_dir}/non_redundant.fasta"
-	with open(out_table_fn, "w") as out_table, \
-		open(out_fasta_fn, "w") as out_fasta:
+	for record in SeqIO.parse(in_fn, "fasta"):
+		sha256 = hashlib.sha256(str(record.seq).encode("utf-8")).hexdigest()
+		id2hash[record.id] = sha256
+		hash2id[sha256].append(record.id)
+
+	out_table_fn = f"{out_dir}/duplicate_seq.tsv"
+	with open(out_table_fn, "w") as out_table:
 		out_table.write("ID\tduplicated\n")
-
 		for record in SeqIO.parse(in_fn, "fasta"):
-			sha256 = hashlib.sha256(str(record.seq).encode("utf-8")).hexdigest()
-			if sha256 not in hash_set:
-				hash_set.add(sha256)
-				out_table.write(f"{record.description}\t0\n")
-				SeqIO.write(record, out_fasta, "fasta")
-			else:
-				out_table.write(f"{record.description}\t1\n")
-	return out_table_fn, out_fasta_fn
+			sha256 = id2hash[record.id]
+			identical_seq = ",".join(hash2id[sha256])
+			out_table.write(f"{record.id}\t{identical_seq}\n")
+
+	return out_table_fn
 
 
 def remove_duplicates_by_ID(in_fn, out_dir):
-	print("Removing duplicates.")
+	print("Removing duplicates by ID.")
 	hash_set = set()
-	out_table_fn = f"{out_dir}/duplicated.tsv"
+	out_table_fn = f"{out_dir}/duplicate_ID.tsv"
 	out_fasta_fn = f"{out_dir}/non_redundant.fasta"
 	with open(out_table_fn, "w") as out_table, \
 		open(out_fasta_fn, "w") as out_fasta:
@@ -86,10 +87,12 @@ def main(in_fn, out_dir, final_fn):
 	print(f"Output: {final_fn}")
 	
 	os.makedirs(out_dir, exist_ok=True)
-	_, non_redundant = remove_duplicates_by_ID(in_fn, out_dir)
-	get_genome_length(non_redundant, f"{out_dir}/genome_lengths.tsv")
-	filter_complete_genome(non_redundant, final_fn, cutoff=25000)
-	count_ambiguous_base(final_fn, f"{out_dir}/ambiguous_bases.tsv")
+
+	detect_duplicate_by_seq(in_fn, out_dir)
+	# _, non_redundant = remove_duplicates_by_ID(in_fn, out_dir)
+	get_genome_length(in_fn, f"{out_dir}/genome_lengths.tsv")
+	# filter_complete_genome(non_redundant, final_fn, cutoff=25000)
+	# count_ambiguous_base(final_fn, f"{out_dir}/ambiguous_bases.tsv")
 
 
 if __name__ == "__main__":

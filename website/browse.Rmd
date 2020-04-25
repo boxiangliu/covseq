@@ -43,7 +43,7 @@ library(countrycode)
   </div>
   
   <div class="col-sm-6">
-  <a class="btn btn-primary btn-lg" href="#" role="button">Download Metadata</a>
+  <a class="btn btn-primary btn-lg" href="https://drive.google.com/drive/folders/1JjSH0uInyY5mJ6b7vRVCz_ZXpt6nqnj1?usp=sharing" role="button">Download Metadata</a>
   </div>
   </div>
 </div>
@@ -88,7 +88,8 @@ seq_vs_ctry = metadata[, list(num_seq=.N), by="iso3c"]
 to_plot = merge(world, seq_vs_ctry, by="iso3c", all.x=TRUE)
 to_plot[is.na(to_plot$num_seq),]$num_seq = 0 
 ggplot(data = to_plot) +
-    theme_bw() + geom_sf(aes(fill=num_seq)) + scale_fill_viridis_c(option = "plasma", trans = "sqrt")
+  theme_bw() + geom_sf(aes(fill=num_seq)) + 
+  scale_fill_viridis_c(option = "plasma", trans = "sqrt", name = "No. Sequences")
 
 ```
 
@@ -96,32 +97,7 @@ ggplot(data = to_plot) +
 ## Look up variants annotations
 ```{r variant annotation, echo=FALSE, warning=FALSE}
 annotation = fread("../../processed_data/snpEff/parse_snpEff/annotated.tsv")
-DT::datatable(annotation[,list(POS, REF, ALT, EFFECT, IMPACT, GENE,HGVS_C,HGVS_P, CDS_POS, AA_POS, DISTANCE)], filter = 'bottom', caption = 'Table 3: Genomic Variant Annotation from SnpEff.', colnames = c("Pos", "Ref", "Alt", "Effect", "Impact", "Gene","HGVS.C", "HGVS.P", "CDS position", "AA position", "Distance"))
+DT::datatable(annotation[,list(POS, REF, ALT, EFFECT, IMPACT, GENE,HGVS_C,HGVS_P, CDS_POS, AA_POS, DISTANCE)], filter = 'bottom', caption = 'Table 2: Genomic Variant Annotation from SnpEff.', colnames = c("Pos", "Ref", "Alt", "Effect", "Impact", "Gene","HGVS.C", "HGVS.P", "CDS position", "AA position", "Distance"))
 ```
-
-```{r remove_duplicates, eval = FALSE, echo = FALSE}
-in_fn = "../../processed_data/preprocess/filter_fasta/duplicated.tsv"
-duplicated = fread(in_fn, sep="\t")
-sum(duplicated$duplicated == 1)
-```
-
-
-
-```{r ambiguous bases, eval = FALSE, echo = FALSE}
-in_fn = "../../processed_data/preprocess/filter_fasta/ambiguous_bases.tsv"
-ambiguous_bases = fread(in_fn, sep="\t", col.names = c("description", "count", "length", "proportion"))
-p = ggplot(ambiguous_bases, aes(x=proportion + 1e-5)) + geom_histogram(bins=1000) + scale_x_log10()
-print(p)
-```
-
-
-```{r mutation count, eval = FALSE, echo = FALSE}
-in_fn = "../../processed_data/vcf/filter_samples/mutation_count.tsv"
-mutation_count = fread(in_fn, sep="\t", col.names=c("sample", "mutation"))
-p = ggplot(mutation_count, aes(x=mutation)) + geom_histogram(bins=300) + scale_y_sqrt() + scale_x_log10(breaks=c(1,10,100,150,1000,10000)) + geom_vline(xintercept=150, color="red", linetype="dashed")
-print(p)
-```
-
-
 
 

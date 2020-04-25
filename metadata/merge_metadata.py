@@ -86,8 +86,11 @@ def parse_location(locations):
 @click.command()
 @click.option("--in_dir", "-i", type=str, help="Input directory.")
 @click.option("--out_prefix", "-o", type=str, help="Output file prefix.")
+@click.option("--genome_length_fn", type=str, help="Genome length file.")
+@click.option("--duplicate_seq_fn", type=str, help="Duplicate sequence file.")
+@click.option("--num_variant_fn", type=str, help="Number of variant file.")
 @click.option("--vcf_fn", "-v", type=str, help="A VCF file. If set, the program will output an additional file with only entries that appear in the VCF.")
-def main(in_dir, out_prefix, vcf_fn):
+def main(in_dir, out_prefix, genome_length_fn, duplicate_seq_fn, num_variant_fn, vcf_fn):
 	container = []
 	for s in SOURCES:
 		fn = f"{in_dir}/{s}.tsv"
@@ -110,6 +113,20 @@ def main(in_dir, out_prefix, vcf_fn):
 	country, region = parse_location(location)
 	concat["Country"] = country
 	concat["Region"] = region
+
+	if genome_length_fn:
+		genome_length = pd.read_table(genome_length_fn, names=["Accession_ID", "Genome_Length"]).drop_duplicates()
+		concat = concat.merge(genome_length, on="Accession_ID")
+
+	if duplicate_seq_fn:
+		duplicate_seq = pd.read_table(duplicate_seq_fn, header=0, names=["Accession_ID", "Identical_Seq"]).drop_duplicates()
+		concat = concat.merge(duplicate_seq, on="Accession_ID")
+
+	if num_variant_fn:
+		num_variant = pd.read_table(num_variant_fn, header=0, names=["Accession_ID", "Num_Variant"]).drop_duplicates()
+		concat = concat.merge(num_variant, on="Accession_ID", how="left")
+		concat.astype({"Num_Variant":"Int32"})
+
 	concat.to_csv(f"{out_prefix}.tsv", index=False, sep="\t")
 
 	if vcf_fn:
