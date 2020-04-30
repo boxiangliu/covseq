@@ -121,21 +121,37 @@ def save_vcf(ref_variant, qry_variant, qry_name, out_fn):
 				f.write(f"NC_045512.2\t{coord}\t.\t{rv}\t{qv}\t.\tPASS\t.\tGT\t1\n")
 
 
+def filter_polya(vcf_fn):
+	print("Removing variants in the Poly-A tail.")
+	with open(vcf_fn, "r") as fin, open(f"{vcf_fn}.tmp", "w") as fout:
+		for line in fin:
+			if line.startswith("#"):
+				fout.write(line)
+			else:
+				split_line = line.strip().split("\t")
+				pos = split_line[1]
+				ref = split_line[3]
+				if pos == "29870" and ref.endswith("AAAAAAAAAA"):
+					pass
+				else:
+					fout.write(line)
+	os.remove(vcf_fn)
+	os.rename(f"{vcf_fn}.tmp", vcf_fn)
+
+
 def postprocess_vcf(vcf_fn, ref_fn, compress_vcf):
 	'''Normalize, rename ID, bgzip and tabix'''
+	print("Normalizing VCF.")
+	cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Ov -o {vcf_fn}"
+	output1 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
+	filter_polya(vcf_fn)
+
 	if compress_vcf:
-		print("Normalizing and compressing VCF.")
-		cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Oz -o {vcf_fn}.gz"
-		output1 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
-		assert os.path.exists(f"{vcf_fn}.gz")
-		cmd = f"tabix -p vcf {vcf_fn}.gz"
+		print("Compressing and indexing VCF.")
+		cmd = f"bgzip {vcf_fn}"
 		output2 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
-
-	else:
-		print("Normalizing VCF.")
-		cmd = f"bcftools norm -f {ref_fn} {vcf_fn} -Ou | bcftools annotate --set-id '%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' -Ov -o {vcf_fn}"
-		output1 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
-
+		cmd = f"tabix -p vcf {vcf_fn}.gz"
+		output3 = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
 
 def cleanup(out_prefix, compress_vcf):
 	os.remove(f"{out_prefix}.ali")

@@ -401,7 +401,10 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 
 		if snpeff:
 			run_snpEff(f"{out_dir}/{qry.id}/{qry.id}.vcf", f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
-			snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
+			
+			ORF1a_start = anno.orf.loc[anno.orf["Gene"] == "ORF1a","Start"].values[0] 
+			ORF1a_end = anno.orf.loc[anno.orf["Gene"] == "ORF1a","End"].values[0] 
+			snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf", ORF1a=[ORF1a_start,ORF1a_end])
 			snpEff.to_csv(f"{out_dir}/{qry.id}/{qry.id}.snpEff.tsv", index=False, sep="\t")
 
 

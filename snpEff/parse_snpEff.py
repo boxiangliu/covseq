@@ -11,7 +11,12 @@ HEADERS = ["ALLELE", "EFFECT", "IMPACT", \
 	"CDNA_POS", "CDS_POS", \
 	"AA_POS", "DISTANCE", "ERRORS"]
 
-def parse_snpEff(vcf_fn):
+def parse_snpEff(vcf_fn, ORF1a=None):
+	"""
+	vcf_fn: VCF file
+	ORF1a: a list of ORF1a start and end, i.e. [266, 13483]. Providing this parameter will 
+		force the GENE column to append ",ORF1a" if the variant falls within ORF1a. 
+	"""
 	vcf = VCF(vcf_fn)
 	container = DefaultOrderedDict(list)
 	container["POS"] = vcf.rowdata["POS"].tolist()
@@ -26,6 +31,14 @@ def parse_snpEff(vcf_fn):
 			container[HEADERS[i]].append(field)
 	assert container["ALT"] == container["ALLELE"]
 	del container["ALLELE"]
+	
+	if ORF1a:
+		ORF1a_start = ORF1a[0]
+		ORF1a_end = ORF1a[1]
+		for i, pos in enumerate(container["POS"]):
+			if ORF1a_start <= pos and pos <= ORF1a_end:
+				container["GENE"][i] += ",ORF1a"
+
 	parsed = pd.DataFrame(container)
 	return parsed
 
