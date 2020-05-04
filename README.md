@@ -59,33 +59,32 @@ The first step is to download data from repositories. All steps assume `covseq` 
 To download sequence and metadata from GISAID: 
 
 1. Go to https://www.gisaid.org/
-2. Click on login on the upper right corner
-3. To download FASTA sequences: Click on EpiCoV -> Browse -> Download (lower right corner) -> Move the FASTA sequences to `../data/gisaid/fasta/`
-4. Download the Acknowledgement Table (link beneath the virus display table) -> Move the table to `../data/gisaid/metadata/acknowledgement/`
+2. Click on login on the upper right corner (Note: you will need to register if you don't have an account already.)
+3. To download FASTA sequences: Click on EpiCoV -> Click on Downloads -> downlod "nextmeta" -> Move the FASTA file to `../data/gisaid/fasta/`
+4. On the same page as step (3) -> download "nextfasta" -> Move the metadata to `../data/gisaid/metadata/`
 
 
 To download data from NCBI: 
 
-1. Go to https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=SARS-CoV-2,%20taxid:2697049
-2. Click "Select Columns" (upper-right corner) -> Add all columns -> Apply
-3. To download FASTA sequences: Download -> Select Nucleotide (under Sequence data) -> Select Download All Records -> Select Use default -> Download -> Move FASTA files into `../data/ncbi/fasta/`
-4. To download metadata: Download -> Select CSV format (under Current table view result) -> Select Download All Records -> Click Select All -> Download -> Move metadata into `../data/ncbi/metadata/`
+1. Go to [NCBI Virus](https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=SARS-CoV-2,%20taxid:2697049)
+2. To download FASTA sequences: Click "Download" -> Select "Nucleotide" (under Sequence data) -> Select "Download All Records" -> Select "Use default" -> Click "Download" -> Move the FASTA file into `../data/ncbi/fasta/`
+3. To download metadata: Click "Download" -> Select "CSV format" (under Current table view result) -> Select "Download All Records" -> Click "Select All" -> Click "Download" -> Move metadata into `../data/ncbi/metadata/`
 
 
 To download data from EMBL:
 
-1. Go to https://www.ebi.ac.uk/ena/pathogens/covid-19
-2. Click Assembled Sequences (under Summary)
-3. Click FASTA to download sequence data -> Move FASTA into `../data/embl/fasta/`
-4. Click EMBL to download metadata -> Move metadata into `../data/embl/metadata/`
+1. Go to [EMBL Pathogens](https://www.ebi.ac.uk/ena/pathogens/covid-19)
+2. Click "Assembled Sequences" (under Summary)
+3. Click "FASTA" to download sequence data -> Move FASTA into `../data/embl/fasta/`
+4. Click "EMBL" to download metadata -> Move metadata into `../data/embl/metadata/`
 
 
 To download data from CNGB: 
 
-1. Go to https://db.cngb.org/virus/ncov
-2. Click on Data source platform once to rank CNGB first
+1. Go to [CNGB VirusDIP](https://db.cngb.org/virus/ncov)
+2. Click on the table column header "Data source platform" to show CNGB first
 3. Select CNGB samples 
-4. Click on Download Sequence data to download FASTA sequences -> Move FASTA sequences to `../data/cngb/fasta/`
+4. Click on Download Sequence data to download FASTA sequences -> Move the FASTA files to `../data/cngb/fasta/`
 5. Click on Download Excel to download metadata -> Move metadata to `../data/cngb/metadata/`
 
 
