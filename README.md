@@ -17,6 +17,9 @@ You will also need to install the following Python packages:
 click
 biopython
 hashlib
+pandas 
+matplotlib
+seaborn
 ```
 
 ## Quick Start

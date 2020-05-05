@@ -48,6 +48,8 @@ def parse_snpEff(vcf_fn, ORF1a=None):
 @click.option("--out_fn", "-o", type=str, help="Output file.")
 def main(vcf_fn, out_fn):
 	snpEff = parse_snpEff(vcf_fn)
+	out_dir = os.path.dirname(out_fn)
+	os.makedirs(out_dir, exist_ok=True)
 	snpEff.to_csv(out_fn, index=False, sep="\t")
 
 if __name__ == "__main__":

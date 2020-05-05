@@ -15,10 +15,10 @@ Rscript preprocess/plot_genome_lengths.R
 # Converting FASTA to VCF:
 python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r data/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
 python3 vcf/count_mutations_per_sample.py --vcf_dir ../data/aggregated/vcf/individual/ --out_dir ../processed_data/vcf/count_mutations_per_sample/
-Rscript vcf/plot_mutation_count.R 
 
 # Remove samples with too many mutations:
 python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../processed_data/vcf/filter_samples/ -c 150
+Rscript vcf/plot_mutation_count.R 
 # Conclusion: remove samples with > 150 mutations.
 
 # Merge VCF files:
