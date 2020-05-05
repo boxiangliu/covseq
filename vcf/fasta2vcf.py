@@ -25,9 +25,16 @@ def align(ref_fasta, qry_fasta, out_prefix):
 				for line in fin:
 					fout.write(line.strip() + "\n")
 
+	op_sys = subprocess.check_output("uname")
+	if op_sys == b"Linux\n":
+		mafft = "ext/mafft-linux64/mafft.bat"
+	elif op_sys == b"Darwin\n":
+		mafft = "ext/mafft-mac/mafft.bat"
+	else:
+		raise Exception("Coviz only supports Linux and MacOS!")
 
 	mafft_out_fn = f"{out_prefix}.ali"
-	cmd = f"mafft {mafft_in_fn} > {mafft_out_fn}"
+	cmd = f"{mafft} {mafft_in_fn} > {mafft_out_fn}"
 	output = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
 
 	return mafft_out_fn
