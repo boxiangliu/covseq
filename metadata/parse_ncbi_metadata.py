@@ -1,3 +1,4 @@
+import os
 from Bio import SeqIO
 from collections import defaultdict
 import pandas as pd
