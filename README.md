@@ -20,6 +20,7 @@ hashlib
 pandas 
 matplotlib
 seaborn
+dateutil
 ```
 
 ## Quick Start
