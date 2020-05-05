@@ -100,6 +100,8 @@ def main(embl_fn, out_fn):
 	print("#################")
 	print(f"EMBL: {embl_fn}")
 	print(f"Output: {out_fn}")
+	out_dir = os.path.dirname(out_fn)
+	os.makedirs(out_dir, exist_ok=True)
 
 	embl = SeqIO.parse(embl_fn, "embl")
 	embl_df = parse_embl(embl)

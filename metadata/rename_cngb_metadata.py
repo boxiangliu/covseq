@@ -13,6 +13,8 @@ def main(in_fn, out_fn):
 	print("#################")
 	print(f"CNGB: {in_fn}")
 	print(f"Output: {out_fn}")
+	out_dir = os.path.dirname(out_fn)
+	os.makedirs(out_dir, exist_ok=True)
 
 	df = pd.read_csv(in_fn)
 	old2new = {"Sequence ID": "Accession_ID",

@@ -72,7 +72,10 @@ def main(metadata_dir, acknowledgement_fn, out_fn, type):
 	print("# GISAID metadata #")
 	print("###################")
 	print(f"GISAID: {metadata_dir}")
+	print(f"Acknowledgement: {acknowledgement_fn}")
 	print(f"Output: {out_fn}")
+	out_dir = os.path.dirname(out_fn)
+	os.makedirs(out_dir, exist_ok=True)
 
 	if type == "detail":
 		samples = read_sample_info(metadata_dir)
@@ -81,7 +84,6 @@ def main(metadata_dir, acknowledgement_fn, out_fn, type):
 		df["Data_Source"] = "GISAID"
 		df.to_csv(out_fn, sep="\t", index=False)
 	elif type == "acknowledgement":
-		# metadata_dir = "../data/gisaid/metadata/acknowledgement/"
 		fn = acknowledgement_fn
 		df = pd.read_excel(fn, skiprows=[0,1,3])
 		df["Data_Source"] = "GISAID"

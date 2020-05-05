@@ -97,6 +97,8 @@ def main(gb_fn, csv_fn, out_fn):
 	print(f"Genbank: {gb_fn}")
 	print(f"CVS: {csv_fn}")
 	print(f"Output: {out_fn}")
+	out_dir = os.path.dirname(out_fn)
+	os.makedirs(out_dir, exist_ok=True)
 
 	if gb_fn:
 		gb = SeqIO.parse(gb_fn, "genbank")

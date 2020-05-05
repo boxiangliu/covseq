@@ -91,6 +91,18 @@ def parse_location(locations):
 @click.option("--num_variant_fn", type=str, help="Number of variant file.")
 @click.option("--vcf_fn", "-v", type=str, help="A VCF file. If set, the program will output an additional file with only entries that appear in the VCF.")
 def main(in_dir, out_prefix, genome_length_fn, duplicate_seq_fn, num_variant_fn, vcf_fn):
+	print("##################")
+	print("# merge metadata #")
+	print("##################")
+	print(f"Input Dir: {in_dir}")
+	print(f"Out Prefix: {out_prefix}")
+	print(f"Genome Length: {genome_length_fn}")
+	print(f"Duplicate Sequences: {duplicate_seq_fn}")
+	print(f"No. Variants: {num_variant_fn}")
+	print(f"VCF file: {vcf_fn}")
+	out_dir = os.path.dirname(out_prefix)
+	os.makedirs(out_dir, exist_ok=True)
+
 	container = []
 	for s in SOURCES:
 		fn = f"{in_dir}/{s}.tsv"
