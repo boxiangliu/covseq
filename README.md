@@ -7,6 +7,12 @@ git clone https://github.com/boxiangliu/covseq.git
 
 CoV-Seq is written and tested in `python 3.7`, and should in theory work with any `python 3` versions. CoV-Seq is not compatible with `python 2`.
 
+
+## Preliminaries 
+
+You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). 
+
+
 ## Quick Start
 
 We have made CoV-Seq very easy to use. To annotate a SARS-CoV-2 genome in FASTA format, go to the `covseq` directory and run: 
@@ -33,6 +39,8 @@ The filename `Guangzhou_GZ8H0001_2020` comes from the FASTA header in `data/GZ8H
 2. \*.vcf: variant calls
 3. \*.snpEff.vcf: variant calls annotated with snpEff
 4. \*.snpEff.tsv: parsed VCF annotations
+5. \*.tsv: This is for internal testing and you can safely ignore this file.
+
 
 **That's it**. You can now use the VCF and annotations for downstream analysis. 
 
@@ -42,14 +50,9 @@ For all options, run
 annotation/annotation.py --help
 ```
 
-## Replicating CoV-Seq Results
+## Batch processing
 
-To replicate all results in on `covseq.baidu.com/browse`, please follow instructions below. 
-
-
-### Preliminaries 
-
-You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). 
+The following section describes the pipeline we used to batch process tens of thousands of FASTA sequences available for download on `covseq.baidu.com/browse`.
 
 
 ### Download genomic data and metadata
@@ -85,7 +88,8 @@ To download data from CNGB:
 2. Click on the table column header "Data source platform" to show CNGB first
 3. Select CNGB samples 
 4. Click on Download Sequence data to download FASTA sequences -> Move the FASTA files to `../data/cngb/fasta/`
-5. Click on Download Excel to download metadata -> Move metadata to `../data/cngb/metadata/`
+5. Click on the gear icon on the top right corner -> Select all columns 
+6. Click on Download Excel to download metadata -> Move metadata to `../data/cngb/metadata/`
 
 
 ### Preprocess
@@ -100,7 +104,7 @@ python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/
 
 Replace `../data/cngb/metadata/CNGBdb_VirusDIP.csv` with your own CNGB metadata file.
 
-Next we will remove incomplete genomes (number of nucleotide < 25000). 
+Next we will remove incomplete genomes (number of nucleotides < 25000). 
 
 2. Filter out incomplete genomes. 
 

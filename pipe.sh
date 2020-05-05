@@ -10,11 +10,12 @@ python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/
 # Remove duplicates.
 # Filter for complete genomes.
 python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_dir ../processed_data/preprocess/filter_fasta/ --final_fn ../data/aggregated/fasta/preprocessed.fasta
-
+Rscript preprocess/plot_genome_lengths.R
 
 # Converting FASTA to VCF:
 python3 vcf/fasta2vcf.py -f ../data/aggregated/fasta/preprocessed.fasta -r data/NC_045512.2.fasta -o ../data/aggregated/vcf/individual/
 python3 vcf/count_mutations_per_sample.py --vcf_dir ../data/aggregated/vcf/individual/ --out_dir ../processed_data/vcf/count_mutations_per_sample/
+Rscript vcf/plot_mutation_count.R 
 
 # Remove samples with too many mutations:
 python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../processed_data/vcf/filter_samples/ -c 150
@@ -34,14 +35,14 @@ bash snpEff/snpEff.sh ../data/aggregated/vcf/merged/filtered.vcf.gz ../data/aggr
 python3 snpEff/parse_snpEff.py --vcf_fn ../data/aggregated/vcf/merged/annotated.vcf.gz --out_fn ../processed_data/snpEff/parse_snpEff/annotated.tsv
 
 # Plot the mutation distribution:
-python3 mutation_distribution/plot_sample_per_mutation.py
+# python3 mutation_distribution/plot_sample_per_mutation.py
 
 # Plot mutation over time:
-python3 mutation_distribution/plot_mutation_over_time.py
+# python3 mutation_distribution/plot_mutation_over_time.py
 
 # Make phenotype table:
 # python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/detail/ -o ../data/aggregated/metadata/gisaid_detail.tsv --type detail
-python3 metadata/parse_gisaid_metadata.py --metadata_dir ../data/gisaid/metadata/acknowledgement/ -o ../data/aggregated/metadata/gisaid_acknowledgement.tsv --type acknowledgement
+python3 metadata/parse_gisaid_metadata.py --acknowledgement_fn ../data/gisaid/metadata/gisaid_hcov-19.xls -o ../data/aggregated/metadata/gisaid_acknowledgement.tsv --type acknowledgement
 # python3 metadata/parse_ncbi_metadata.py --gb_fn ../data/ncbi/metadata/sequence.gb -o ../data/aggregated/metadata/ncbi.tsv
 python3 metadata/parse_ncbi_metadata.py --csv_fn ../data/ncbi/metadata/sequences.csv -o ../data/aggregated/metadata/ncbi.tsv
 python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence.txt -o ../data/aggregated/metadata/embl.tsv
@@ -50,11 +51,11 @@ python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_p
 
 
 # MSA / Phylogenetic tree:
-python3 phylogenetic/construct_tree.py --in_fn ../data/aggregated/fasta/preprocessed.fasta --out_dir ../data/aggregated/msa/
+# python3 phylogenetic/construct_tree.py --in_fn ../data/aggregated/fasta/preprocessed.fasta --out_dir ../data/aggregated/msa/
 
 
 # Profile annotation.py
-bash annotation/profile_annotation.sh 
+# bash annotation/profile_annotation.sh 
 # Figure:../processed_data/annotation/profile_annotation/stat.pdf
 # Result: The merge operation in transfer_feature is the slowest, consuming about 33% of overall runtime
 # Conclusion: 33% improve does not justify spending time. Leaving annotation.py as it is.

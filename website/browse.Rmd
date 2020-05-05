@@ -43,7 +43,7 @@ library(countrycode)
   </div>
   
   <div class="col-sm-6">
-  <a class="btn btn-primary btn-lg" href="https://drive.google.com/drive/folders/1JjSH0uInyY5mJ6b7vRVCz_ZXpt6nqnj1?usp=sharing" role="button">Download Metadata</a>
+  <a class="btn btn-primary btn-lg" href="https://drive.google.com/drive/folders/1JjSH0uInyY5mJ6b7vRVCz_ZXpt6nqnj1" role="button">Download Metadata</a>
   </div>
   </div>
 </div>

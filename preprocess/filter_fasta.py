@@ -79,19 +79,22 @@ def count_ambiguous_base(in_fn, out_fn):
 @click.option("--in_fn", "-i", type=str, help="Input file.")
 @click.option("--out_dir", type=str, help="Directory to put intermediate files.")
 @click.option("--final_fn", type=str, help="Final fasta file.")
-def main(in_fn, out_dir, final_fn):
+@click.option("--cutoff", type=int, help="Cutoff for genome length.", \
+	default=25000, show_default=True)
+def main(in_fn, out_dir, final_fn, cutoff):
 	print("#############################")
 	print("# Filtering FASTA sequences #")
 	print("#############################")
 	print(f"Input: {in_fn}")
 	print(f"Output: {final_fn}")
-	
+	print(f"Cutoff: {cutoff}")
+
 	os.makedirs(out_dir, exist_ok=True)
 
 	detect_duplicate_by_seq(in_fn, out_dir)
-	# _, non_redundant = remove_duplicates_by_ID(in_fn, out_dir)
+	_, non_redundant = remove_duplicates_by_ID(in_fn, out_dir)
 	get_genome_length(in_fn, f"{out_dir}/genome_lengths.tsv")
-	# filter_complete_genome(non_redundant, final_fn, cutoff=25000)
+	filter_complete_genome(non_redundant, final_fn, cutoff=cutoff)
 	# count_ambiguous_base(final_fn, f"{out_dir}/ambiguous_bases.tsv")
 
 

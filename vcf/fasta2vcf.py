@@ -156,8 +156,6 @@ def postprocess_vcf(vcf_fn, ref_fn, compress_vcf):
 def cleanup(out_prefix, compress_vcf):
 	os.remove(f"{out_prefix}.ali")
 	os.remove(f"{out_prefix}.fasta")
-	if compress_vcf:
-		os.remove(f"{out_prefix}.vcf")
 
 
 def align2vcf(align_fn, ref_fn, qry_id, out_prefix, compress_vcf, clean_up, verbose=False):
@@ -197,6 +195,9 @@ def fasta2vcf(fasta_fn, ref_fn, align_fn, out_dir, compress_vcf, clean_up, verbo
 			print(f"Query Name: {qry_id}")
 
 			out_prefix = f"{out_dir}/{qry_id}"
+			if os.path.exists(f"{out_prefix}.vcf.gz"):
+				print(f"{out_prefix}.vcf.gz already exists!")
+				continue
 
 			if verbose: print("Aligning...")
 			with open("qry.fasta", "w") as f:
