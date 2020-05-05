@@ -12,6 +12,12 @@ CoV-Seq is written and tested in `python 3.7`, and should in theory work with an
 
 You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). 
 
+You will also need to install the following Python packages:
+```
+click
+biopython
+
+```
 
 ## Quick Start
 

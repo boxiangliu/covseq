@@ -21,6 +21,9 @@ def get_cngb_id_map(in_fn):
 
 def concatenate_fasta(in_dir, sub_dirs, out_fn, cngb_id_map):
 	counter = 0
+	out_dir = os.path.dirname(out_fn)
+	os.makedirs(out_dir, exist_ok=True)
+	
 	with open(out_fn, "w") as fout:
 		for sd in sub_dirs:
 			wd = f"{in_dir}/{sd}/fasta/"
