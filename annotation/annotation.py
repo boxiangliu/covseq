@@ -11,21 +11,30 @@ from vcf.fasta2vcf import fasta2vcf
 from utils import DefaultOrderedDict, VCF
 from snpEff.parse_snpEff import HEADERS, parse_snpEff
 from werkzeug.utils import secure_filename
+import platform 
+import shutil
 
-class Error():
-	def __init__(self, id_, msg, qryid):
-		self.id = id_
+class Status():
+	'''
+	Status Code:
+	0: success
+	1: sequence contains more than 5% non-A[T/U]GC letters
+	2: sequence contains < 25,000 nucleotides or > 35000 nucleotides
+	3: mafft not found
+	4: unknown error
+	'''
+	def __init__(self, code, msg, id):
+		self.code = code
 		self.msg = msg
-		self.qryid = qryid
+		self.id = id
 
 
 def read_fasta(fasta_fn):
 	fasta = list(SeqIO.parse(fasta_fn, "fasta"))
 	for i, x in enumerate(fasta):
 		x.id = secure_filename(x.id)
-
 		print("Replacing U's with T's.")
-		x.seq = str(x.seq).upper().replace("U","T")
+		x.seq = Seq.Seq(str(x.seq).upper().replace("U","T"))
 
 		non_ATGC = 0
 		for nuc in x.seq:
@@ -33,7 +42,9 @@ def read_fasta(fasta_fn):
 				non_ATGC += 1
 		
 		if non_ATGC/len(x.seq) > 0.05:
-			fasta[i] = Error(0, "ERROR: sequence contains more than 5% non-A[T/U]GC letters.", x.id)
+			err_msg = "ERROR: sequence contains more than 5% non-A[T/U]GC letters."
+			print(err_msg)
+			fasta[i] = Status(1, err_msg, x.id)
 
 	return fasta
 
@@ -58,29 +69,35 @@ class Annotation():
 		print("Start annotating the query sequence.")
 		print(f"Query ID: {self.qry.id}")
 		print(f"Ref. ID: {self.ref_gbk.id}")
-		if len(self.qry.seq) < 25000:
-			print("Query sequence should have at least 25,000 nucleotides! Aborting.")
-			return 
+		if len(self.qry.seq) < 25000 or len(self.qry.seq) > 35000:
+			err_msg = "ERROR: Query sequence should be between 25,000 and 35,000 nucleotides!"
+			print(err_msg)
+			return Status(2, err_msg, self.qry.id)
 
-		self.align(self.ref_gbk, self.qry, self.out_dir)
+		align_status = self.align(self.ref_gbk, self.qry, self.out_dir)
+		if align_status.code == 3:
+			return align_status
 		self.parse_align(self.align_fn)
 		# self.get_mutation(self.nt_df)
 		# self.transfer_feature(self.ref_gbk, self.nt_df, self.verbose)
 		self.get_orf(self.ref_gbk, self.nt_df)
-
+		return Status(0, "success", self.qry.id)
 
 	def align(self, ref, qry, out_dir):
 		print("Aligning reference and query sequences.")
 		work_dir = f"{out_dir}/{qry.id}"
 		os.makedirs(work_dir, exist_ok=True)
 		
-		op_sys = subprocess.check_output("uname")
-		if op_sys == b"Linux\n":
+		if platform.system() == "Linux":
 			mafft = "ext/mafft-linux64/mafft.bat"
-		elif op_sys == b"Darwin\n":
+		elif platform.system() == "Darwin":
 			mafft = "ext/mafft-mac/mafft.bat"
-		else:
-			raise Exception("Coviz only supports Linux and MacOS!")
+		elif platform.system() == "Windows":
+			mafft = shutil.which("mafft")
+			if mafft is None:
+				err_msg = "ERROR: mafft not found! Install it here: https://mafft.cbrc.jp/alignment/software/windows.html"
+				return Status(3, err_msg, self.qry.id)
+
 
 		mafft_in_fn = f"{work_dir}/{qry.id}.fasta"
 		with open(mafft_in_fn, "w") as f:
@@ -94,6 +111,7 @@ class Annotation():
 		output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, shell=True)
 
 		self.align_fn = mafft_out_fn
+		return Status(0, "success", self.qry.id)
 
 
 	def parse_align(self, align_fn):
@@ -203,10 +221,6 @@ class Annotation():
 			for loc_i in location.__dict__["parts"]:
 				protein_anno = Annotation.update_protein_annotation(loc_i, seq, protein_anno)
 
-		else: 
-
-			raise Exception(type(location) + " not defined!")
-
 		return protein_anno
 
 
@@ -240,9 +254,6 @@ class Annotation():
 					new_location += Annotation.transfer_simple_location(loc_i.start, \
 						loc_i.end, fro, to)
 
-		else:
-			raise Exception(type(location) + " not defined!")
-		
 		return new_location
 
 
@@ -440,6 +451,11 @@ def vcf_intersect_orf(vcf_fn, orf):
 	return out
 
 
+def write_error(out_dir, status):
+	with open(f"{out_dir}/{status.id}/{status.id}.err", "w") as f:
+		f.write(status.msg + "\n")
+
+
 def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 
 	print("##################")
@@ -454,33 +470,46 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 	qries = read_fasta(fasta)
 	ref_gbk = read_ref_genbank(gbk_fn)
 	for qry in qries:
-		if isinstance(qry, Error) and qry.id == 0:
-			os.makedirs(f"{out_dir}/{qry.qryid}/", exist_ok=True)
-			with open(f"{out_dir}/{qry.qryid}/{qry.qryid}.log", "w") as f:
-				f.write(qry.msg + "\n")
+		os.makedirs(f"{out_dir}/{qry.id}/", exist_ok=True)
+
+		if isinstance(qry, Status) and qry.code == 1: # too many non-ATCG nucleotides.
+			write_error(out_dir, qry)
 			continue
+
 		anno = Annotation(qry, ref_gbk, out_dir, verbose)
-		anno.run()
-		# anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
-		anno.orf.to_csv(f"{out_dir}/{qry.id}/{qry.id}_orf.tsv", sep="\t", index=False)
-		anno.write_sequences(f"{out_dir}/{qry.id}/{qry.id}")
+		anno_status = anno.run()
 
-		print("Making VCF.")
-		fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
-			align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
-			compress_vcf=False, clean_up=True, verbose=False)
+		if isinstance(anno_status, Status) and anno_status.code != 0:
+			write_error(out_dir, anno_status)
+			continue
 
-		if internal:
-			intersect = vcf_intersect_orf(f"{out_dir}/{qry.id}/{qry.id}.vcf", anno.orf)
-			intersect.to_csv(f"{out_dir}/{qry.id}/{qry.id}.display.tsv", index=False, sep="\t")
+		try:
+			# anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
+			anno.orf.to_csv(f"{out_dir}/{qry.id}/{qry.id}_orf.tsv", sep="\t", index=False)
+			anno.write_sequences(f"{out_dir}/{qry.id}/{qry.id}")
 
-		if snpeff:
-			run_snpEff(f"{out_dir}/{qry.id}/{qry.id}.vcf", f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
-			
-			ORF1a_start = int(anno.orf.loc[anno.orf["Gene"] == "ORF1a","Start"].values[0])
-			ORF1a_end = int(anno.orf.loc[anno.orf["Gene"] == "ORF1a","End"].values[0])
-			snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf", ORF1a=[ORF1a_start,ORF1a_end])
-			snpEff.to_csv(f"{out_dir}/{qry.id}/{qry.id}.snpEff.tsv", index=False, sep="\t")
+			print("Making VCF.")
+			fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
+				align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
+				compress_vcf=False, clean_up=True, verbose=False)
+
+			if internal:
+				intersect = vcf_intersect_orf(f"{out_dir}/{qry.id}/{qry.id}.vcf", anno.orf)
+				intersect.to_csv(f"{out_dir}/{qry.id}/{qry.id}.display.tsv", index=False, sep="\t")
+
+			if snpeff:
+				run_snpEff(f"{out_dir}/{qry.id}/{qry.id}.vcf", f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
+				try:
+					ORF1a_start = int(anno.orf.loc[anno.orf["Gene"] == "ORF1a","Start"].values[0])
+					ORF1a_end = int(anno.orf.loc[anno.orf["Gene"] == "ORF1a","End"].values[0])
+					snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf", ORF1a=[ORF1a_start,ORF1a_end])
+				except:
+					snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf", ORF1a=None)
+				snpEff.to_csv(f"{out_dir}/{qry.id}/{qry.id}.snpEff.tsv", index=False, sep="\t")
+		except:
+			err_msg = "Unknown Error! Please submit a bug report with your input file at https://github.com/boxiangliu/covseq/issues"
+			other_status = Status(4, err_msg, qry.id)
+			write_error(out_dir, other_status)
 
 
 @click.command()

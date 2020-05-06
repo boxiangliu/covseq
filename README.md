@@ -24,6 +24,8 @@ dateutil
 werkzeug
 ```
 
+If you are on a Windows system, please also install [MAFFT](https://mafft.cbrc.jp/alignment/software/windows.html). Note: this is not required for Linux or OSX operating systems.
+
 ## Quick Start
 
 We have made CoV-Seq very easy to use. To annotate a SARS-CoV-2 genome in FASTA format, go to the `covseq` directory and run: 
