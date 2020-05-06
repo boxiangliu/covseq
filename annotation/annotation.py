@@ -10,11 +10,31 @@ sys.path.append(".")
 from vcf.fasta2vcf import fasta2vcf
 from utils import DefaultOrderedDict, VCF
 from snpEff.parse_snpEff import HEADERS, parse_snpEff
+from werkzeug.utils import secure_filename
+
+class Error():
+	def __init__(self, id_, msg, qryid):
+		self.id = id_
+		self.msg = msg
+		self.qryid = qryid
+
 
 def read_fasta(fasta_fn):
 	fasta = list(SeqIO.parse(fasta_fn, "fasta"))
-	for x in fasta:
-		x.id = x.id.replace(" ", "_").replace("/", "_")
+	for i, x in enumerate(fasta):
+		x.id = secure_filename(x.id)
+
+		print("Replacing U's with T's.")
+		x.seq = str(x.seq).upper().replace("U","T")
+
+		non_ATGC = 0
+		for nuc in x.seq:
+			if nuc not in "ATGC":
+				non_ATGC += 1
+		
+		if non_ATGC/len(x.seq) > 0.05:
+			fasta[i] = Error(0, "ERROR: sequence contains more than 5% non-A[T/U]GC letters.", x.id)
+
 	return fasta
 
 
@@ -434,6 +454,11 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 	qries = read_fasta(fasta)
 	ref_gbk = read_ref_genbank(gbk_fn)
 	for qry in qries:
+		if isinstance(qry, Error) and qry.id == 0:
+			os.makedirs(f"{out_dir}/{qry.qryid}/", exist_ok=True)
+			with open(f"{out_dir}/{qry.qryid}/{qry.qryid}.log", "w") as f:
+				f.write(qry.msg + "\n")
+			continue
 		anno = Annotation(qry, ref_gbk, out_dir, verbose)
 		anno.run()
 		# anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
@@ -452,8 +477,8 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 		if snpeff:
 			run_snpEff(f"{out_dir}/{qry.id}/{qry.id}.vcf", f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf")
 			
-			ORF1a_start = anno.orf.loc[anno.orf["Gene"] == "ORF1a","Start"].values[0] 
-			ORF1a_end = anno.orf.loc[anno.orf["Gene"] == "ORF1a","End"].values[0] 
+			ORF1a_start = int(anno.orf.loc[anno.orf["Gene"] == "ORF1a","Start"].values[0])
+			ORF1a_end = int(anno.orf.loc[anno.orf["Gene"] == "ORF1a","End"].values[0])
 			snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf", ORF1a=[ORF1a_start,ORF1a_end])
 			snpEff.to_csv(f"{out_dir}/{qry.id}/{qry.id}.snpEff.tsv", index=False, sep="\t")
 

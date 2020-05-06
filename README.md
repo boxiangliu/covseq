@@ -21,6 +21,7 @@ pandas
 matplotlib
 seaborn
 dateutil
+werkzeug
 ```
 
 ## Quick Start
