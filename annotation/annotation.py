@@ -44,8 +44,8 @@ class Annotation():
 
 		self.align(self.ref_gbk, self.qry, self.out_dir)
 		self.parse_align(self.align_fn)
-		self.get_mutation(self.nt_df)
-		self.transfer_feature(self.ref_gbk, self.nt_df, self.verbose)
+		# self.get_mutation(self.nt_df)
+		# self.transfer_feature(self.ref_gbk, self.nt_df, self.verbose)
 		self.get_orf(self.ref_gbk, self.nt_df)
 
 
@@ -192,9 +192,12 @@ class Annotation():
 
 	@staticmethod
 	def transfer_simple_location(start, end, fro, to):
-		new_start = int(to[fro == start].values[0])
-		new_end = int(to[fro == end].values[0])
-		location = SeqFeature.FeatureLocation(new_start, new_end)
+		try:
+			new_start = int(to[fro == start].values[0])
+			new_end = int(to[fro == end].values[0])
+			location = SeqFeature.FeatureLocation(new_start, new_end)
+		except:
+			location = None
 		return location
 
 
@@ -212,9 +215,10 @@ class Annotation():
 			new_location = Annotation.transfer_simple_location(loc_0.start, \
 				loc_0.end, fro, to)
 
-			for loc_i in location.__dict__["parts"][1:]:
-				new_location += Annotation.transfer_simple_location(loc_i.start, \
-					loc_i.end, fro, to)
+			if new_location is not None:
+				for loc_i in location.__dict__["parts"][1:]:
+					new_location += Annotation.transfer_simple_location(loc_i.start, \
+						loc_i.end, fro, to)
 
 		else:
 			raise Exception(type(location) + " not defined!")
@@ -271,6 +275,8 @@ class Annotation():
 				else:
 					location = Annotation.transfer_location(ref_feature.location, \
 						nt_df["ref_coord"], nt_df["qry_coord"])
+				if location is None:
+					continue
 				start = int(location.start) + 1
 				end = int(location.end)
 				rna_length = location.end - location.start + 1
@@ -344,6 +350,25 @@ class Annotation():
 		self.anno_df = merged.sort_values("ref_coord")
 
 
+	def write_sequences(self, out_prefix):
+		orf = self.orf
+		qry = self.qry
+
+		with open(f"{out_prefix}_nt.fasta", "w") as f_nt, \
+			open(f"{out_prefix}_aa.fasta", "w") as f_aa:
+			for index, row in orf.iterrows():
+				start = row["Start"]
+				end = row["End"]
+				gene = row["Gene"]
+				nt_seq = qry.seq[(start-1):end]
+				f_nt.write(f">{gene}\n")
+				f_nt.write(str(nt_seq) + "\n")
+
+				aa_seq = nt_seq.translate()
+				f_aa.write(f">{gene}\n")
+				f_aa.write(str(aa_seq) + "\n")
+
+
 def run_snpEff(vcf_fn, out_fn):
 	print("Running snpEff.")
 	cmd = f"java -jar ext/snpEff/snpEff.jar NC_045512.2 {vcf_fn} > {out_fn}"
@@ -386,8 +411,9 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 	for qry in qries:
 		anno = Annotation(qry, ref_gbk, out_dir, verbose)
 		anno.run()
-		anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
+		# anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
 		anno.orf.to_csv(f"{out_dir}/{qry.id}/{qry.id}_orf.tsv", sep="\t", index=False)
+		anno.write_sequences(f"{out_dir}/{qry.id}/{qry.id}")
 
 		print("Making VCF.")
 		fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
@@ -395,7 +421,6 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 			compress_vcf=False, clean_up=True, verbose=False)
 
 		if internal:
-			anno.get_orf(anno.ref_gbk, anno.nt_df, ref_coordinate=True)
 			intersect = vcf_intersect_orf(f"{out_dir}/{qry.id}/{qry.id}.vcf", anno.orf)
 			intersect.to_csv(f"{out_dir}/{qry.id}/{qry.id}.display.tsv", index=False, sep="\t")
 
