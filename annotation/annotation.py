@@ -13,6 +13,7 @@ from snpEff.parse_snpEff import HEADERS, parse_snpEff
 from werkzeug.utils import secure_filename
 import platform 
 import shutil
+import json
 
 class Status():
 	'''
@@ -394,36 +395,35 @@ class Annotation():
 	def write_sequences(self, out_prefix):
 		orf = self.orf
 		qry = self.qry
+		container = defaultdict(dict)
 
-		with open(f"{out_prefix}_nt.fasta", "w") as f_nt, \
-			open(f"{out_prefix}_aa.fasta", "w") as f_aa:
-			for index, row in orf.iterrows():
-				start = row["Start"]
-				end = row["End"]
-				gene = row["Gene"]
+		for index, row in orf.iterrows():
+			start = row["Start"]
+			end = row["End"]
+			gene = row["Gene"]
 
-				if "," in start:
-					nt_start = int(start.split(",")[0])
-					nt_end = int(end.split(",")[-1])
-				else:
-					nt_start = int(start)
-					nt_end = int(end)
-				nt_seq = qry.seq[(nt_start-1):nt_end]
-				f_nt.write(f">{gene}\n")
-				f_nt.write(str(nt_seq) + "\n")
+			if "," in start:
+				nt_start = int(start.split(",")[0])
+				nt_end = int(end.split(",")[-1])
+			else:
+				nt_start = int(start)
+				nt_end = int(end)
+			nt_seq = qry.seq[(nt_start-1):nt_end]
+			container["nt"][gene] = str(nt_seq)
 
-				if "," in start:
-					aa_starts = [int(x) for x in start.split(",")]
-					aa_ends = [int(x) for x in end.split(",")]
-					aa_seq = ""
-					for aa_start, aa_end in zip(aa_starts, aa_ends):
-						nt_seq = qry.seq[(aa_start-1):aa_end]
-						aa_seq += nt_seq.translate()
-				else:
-					aa_seq = nt_seq.translate()
-				f_aa.write(f">{gene}\n")
-				f_aa.write(str(aa_seq) + "\n")
+			if "," in start:
+				aa_starts = [int(x) for x in start.split(",")]
+				aa_ends = [int(x) for x in end.split(",")]
+				aa_seq = ""
+				for aa_start, aa_end in zip(aa_starts, aa_ends):
+					nt_seq = qry.seq[(aa_start-1):aa_end]
+					aa_seq += nt_seq.translate()
+			else:
+				aa_seq = nt_seq.translate()
+			container["aa"][gene] = str(aa_seq)
 
+		with open(f"{out_prefix}_seq.json", "w") as f:
+			json.dump(container, f)
 
 def run_snpEff(vcf_fn, out_fn):
 	print("Running snpEff.")
@@ -486,7 +486,6 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 		try:
 			# anno.anno_df.to_csv(f"{out_dir}/{qry.id}/{qry.id}.tsv", sep="\t", index=False)
 			anno.orf.to_csv(f"{out_dir}/{qry.id}/{qry.id}_orf.tsv", sep="\t", index=False)
-			anno.write_sequences(f"{out_dir}/{qry.id}/{qry.id}")
 
 			print("Making VCF.")
 			fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
@@ -494,6 +493,7 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 				compress_vcf=False, clean_up=True, verbose=False)
 
 			if internal:
+				anno.write_sequences(f"{out_dir}/{qry.id}/{qry.id}")
 				intersect = vcf_intersect_orf(f"{out_dir}/{qry.id}/{qry.id}.vcf", anno.orf)
 				intersect.to_csv(f"{out_dir}/{qry.id}/{qry.id}.display.tsv", index=False, sep="\t")
 
