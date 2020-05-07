@@ -39,11 +39,11 @@ library(countrycode)
   <div class="row">
   
   <div class="col-sm-6">
-  <a class="btn btn-primary btn-lg" href="https://drive.google.com/drive/folders/1_mivRZxjO3Dhfr3mKi4Sa7VcuV42cyav" role="button">Download VCF</a>
+  <a class="btn btn-primary btn-lg" href="https://covseq.s3-us-west-1.amazonaws.com/VCF/VCF.zip" role="button">Download VCF</a>
   </div>
   
   <div class="col-sm-6">
-  <a class="btn btn-primary btn-lg" href="https://drive.google.com/drive/folders/1JjSH0uInyY5mJ6b7vRVCz_ZXpt6nqnj1" role="button">Download Metadata</a>
+  <a class="btn btn-primary btn-lg" href="https://covseq.s3-us-west-1.amazonaws.com/metadata/metadata.zip" role="button">Download Metadata</a>
   </div>
   </div>
 </div>
