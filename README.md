@@ -7,6 +7,7 @@ git clone https://github.com/boxiangliu/covseq.git
 
 CoV-Seq is written and tested in `python 3.7`, and should in theory work with any `python 3` versions. CoV-Seq is not compatible with `python 2`.
 
+Note: CoV-Seq has been tested on Linux and OSX, but not on Window. 
 
 ## Preliminaries 
 
