@@ -23,6 +23,8 @@ class Status():
 	2: sequence contains < 25,000 nucleotides or > 35000 nucleotides
 	3: mafft not found
 	4: unknown error
+	5: empty FASTA file 
+	6: empty sequence (e.g. >no_sequence\n)
 	'''
 	def __init__(self, code, msg, id):
 		self.code = code
@@ -37,13 +39,20 @@ def read_fasta(fasta_fn):
 		print("Replacing U's with T's.")
 		x.seq = Seq.Seq(str(x.seq).upper().replace("U","T"))
 
+
+		if len(x.seq) == 0:
+			err_msg = f"ERROR: Sequence {x.id} is empty."
+			print(err_msg)
+			fasta[i] = Status(6, err_msg, x.id)
+			continue 
+
 		non_ATGC = 0
 		for nuc in x.seq:
 			if nuc not in "ATGC":
 				non_ATGC += 1
 		
 		if non_ATGC/len(x.seq) > 0.05:
-			err_msg = "ERROR: sequence contains more than 5% non-A[T/U]GC letters."
+			err_msg = f"ERROR: Sequence {x.id} contains more than 5% non-A[T/U]GC letters."
 			print(err_msg)
 			fasta[i] = Status(1, err_msg, x.id)
 
@@ -71,7 +80,7 @@ class Annotation():
 		print(f"Query ID: {self.qry.id}")
 		print(f"Ref. ID: {self.ref_gbk.id}")
 		if len(self.qry.seq) < 25000 or len(self.qry.seq) > 35000:
-			err_msg = "ERROR: Query sequence should be between 25,000 and 35,000 nucleotides!"
+			err_msg = f"ERROR: Sequence {self.qry.id} should be between 25,000 and 35,000 nucleotides!"
 			print(err_msg)
 			return Status(2, err_msg, self.qry.id)
 
@@ -109,10 +118,15 @@ class Annotation():
 
 		mafft_out_fn = f"{work_dir}/{qry.id}.ali"
 		cmd = f"{mafft} {mafft_in_fn} > {mafft_out_fn}"
-		output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, shell=True)
+		output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode("utf-8")
 
 		self.align_fn = mafft_out_fn
-		return Status(0, "success", self.qry.id)
+
+		if "Error" in output or "Warning" in output:
+			err_msg = f"Sequence {self.qry.id}: {output}"
+			return Status(3, err_msg, self.qry.id)
+		else:
+			return Status(0, "success", self.qry.id)
 
 
 	def parse_align(self, align_fn):
@@ -440,7 +454,14 @@ def vcf_intersect_orf(vcf_fn, orf):
 		intersect.append("Intergenic")
 		pos = v_row["POS"]
 		for j, o_row in orf.iterrows():
-			if o_row["Start"] <= pos and pos <= o_row["End"]:
+			if "," in o_row["Start"]:
+				start = int(o_row["Start"].split(",")[0])
+				end = int(o_row["End"].split(",")[-1])
+			else:
+				start = int(o_row["Start"])
+				end = int(o_row["End"])
+
+			if start <= pos and pos <= end:
 				if intersect[i] == "Intergenic":
 					intersect[i] = o_row["Gene"]
 				else:
@@ -452,8 +473,12 @@ def vcf_intersect_orf(vcf_fn, orf):
 
 
 def write_error(out_dir, status):
-	with open(f"{out_dir}/{status.id}/{status.id}.err", "w") as f:
-		f.write(status.msg + "\n")
+	if status.code == 5: # empty fasta
+		with open(f"{out_dir}/{status.id}.err", "w") as f:
+			f.write(status.msg + "\n")
+	else:
+		with open(f"{out_dir}/{status.id}/{status.id}.err", "w") as f:
+			f.write(status.msg + "\n")
 
 
 def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
@@ -468,11 +493,19 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 	print(f"Verbose: {verbose}")
 
 	qries = read_fasta(fasta)
+
+	if len(qries) == 0:
+		err_msg = "ERROR: FASTA file is empty!"
+		empty_status = Status(5, err_msg, os.path.basename(fasta))
+		write_error(out_dir, empty_status)
+		print(err_msg)
+		return 
+
 	ref_gbk = read_ref_genbank(gbk_fn)
 	for qry in qries:
 		os.makedirs(f"{out_dir}/{qry.id}/", exist_ok=True)
 
-		if isinstance(qry, Status) and qry.code == 1: # too many non-ATCG nucleotides.
+		if isinstance(qry, Status) and (qry.code == 1 or qry.code == 6): # too many non-ATCG nucleotides or sequence is empty
 			write_error(out_dir, qry)
 			continue
 
@@ -507,7 +540,7 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 					snpEff = parse_snpEff(f"{out_dir}/{qry.id}/{qry.id}.snpEff.vcf", ORF1a=None)
 				snpEff.to_csv(f"{out_dir}/{qry.id}/{qry.id}.snpEff.tsv", index=False, sep="\t")
 		except:
-			err_msg = "Unknown Error! Please submit a bug report with your input file at https://github.com/boxiangliu/covseq/issues"
+			err_msg = f"Unknown Error for sequence {qry.id}! Please submit a bug report with your input file at https://github.com/boxiangliu/covseq/issues"
 			other_status = Status(4, err_msg, qry.id)
 			write_error(out_dir, other_status)
 
