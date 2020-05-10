@@ -103,11 +103,14 @@ class Annotation():
 		elif platform.system() == "Darwin":
 			mafft = "ext/mafft-mac/mafft.bat"
 		elif platform.system() == "Windows":
-			mafft = shutil.which("mafft")
-			if mafft is None:
+
+			cmd = 'mafft'
+			whereis_mafft = subprocess.check_output('whereis '+cmd, stderr=subprocess.STDOUT, shell=True).decode("utf-8").rstrip()
+			if whereis_mafft == cmd+':':
 				err_msg = "ERROR: mafft not found! Install it here: https://mafft.cbrc.jp/alignment/software/windows.html"
 				return Status(3, err_msg, self.qry.id)
-
+			else:
+				mafft = 'bash '+cmd
 
 		mafft_in_fn = f"{work_dir}/{qry.id}.fasta"
 		with open(mafft_in_fn, "w") as f:
@@ -118,15 +121,24 @@ class Annotation():
 
 		mafft_out_fn = f"{work_dir}/{qry.id}.ali"
 		cmd = f"{mafft} {mafft_in_fn} > {mafft_out_fn}"
-		output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode("utf-8")
-
 		self.align_fn = mafft_out_fn
 
-		if "Error" in output or "Warning" in output:
-			err_msg = f"Sequence {self.qry.id}: {output}"
-			return Status(3, err_msg, self.qry.id)
-		else:
-			return Status(0, "success", self.qry.id)
+		if platform.system() == "Linux" or platform.system() == "Darwin":
+			output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode("utf-8")
+
+			if "Error" in output or "Warning" in output:
+				err_msg = f"Sequence {self.qry.id}: {output}"
+				return Status(3, err_msg, self.qry.id)
+			else:
+				return Status(0, "success", self.qry.id)
+
+		elif platform.system() == "Windows":
+			output = os.system(cmd)
+			if output == 0:
+				return Status(0, "success", self.qry.id)
+			elif output == 1:
+				err_msg = f"Unknown error in Windows OS for {self.qry.id}: {output}" # TODO: may change the message here
+				return Status(4, err_msg, self.qry.id)
 
 
 	def parse_align(self, align_fn):
@@ -442,9 +454,19 @@ class Annotation():
 def run_snpEff(vcf_fn, out_fn):
 	print("Running snpEff.")
 	cmd = f"java -jar ext/snpEff/snpEff.jar NC_045512.2 {vcf_fn} > {out_fn}"
-	output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, shell=True)
-	os.remove("snpEff_genes.txt")
-	os.remove("snpEff_summary.html")
+
+	if platform.system() == "Linux" or platform.system() == "Darwin":
+		output = subprocess.check_output(cmd, stderr=subprocess.DEVNULL, shell=True)
+	elif platform.system() == "Windows":
+		output = os.system(cmd)
+		if output == 0:
+			print("snpEff succeeded.")
+			os.remove("snpEff_genes.txt")
+			os.remove("snpEff_summary.html")
+		else:
+			print("snpEff failed. Please file an issue with your VCF file at https://github.com/boxiangliu/covseq/issues")
+
+
 
 
 def vcf_intersect_orf(vcf_fn, orf):
@@ -494,6 +516,9 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal, debug):
 
 	if debug:
 		clean_up = False
+	else:
+		clean_up = True
+
 	qries = read_fasta(fasta)
 
 	if len(qries) == 0:

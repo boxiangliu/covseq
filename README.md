@@ -2,17 +2,25 @@
 
 <div style="text-align:center"><img src="website/figure/1x/logo.png"/></div>
 
-## Clone the repository
+## 1. Clone the repository
 git clone https://github.com/boxiangliu/covseq.git
 
 CoV-Seq is written and tested in `python 3.7`, and should in theory work with any `python 3` versions. CoV-Seq is not compatible with `python 2`.
 
-Note: CoV-Seq has been tested on Linux and OSX, but not on Window. 
+CoV-Seq has been tested on Ubuntu 18.04.4, macOS Catalina, and Windows 10.
 
-## Preliminaries 
+NOTE: if you are using Windows, please refer to `README_win_os.md` for more instructions before proceeding.
 
-You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). Also make sure `Java` is available on your system. 
 
+## 2. Preliminaries 
+
+### 2.1 Shell dependencies
+For Linux and Mac users, you will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). 
+
+For Windows users, please refer to `README_win_os.md` for more instructions about dependencies.
+
+
+### 2.2 Python modules
 You will also need to install the following Python packages:
 ```
 click
@@ -25,9 +33,8 @@ dateutil
 werkzeug
 ```
 
-If you are on a Windows system, please also install [MAFFT](https://mafft.cbrc.jp/alignment/software/windows.html). Note: this is not required for Linux or OSX operating systems.
 
-## Quick Start
+## 3. Quick Start
 
 We have made CoV-Seq very easy to use. To annotate a SARS-CoV-2 genome in FASTA format, go to the `covseq` directory and run: 
 
@@ -35,7 +42,7 @@ We have made CoV-Seq very easy to use. To annotate a SARS-CoV-2 genome in FASTA 
 python annotation/annotation.py --fasta data/GZ8H0001.fasta --out_dir results
 ```
 
-Replace `data/GZ8H0001.fasta` with your fasta file and `results` with your desired output directory. 
+NOTE: Replace `data/GZ8H0001.fasta` with your fasta file and `results` with your desired output directory. 
 
 If the command was successful, there should 4 files in the `results/` directory.
 
@@ -46,7 +53,7 @@ Guangzhou_GZ8H0001_2020.snpEff.vcf
 Guangzhou_GZ8H0001_2020.snpEff.tsv
 ```
 
-The filename `Guangzhou_GZ8H0001_2020` comes from the FASTA header in `data/GZ8H0001.fasta`. Notice that characters "/" will be automatically replaced with "\_" to save us from using escape characters. Here is a description of each file:
+The filename `Guangzhou_GZ8H0001_2020` comes from the FASTA header in `data/GZ8H0001.fasta`. Notice that characters "/" have been automatically replaced with "\_" to save us from using escape characters. Here is a description of each file:
 
 1. \*\_orf.tsv: ORF predictions.
 2. \*.vcf: variant calls
@@ -62,12 +69,12 @@ For all options, run
 annotation/annotation.py --help
 ```
 
-## Batch processing
+## 4. Batch processing
 
 The following section describes the pipeline we used to batch process tens of thousands of FASTA sequences available for download on `covseq.baidu.com/browse`.
 
 
-### Download genomic data and metadata
+### 4.1 Download genomic data and metadata
 
 The first step is to download data from repositories. All steps assume `covseq` repo as the working directory. 
 
@@ -104,7 +111,7 @@ To download data from CNGB:
 6. Click on Download Excel to download metadata -> Move metadata to `../data/cngb/metadata/`
 
 
-### Preprocess
+### 4.2 Preprocess
 
 We will preprocess the data by first concatenating all FASTA files and standardize FASTA headers 
 
@@ -127,7 +134,7 @@ python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_d
 Note that this command will create a `../processed_data/preprocess/filter_fasta/` to store intermedite files. 
 
 
-### Call variants
+### 4.3 Call variants
 
 Now we have preprocessed FASTA files, let's call variants from nucleotide sequences, using the RefSeq sequence `NC_045512.2` as the reference.
 
@@ -165,7 +172,7 @@ Finally we will remove multi-allelic variants and variants within the poly-A tai
 bash vcf/filter_sites.sh ../data/aggregated/vcf/merged/merged.vcf.gz ../data/aggregated/vcf/merged/filtered
 ```
 
-### Annotate VCF files 
+### 4.4 Annotate VCF files 
 
 Finally we will annotate VCF files using [snpEff](http://snpeff.sourceforge.net/), which is included in this Git repository. 
 
@@ -183,7 +190,7 @@ python3 snpEff/parse_snpEff.py --vcf_fn ../data/aggregated/vcf/merged/annotated.
 ```
 
 
-### Merging metadata
+### 4.5 Merging metadata
 
 Last but not least we aggregate all metadata: 
 
@@ -211,10 +218,10 @@ python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_p
 All done! You have now generated all the data on the CoV-Seq website. 
 
 
-## Frequently Asked Questions
+## 5. Frequently Asked Questions
 Please see [FAQ](example.com) here. 
 
-## Bug report 
+## 6. Bug report 
 
 We welcome bug report [here](https://github.com/boxiangliu/covseq/issues). Please help us by providing as much information as possible.
 
