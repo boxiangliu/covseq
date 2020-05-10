@@ -481,7 +481,7 @@ def write_error(out_dir, status):
 			f.write(status.msg + "\n")
 
 
-def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
+def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal, debug):
 
 	print("##################")
 	print("# Annotate FASTA #")
@@ -492,6 +492,8 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 	print(f"Reference: {ref_fn}")
 	print(f"Verbose: {verbose}")
 
+	if debug:
+		clean_up = False
 	qries = read_fasta(fasta)
 
 	if len(qries) == 0:
@@ -523,7 +525,7 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 			print("Making VCF.")
 			fasta2vcf(fasta_fn=None, ref_fn=ref_fn, \
 				align_fn=anno.align_fn, out_dir=f"{out_dir}/{qry.id}", \
-				compress_vcf=False, clean_up=True, verbose=False)
+				compress_vcf=False, clean_up=clean_up, verbose=verbose)
 
 			if internal:
 				anno.write_sequences(f"{out_dir}/{qry.id}/{qry.id}")
@@ -562,8 +564,10 @@ def annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
 	help="Verbosity")
 @click.option("--internal", is_flag=True, default=False, \
 	help="Internal Use.")
-def main(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal):
-	annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal)
+@click.option("--debug", is_flag=True, default=False, \
+	help="Activate debug mode.")
+def main(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal, debug):
+	annotate(fasta, out_dir, gbk_fn, ref_fn, snpeff, verbose, internal, debug)
 
 
 if __name__ == "__main__":

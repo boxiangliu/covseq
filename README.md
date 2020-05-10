@@ -11,14 +11,14 @@ Note: CoV-Seq has been tested on Linux and OSX, but not on Window.
 
 ## Preliminaries 
 
-You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). 
+You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). Also make sure `Java` is available on your system. 
 
 You will also need to install the following Python packages:
 ```
 click
 biopython
 hashlib
-pandas 
+pandas [>=1.0.3]
 matplotlib
 seaborn
 dateutil
@@ -37,23 +37,21 @@ python annotation/annotation.py --fasta data/GZ8H0001.fasta --out_dir results
 
 Replace `data/GZ8H0001.fasta` with your fasta file and `results` with your desired output directory. 
 
-If the command was successful, there should 5 files in the `results/` directory.
+If the command was successful, there should 4 files in the `results/` directory.
 
 ```
-Guangzhou_GZ8H0001_2020.tsv
 Guangzhou_GZ8H0001_2020_orf.tsv
 Guangzhou_GZ8H0001_2020.vcf
 Guangzhou_GZ8H0001_2020.snpEff.vcf
 Guangzhou_GZ8H0001_2020.snpEff.tsv
 ```
 
-The filename `Guangzhou_GZ8H0001_2020` comes from the FASTA header in `data/GZ8H0001.fasta`. Notice that characters "/" have been automatically replaced with "\_" to save us from using escape characters. Here is a description of each file:
+The filename `Guangzhou_GZ8H0001_2020` comes from the FASTA header in `data/GZ8H0001.fasta`. Notice that characters "/" will be automatically replaced with "\_" to save us from using escape characters. Here is a description of each file:
 
 1. \*\_orf.tsv: ORF predictions.
 2. \*.vcf: variant calls
 3. \*.snpEff.vcf: variant calls annotated with snpEff
 4. \*.snpEff.tsv: parsed VCF annotations
-5. \*.tsv: This is for internal testing and you can safely ignore this file.
 
 
 **That's it**. You can now use the VCF and annotations for downstream analysis. 
