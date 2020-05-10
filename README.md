@@ -7,11 +7,11 @@ git clone https://github.com/boxiangliu/covseq.git
 
 CoV-Seq is written and tested in `python 3.7`, and should in theory work with any `python 3` versions. CoV-Seq is not compatible with `python 2`.
 
-Note: CoV-Seq has been tested on Linux and OSX, but not on Window. 
+Note: CoV-Seq has been tested on Linux, OSX, and Window (please refer to `README_win_os.md`). 
 
 ## Preliminaries 
 
-You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). 
+You will need to install `bcftools` and `htslib` by following instructions [here](http://www.htslib.org/download/). For Windows OS, please refer to `README_win_os.md` for more installation details about tools dependencies.
 
 You will also need to install the following Python packages:
 ```
@@ -25,7 +25,7 @@ dateutil
 werkzeug
 ```
 
-If you are on a Windows system, please also install [MAFFT](https://mafft.cbrc.jp/alignment/software/windows.html). Note: this is not required for Linux or OSX operating systems.
+If you are on a Windows system, please also install [MAFFT](https://mafft.cbrc.jp/alignment/software/windows.html) and [Java](https://www.oracle.com/java/technologies/javase-jdk14-downloads.html) (please refer to `README_win_os.md`). Note: this is not required for Linux or OSX operating systems.
 
 ## Quick Start
 
