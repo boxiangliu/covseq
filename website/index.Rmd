@@ -39,11 +39,11 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 <div class="row">
 
 <div class="col-sm-6">
-<a href="http://covseq.baidu.com/browse"><button type="button" class="btn btn-primary btn-lg btn-block">Data and Analysis</button></a>
+<a href="http://covseq.baidu.com/browse" target="_blank"><button type="button" class="btn btn-primary btn-lg btn-block">Data and Analysis</button></a>
 </div>
 
 <div class="col-sm-6">
-<a href="http://covseq.baidu.com/upload"><button type="button" class="btn btn-warning btn-lg btn-block">Interactive Visualization</button></a>
+<a href="http://covseq.baidu.com/upload" target="_blank"><button type="button" class="btn btn-warning btn-lg btn-block">Interactive Visualization</button></a>
 </div>
 
 </div>
@@ -51,11 +51,11 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 <div class="row">
 
 <div class="col-sm-6">
-<a href="https://github.com/boxiangliu/covseq"><button type="button" class="btn btn-success btn-lg btn-block">Source Code</button></a>
+<a href="https://github.com/boxiangliu/covseq" target="_blank"><button type="button" class="btn btn-success btn-lg btn-block">Source Code</button></a>
 </div>
 
 <div class="col-sm-6">
-<a href="http://covseq.baidu.com/faq"><button type="button" class="btn btn-danger btn-lg btn-block">FAQ</button></a>
+<a href="http://covseq.baidu.com/faq" target="_blank"><button type="button" class="btn btn-danger btn-lg btn-block">FAQ</button></a>
 </div>
 
 </div>
@@ -66,6 +66,7 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 <div class="col-sm-5">
 
 ## News
+- 05-11-2020: Latest update with 23671 SARS-CoV-2 genomes.
 - 05-04-2020: Latest update with 20016 SARS-CoV-2 genomes. 
 - 04-20-2020: Latest update with 12940 SARS-CoV-2 genomes. 
 - 04-10-2020: CoV-Seq beta testing.
@@ -85,3 +86,7 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 </div>
 </div>
 
+
+<script type="text/javascript">
+  jQuery(document.links) .filter(function() { return this.hostname != window.location.hostname; }) .attr('target', '_blank');
+</script>

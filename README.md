@@ -80,10 +80,10 @@ The first step is to download data from repositories. All steps assume `covseq` 
 
 To download sequence and metadata from GISAID: 
 
-1. Go to https://www.gisaid.org/
+1. Go to [GISAID](https://www.gisaid.org/)
 2. Click on login on the upper right corner (Note: you will need to register if you don't have an account already.)
-3. To download FASTA sequences: Click on EpiCoV -> Click on Downloads -> downlod "nextmeta" -> Move the FASTA file to `../data/gisaid/fasta/`
-4. On the same page as step (3) -> download "nextfasta" -> Move the metadata to `../data/gisaid/metadata/`
+3. To download FASTA sequences: Click on EpiCoV -> Click on Browse -> Select all sequences -> click on Download (bottom right corner) -> select Sequences -> Move the FASTA file to `../data/gisaid/fasta/`
+4. On the same page as step (3) -> select "Acknowledgement Table" -> Move the metadata to `../data/gisaid/metadata/`
 
 
 To download data from NCBI: 

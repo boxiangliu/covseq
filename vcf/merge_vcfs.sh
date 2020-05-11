@@ -11,6 +11,14 @@ echo "Reference: $ref_fn"
 
 mkdir -p $out_dir
 
+
+# Remove old VCFs:
+if [[ -f $out_dir/merged.vcf.gz ]]; then 
+	echo "Removing outdated VCFs."
+	rm $out_dir/merged.vcf.gz*
+fi
+
+
 # Merge VCFs:
 echo "Merging VCFs."
 split -l 200 $vcf_dir/filtered_vcf.txt subset_vcfs

@@ -10,6 +10,11 @@ echo "######################"
 echo "Input VCF: $in_fn"
 echo "Output VCF prefix: $out_prefix"
 
+if [[ -f $out_prefix.vcf.gz ]]; then
+	echo "Removing old VCFs."
+	rm $out_prefix.vcf.gz{,.tbi}
+fi
+
 bcftools view -m 2 -M 2 $in_fn -Ov -o interim.vcf 
 cat interim.vcf | python vcf/filter_polya.py > $out_prefix.vcf
 rm interim.vcf

@@ -137,7 +137,7 @@ class Annotation():
 			if output == 0:
 				return Status(0, "success", self.qry.id)
 			elif output == 1:
-				err_msg = f"Unknown error in Windows OS for {self.qry.id}: {output}" # TODO: may change the message here
+				err_msg = f"MAFFT error in Windows for {self.qry.id}."
 				return Status(4, err_msg, self.qry.id)
 
 
@@ -461,10 +461,11 @@ def run_snpEff(vcf_fn, out_fn):
 		output = os.system(cmd)
 		if output == 0:
 			print("snpEff succeeded.")
-			os.remove("snpEff_genes.txt")
-			os.remove("snpEff_summary.html")
 		else:
 			print("snpEff failed. Please file an issue with your VCF file at https://github.com/boxiangliu/covseq/issues")
+
+	os.remove("snpEff_genes.txt")
+	os.remove("snpEff_summary.html")
 
 
 

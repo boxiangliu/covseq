@@ -90,4 +90,9 @@ We update CoV-seq twice every week, on Wednesday and Sunday.
 
 
 ## How do I cite this project? 
-We are preparing a manuscript for submission. In the time being, please cite this paper as: `Liu B and Liu K. (2020) CoV-Seq: Coronavirus Sequence Database and Visualization`.
+We are preparing a manuscript for submission. In the time being, please cite the preprint: **Liu, Boxiang, Kaibo Liu, He Zhang, Liang Zhang, Yuchen Bian and Liang Huang. "CoV-Seq: SARS-CoV-2 Genome Analysis and Visualization." bioRxiv (2020).**
+
+
+<script type="text/javascript">
+  jQuery(document.links) .filter(function() { return this.hostname != window.location.hostname; }) .attr('target', '_blank');
+</script>

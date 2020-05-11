@@ -50,6 +50,7 @@ library(countrycode)
 
 ```{r metadata, echo=FALSE}
 metadata = fread("../../data/aggregated/metadata/merged_in_vcf.tsv")
+metadata = metadata[Collection_Date != "2022-04-05"]
 ```
 
 
@@ -75,7 +76,21 @@ week_end = ceiling_date(parsed_date, unit="weeks")
 metadata$date_range = sprintf("%s to %s", week_start, week_end)
 metadata$week_start = week_start
 seq_vs_time = metadata[, list(num=.N), by=c("week_start","Data_Source")]
-ggplot(seq_vs_time, aes(x=week_start,y=num,fill=Data_Source)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle=0), legend.position = "bottom") + ylab("Number of Virus Collected/Sequenced") + xlab(NULL) + scale_fill_discrete(name="Source")
+ggplot(seq_vs_time, aes(x=week_start,y=num,fill=Data_Source)) + 
+  geom_bar(stat="identity") + 
+  ylab("Number of Virus Collected") + 
+  xlab("Time (Weekly Bars)") + 
+  scale_fill_discrete(name="Source") + 
+  theme(axis.title=element_text(size=18,face="bold"), legend.text=element_text(size=18), legend.title=element_text(size=20), legend.position = "top")
+
+seq_vs_time = metadata[, list(num=.N), by=c("week_start")]
+setorder(seq_vs_time, 'week_start')
+seq_vs_time[, cumsum := cumsum(num)]
+ggplot(seq_vs_time, aes(x=week_start,y=cumsum)) + 
+  geom_bar(stat="identity") + 
+  ylab("Cumulative No. of Virus Collected") + 
+  xlab("Time (Weekly Bars)") + 
+  theme(axis.title=element_text(size=18,face="bold"))
 ```
 
 
@@ -89,7 +104,8 @@ to_plot = merge(world, seq_vs_ctry, by="iso3c", all.x=TRUE)
 to_plot[is.na(to_plot$num_seq),]$num_seq = 0 
 ggplot(data = to_plot) +
   theme_bw() + geom_sf(aes(fill=num_seq)) + 
-  scale_fill_viridis_c(option = "plasma", trans = "sqrt", name = "No. Sequences")
+  scale_fill_viridis_c(option = "plasma", trans = "sqrt", name = "No. Sequences") +
+  theme(legend.title=element_text(size=20), legend.text=element_text(size=10))
 
 ```
 
@@ -101,3 +117,6 @@ DT::datatable(annotation[,list(POS, REF, ALT, EFFECT, IMPACT, GENE,HGVS_C,HGVS_P
 ```
 
 
+<script type="text/javascript">
+  jQuery(document.links) .filter(function() { return this.hostname != window.location.hostname; }) .attr('target', '_blank');
+</script>
