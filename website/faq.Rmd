@@ -90,7 +90,7 @@ We update CoV-seq twice every week, on Wednesday and Sunday.
 
 
 ## How do I cite this project? 
-We are preparing a manuscript for submission. In the time being, please cite the preprint: **Liu, Boxiang, Kaibo Liu, He Zhang, Liang Zhang, Yuchen Bian and Liang Huang. "CoV-Seq: SARS-CoV-2 Genome Analysis and Visualization." bioRxiv (2020).**
+We are preparing a manuscript for submission. In the time being, please cite the preprint: **Boxiang Liu, Kaibo Liu, He Zhang, Liang Zhang, Yuchen Bian and Liang Huang. "CoV-Seq: SARS-CoV-2 Genome Analysis and Visualization." bioRxiv (2020).**
 
 
 <script type="text/javascript">
