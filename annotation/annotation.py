@@ -497,9 +497,11 @@ def vcf_intersect_orf(vcf_fn, orf):
 
 def write_error(out_dir, status):
 	if status.code == 5: # empty fasta
+		os.makedirs(out_dir, exist_ok=True)
 		with open(f"{out_dir}/{status.id}.err", "w") as f:
 			f.write(status.msg + "\n")
 	else:
+		os.makedirs(f"{out_dir}/{status.id}", exist_ok=True)
 		with open(f"{out_dir}/{status.id}/{status.id}.err", "w") as f:
 			f.write(status.msg + "\n")
 
