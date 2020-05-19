@@ -66,9 +66,10 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 <div class="col-sm-5">
 
 ## News
-- 05-11-2020: Latest update with 23671 SARS-CoV-2 genomes.
-- 05-04-2020: Latest update with 20016 SARS-CoV-2 genomes. 
-- 04-20-2020: Latest update with 12940 SARS-CoV-2 genomes. 
+- 05-18-2020: Latest update with 29,806 SARS-CoV-2 genomes.
+- 05-11-2020: Latest update with 23,671 SARS-CoV-2 genomes.
+- 05-04-2020: Latest update with 20,016 SARS-CoV-2 genomes. 
+- 04-20-2020: Latest update with 12,940 SARS-CoV-2 genomes. 
 - 04-10-2020: CoV-Seq beta testing.
 - 03-23-2020: Data collected from GISAID, NCBI, EMBL, and CNGB. 
 
