@@ -1,3 +1,11 @@
+data/Q06187.txt
+data/empty.fasta
+data/empty_sequence.fasta
+data/long_30125.fasta
+data/para_contigs.fasta
+data/short.fasta
+data/short_29209.fasta
+data/test.fasta
 .Rhistory
 amazon_credential
 credentials.txt

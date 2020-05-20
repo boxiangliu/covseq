@@ -50,6 +50,8 @@ def parse_snpEff(vcf_fn, ORF1a=None):
 def main(vcf_fn, out_fn):
 	snpEff = parse_snpEff(vcf_fn)
 	out_dir = os.path.dirname(out_fn)
+	if out_dir == "":
+		out_dir = "."
 	os.makedirs(out_dir, exist_ok=True)
 	snpEff.to_csv(out_fn, index=False, sep="\t")
 

@@ -46,18 +46,21 @@ class DefaultOrderedDict(OrderedDict):
 											   OrderedDict.__repr__(self))
 
 class VCF():
-	def __init__(self, vcf_fn, pheno_fn=None):
+	def __init__(self, vcf_fn, pheno_fn=None, verbose=False):
 		self.vcf_fn = vcf_fn
-		self.colnames = self.read_vcf_header(vcf_fn)
-		rowdata, data = self.read_vcf(vcf_fn, self.colnames)
+		self.colnames = self.read_vcf_header(vcf_fn, verbose=verbose)
+		rowdata, data = self.read_vcf(vcf_fn, self.colnames, verbose=verbose)
 		self.rowdata = rowdata
 		self.data = data
 		if pheno_fn != None:
-			coldata = self.read_phenotype(pheno_fn, self.data.columns)
+			coldata = self.read_phenotype(pheno_fn, self.data.columns, verbose=verbose)
 			self.coldata = coldata
 
 
-	def read_vcf_header(self, vcf_fn):
+	def read_vcf_header(self, vcf_fn, verbose=False):
+		if verbose: 
+			print("Reading VCF header.")
+
 		if ".gz" in vcf_fn:
 			with gzip.open(vcf_fn, "r") as f:
 				for line in f:
@@ -75,14 +78,51 @@ class VCF():
 		return split_line
 
 
-	def read_vcf(self, vcf_fn, colnames):
-		vcf = pd.read_table(vcf_fn, comment="#", header=None, names=colnames)
+	# def read_vcf(self, vcf_fn, colnames, verbose=False):
+	# 	if verbose:
+	# 		print("Reading VCF content.")
+	# 	vcf = pd.read_table(vcf_fn, comment="#", header=None, names=colnames)
+	# 	rowdata = vcf[['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']]
+	# 	data = vcf.iloc[:,9:]
+	# 	return rowdata, data
+
+	def read_vcf(self, vcf_fn, colnames, verbose=False):
+		if verbose:
+			print("Reading VCF content line-by-line.")
+
+		container = DefaultOrderedDict(list)
+		if ".gz" in vcf_fn:
+			with gzip.open(vcf_fn, "r") as f:
+				for line in f:
+					line = line.decode("utf-8").strip()
+					if line.startswith("#"): # Skip comment lines.
+						continue
+					else:
+						split_line = line.split("\t")
+						assert len(colnames) == len(split_line)
+						for field, entry in zip(colnames, split_line):
+							container[field].append(entry)
+		else:
+			with open(vcf_fn, "r") as f:
+				for line in f:
+					line = line.strip()
+					if line.startswith("#"): # Skip comment lines.
+						continue
+					else:
+						split_line = line.split("\t")
+						assert len(colnames) == len(split_line)
+						for field, entry in zip(colnames, split_line):
+							container[field].append(entry)
+		vcf = pd.DataFrame(container)
 		rowdata = vcf[['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']]
 		data = vcf.iloc[:,9:]
 		return rowdata, data
 
 
-	def read_phenotype(self, pheno_fn, sample):
+
+	def read_phenotype(self, pheno_fn, sample, verbose=False):
+		if verbose:
+			print("Reading Phenotype file.")
 		pheno = pd.read_table(pheno_fn)
 		pheno = pheno[pheno["Accession ID"].isin(sample)]
 		pheno.set_index("Accession ID", inplace=True)
