@@ -48,7 +48,7 @@ python3 metadata/parse_ncbi_metadata.py --csv_fn ../data/ncbi/metadata/sequences
 python3 metadata/parse_embl_metadata.py --embl_fn ../data/embl/metadata/ena_sequence.txt -o ../data/aggregated/metadata/embl.tsv
 python3 metadata/rename_cngb_metadata.py --in_fn ../data/cngb/metadata/CNGBdb_VirusDIP.csv --out_fn ../data/aggregated/metadata/cngb.tsv
 python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ../data/aggregated/metadata/merged --genome_length_fn ../processed_data/preprocess/filter_fasta/genome_lengths.tsv --duplicate_seq_fn ../processed_data/preprocess/filter_fasta/duplicate_seq.tsv --num_variant_fn ../processed_data/vcf/count_mutations_per_sample/mutations_per_sample.tsv --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
-
+python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_prefix ./test --genome_length_fn ../processed_data/preprocess/filter_fasta/genome_lengths.tsv --duplicate_seq_fn ../processed_data/preprocess/filter_fasta/duplicate_seq.tsv --num_variant_fn ../processed_data/vcf/count_mutations_per_sample/mutations_per_sample.tsv --vcf_fn ../data/aggregated/vcf/merged/merged.vcf.gz
 
 # MSA / Phylogenetic tree:
 # python3 phylogenetic/construct_tree.py --in_fn ../data/aggregated/fasta/preprocessed.fasta --out_dir ../data/aggregated/msa/

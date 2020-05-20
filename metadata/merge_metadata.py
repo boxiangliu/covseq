@@ -103,7 +103,10 @@ def main(in_dir, out_prefix, genome_length_fn, duplicate_seq_fn, num_variant_fn,
 	print(f"VCF file: {vcf_fn}")
 	out_dir = os.path.dirname(out_prefix)
 	os.makedirs(out_dir, exist_ok=True)
-
+	import time
+	time_start = time.time()
+	# Read metadata
+	print("Read metadata.")
 	container = []
 	for s in SOURCES:
 		fn = f"{in_dir}/{s}.tsv"
@@ -115,8 +118,11 @@ def main(in_dir, out_prefix, genome_length_fn, duplicate_seq_fn, num_variant_fn,
 		container.append(df)
 
 	concat = pd.concat(container)
-
+	time_metadata = time.time()
+	print(f"Duration: {time_metadata - time_start}")
+	
 	# Format dates
+	print("Format dates and locations")
 	dates = concat["Collection_Date"].tolist()
 	formatted = format_dates(dates)
 	concat["Collection_Date"] = formatted
@@ -127,28 +133,76 @@ def main(in_dir, out_prefix, genome_length_fn, duplicate_seq_fn, num_variant_fn,
 	concat["Country"] = country
 	concat["Region"] = region
 
+	# Add additional columns
+	print("Add genome length")
 	if genome_length_fn:
 		genome_length = pd.read_table(genome_length_fn, names=["Accession_ID", "Genome_Length"]).drop_duplicates()
 		concat = concat.merge(genome_length, on="Accession_ID")
 
+	print("Add duplicate seq")
 	if duplicate_seq_fn:
 		duplicate_seq = pd.read_table(duplicate_seq_fn, header=0, names=["Accession_ID", "Identical_Seq"]).drop_duplicates()
 		concat = concat.merge(duplicate_seq, on="Accession_ID")
 
+	print("Add number of variant")
 	if num_variant_fn:
 		num_variant = pd.read_table(num_variant_fn, header=0, names=["Accession_ID", "Num_Variant"]).drop_duplicates()
 		concat = concat.merge(num_variant, on="Accession_ID", how="left")
 		concat.astype({"Num_Variant":"Int32"})
 
 	concat.to_csv(f"{out_prefix}.tsv", index=False, sep="\t")
+	time_format = time.time()
+	print(f"Duration: {time_format - time_metadata}")
 
+	# Subset to samples in VCF:
+	print("Subset to samples in VCF.")
 	if vcf_fn:
 		vcf = VCF(vcf_fn)
 		concat_in_vcf = concat[concat["Accession_ID"].isin(vcf.data.columns)]
 		concat_in_vcf = concat_in_vcf.loc[~concat_in_vcf["Accession_ID"].duplicated(),:]
 		concat_in_vcf.to_csv(f"{out_prefix}_in_vcf.tsv", index=False, sep="\t")
+	time_subset = time.time()
+	print(f"Duration: {time_subset - time_metadata}")
 
 if __name__ == "__main__":
 	main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

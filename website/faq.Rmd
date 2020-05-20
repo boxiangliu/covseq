@@ -96,3 +96,13 @@ We are preparing a manuscript for submission. In the time being, please cite the
 <script type="text/javascript">
   jQuery(document.links) .filter(function() { return this.hostname != window.location.hostname; }) .attr('target', '_blank');
 </script>
+
+
+<div class="main-container">
+<div class="row">
+<div class="col-sm-5">
+<script type="text/javascript" id="clustrmaps" src="//cdn.clustrmaps.com/map_v2.js?d=qq_wT2Wb-5EGeODyWuqQabBVbpIqbAtqwwCHFFlnjWE&cl=ffffff&w=a"></script>
+</div>
+</div>
+</div>
+
