@@ -101,7 +101,10 @@ class VCF():
 						split_line = line.split("\t")
 						assert len(colnames) == len(split_line)
 						for field, entry in zip(colnames, split_line):
-							container[field].append(entry)
+							if field in ['CHROM', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT']:
+								container[field].append(entry)
+							else:
+								container[field].append(int(entry))
 		else:
 			with open(vcf_fn, "r") as f:
 				for line in f:
