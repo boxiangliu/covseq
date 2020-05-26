@@ -1,0 +1,13 @@
+{"download_dir": "/Users/boxiang/Downloads/",
+"gisaid_fasta_prefix": "sequences",
+"gisaid_metadata_prefix": "metadata",
+"gisaid_target_fasta": "../data/gisaid/fasta/sequences.fasta",
+"gisaid_target_metadata": "../data/gisaid/metadata/metadata.tsv",
+"ncbi_fasta_fn": "sequences.fasta",
+"ncbi_metadata_fn": "sequences.csv",
+"ncbi_target_fasta": "../data/ncbi/fasta/sequences.fasta",
+"ncbi_target_metadata": "../data/ncbi/metadata/sequences.csv",
+"embl_fasta_prefix": "ena_sequence",
+"embl_metadata_prefix": "ena_sequence",
+"embl_target_fasta": "../data/embl/fasta/ena_sequence.fasta",
+"embl_target_metadata": "../data/embl/metadata/ena_sequence.txt"}

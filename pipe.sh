@@ -4,7 +4,7 @@
 
 # Concatenate all FASTA records.
 # Standardize all headers.
-python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata ../data/cngb/metadata/CNGBdb_VirusDIP.csv
+python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata ../data/cngb/metadata/CNGBdb_VirusDIP.csv --gisaid_metadata ../data/gisaid/metadata/metadata.tsv
 
 # Filter FASTA records.
 # Remove duplicates.

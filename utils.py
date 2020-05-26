@@ -135,6 +135,27 @@ class VCF():
 		return pheno
 
 
+	def remove_singletons(self):
+		n_alt = self.data.apply(sum, axis=1)
+		self.data = self.data[n_alt>1]
+		self.rowdata = self.rowdata[n_alt>1]
+
+
 	def __repr__(self):
 		return f"VCF: {self.vcf_fn}\nNumber of samples: {self.data.shape[1]}\nNumber of sites: {self.data.shape[0]}"
+
+
+	def __eq__(self, other):
+		if not isinstance(other, VCF):
+			return False
+		return self.data.equals(other.data) and self.rowdata.equals(other.rowdata)
+
+
+
+
+
+
+
+
+
 
