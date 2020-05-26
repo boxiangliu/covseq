@@ -46,7 +46,6 @@ def concatenate_fasta(in_dir, sub_dirs, out_fn, cngb_id_map, gisaid_id_map):
 						if "NetherlandsL" in record.description:
 							record.description = record.description.replace("NetherlandsL", "Netherlands")
 						seq_header = gisaid_id_map[record.description]
-						print(seq_header)
 					elif sd == "ncbi":
 						seq_header = record.description.split("|")[0].strip()
 					elif sd == "embl":
