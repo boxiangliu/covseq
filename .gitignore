@@ -7,7 +7,7 @@ data/short.fasta
 data/short_29209.fasta
 data/test.fasta
 .Rhistory
-amazon_credential
+aws_credential
 credentials.txt
 .DS_Store
 results/

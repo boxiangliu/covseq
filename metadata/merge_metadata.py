@@ -7,7 +7,7 @@ import sys
 sys.path.append(".")
 from utils import VCF
 
-SOURCES = ["gisaid_acknowledgement","ncbi","embl","cngb"]
+SOURCES = ["gisaid","ncbi","embl","cngb"]
 COLUMNS = ["Accession_ID",
 	"Virus",
 	"Data_Source",
@@ -32,6 +32,9 @@ def format_dates(dates):
 			else:
 				raise Exception("Please check the date.")
 		except TypeError:
+			formatted.append("")
+		except ValueError:
+			print("ValueError")
 			formatted.append("")
 	return formatted
 

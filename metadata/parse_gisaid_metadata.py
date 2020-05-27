@@ -64,15 +64,15 @@ def samples2columns(samples):
 
 @click.command()
 @click.option("--metadata_dir", "-m", type=str, help="Directory where GISAID metadata is located.")
-@click.option("--acknowledgement_fn", "-m", type=str, help="GISAID acknowledgement file.")
+@click.option("--metadata_fn", "-m", type=str, help="GISAID metadata file.")
 @click.option("--out_fn", "-o", type=str, help="Output file name.")
-@click.option("--type", "-t", type=str, help="Type of metadata file (detail, acknowledgement).")
-def main(metadata_dir, acknowledgement_fn, out_fn, type):
+@click.option("--type", "-t", type=str, help="Type of metadata file (detail, acknowledgement, nextmeta).")
+def main(metadata_dir, metadata_fn, out_fn, type):
 	print("###################")
 	print("# GISAID metadata #")
 	print("###################")
 	print(f"GISAID: {metadata_dir}")
-	print(f"Acknowledgement: {acknowledgement_fn}")
+	print(f"Metadata: {metadata_fn}")
 	print(f"Output: {out_fn}")
 	out_dir = os.path.dirname(out_fn)
 	os.makedirs(out_dir, exist_ok=True)
@@ -81,19 +81,29 @@ def main(metadata_dir, acknowledgement_fn, out_fn, type):
 		samples = read_sample_info(metadata_dir)
 		columns = samples2columns(samples)
 		df = pd.DataFrame(columns)
-		df["Data_Source"] = "GISAID"
-		df.to_csv(out_fn, sep="\t", index=False)
+
 	elif type == "acknowledgement":
-		fn = acknowledgement_fn
+		fn = metadata_fn
 		df = pd.read_excel(fn, skiprows=[0,1,3])
-		df["Data_Source"] = "GISAID"
 		df.rename(columns={"Accession ID": "Accession_ID", \
 			"Virus name": "Virus", "Collection date": "Collection_Date", \
 			"Originating lab": "Originating_Lab", \
 			"Submitting lab": "Submitting_Lab"}, inplace=True)
-		df.to_csv(out_fn, sep="\t", index=False)
+
+	elif type == "nextmeta":
+		fn = metadata_fn
+		df = pd.read_table(fn)
+		df.rename(columns={"gisaid_epi_isl": "Accession_ID", "strain": "Virus", \
+			"date": "Collection_Date", "originating_lab": "Originating_Lab", \
+			"submitting_lab": "Submitting_Lab", "authors": "Authors"}, inplace=True)
+		df["Location"] = df.apply(lambda x: "/".join([x["region"], x["country"], x["division"]]), axis=1)
+		df = df[["Accession_ID", "Virus", "Collection_Date", "Location", "Originating_Lab", "Submitting_Lab", "Authors"]]
+
 	else:
 		raise Exception(f"{type} is not recognized.")
+
+	df["Data_Source"] = "GISAID"
+	df.to_csv(out_fn, sep="\t", index=False)
 
 if __name__ == "__main__":
 	main()
