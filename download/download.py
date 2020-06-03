@@ -8,14 +8,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import sys
 sys.path.append("download")
-from download_gisaid import login, go_to_EpiCov, go_to_EpiCov_browser
+from download_gisaid import login as gisaid_login, go_to_EpiCov, go_to_EpiCov_browser
 import glob
 import subprocess
 import json
 
 GISAID_URL = "https://www.epicov.org/epi3/frontend#5f0352"
 NCBI_URL = "https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=SARS-CoV-2,%20taxid:2697049"
-EMBL_URL = "https://www.embl.ac.uk/ena/pathogens/covid-19"
+EMBL_URL = "https://www.ebi.ac.uk/ena/pathogens/covid-19"
 CREDENTIALS_FN = "download/credentials.txt"
 CONFIG_FN = "download/download_config.json"
 
@@ -83,11 +83,16 @@ def gisaid_download(driver):
 	for downicon in downicons:
 		if "nextmeta" in downicon.text:
 			downicon.click()
+			time.sleep(10)
 		elif "nextfasta" in downicon.text:
 			downicon.click()
+			time.sleep(120)
 
 
 def gisaid_decompress(config):
+	while glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*") == []:
+		time.sleep(5)
+
 	compressed_fasta_fn = glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*")[0]
 	cmd = f"gunzip {compressed_fasta_fn}"
 	output = subprocess.run(cmd, shell=True)
@@ -106,7 +111,7 @@ def gisaid_move(config):
 
 
 def ncbi_click_download(driver):
-	for radio_selection in ["Nucleotide", "CSV format"]
+	for radio_selection in ["Nucleotide", "CSV format"]:
 		download_btn = driver.find_element_by_class_name("ncbi-report-download")
 		download_btn.click()
 		time.sleep(1)
@@ -147,6 +152,8 @@ def ncbi_click_download(driver):
 def ncbi_move(config):
 	src = f"{config['download_dir']}/{config['ncbi_fasta_fn']}"
 	tgt = config["ncbi_target_fasta"]
+	while not os.path.exists(src):
+		time.sleep(5)
 	os.rename(src, tgt)
 
 	src = f"{config['download_dir']}/{config['ncbi_metadata_fn']}"
@@ -159,6 +166,7 @@ def embl_assembled_sequences(driver):
 	for link in links:
 		if link.text.startswith("Assembled Sequences"):
 			link.click()
+			time.sleep(10)
 			break
 
 
@@ -166,7 +174,7 @@ def embl_download(driver):
 	download_links = driver.find_elements_by_xpath("//a[contains(@class, 'no-underline') and contains(@class, 'ng-star-inserted')]")
 	for link in download_links:
 		link.click()
-		time.sleep(10)
+		time.sleep(300)
 
 
 def embl_move(config):
@@ -177,7 +185,7 @@ def embl_move(config):
 	os.rename(src, config["embl_target_metadata"])
 
 
-config = read_config(config_fn)
+config = read_config(CONFIG_FN)
 
 username, password = read_credentials(CREDENTIALS_FN)
 driver = Chrome(ChromeDriverManager().install())
@@ -196,6 +204,7 @@ ncbi_move(config)
 
 
 driver.get(EMBL_URL)
+time.sleep(10)
 embl_assembled_sequences(driver)
 embl_download(driver)
 embl_move(config)
