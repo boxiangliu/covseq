@@ -56,9 +56,9 @@ bash aws_upload/upload.sh
 
 
 # Generate HTML from Rmarkdown:
-Rscript website/rmd2html.R /Users/boxiang/Documents/work/Baidu/projects/covseq/scripts/website/faq.Rmd
-Rscript website/rmd2html.R /Users/boxiang/Documents/work/Baidu/projects/covseq/scripts/website/browse.Rmd
-Rscript website/rmd2html.R /Users/boxiang/Documents/work/Baidu/projects/covseq/scripts/website/index.Rmd
+Rscript website/rmd2html.R website/faq.Rmd
+Rscript website/rmd2html.R website/browse.Rmd
+Rscript website/rmd2html.R website/index.Rmd
 # MSA / Phylogenetic tree:
 # python3 phylogenetic/construct_tree.py --in_fn ../data/aggregated/fasta/preprocessed.fasta --out_dir ../data/aggregated/msa/
 

@@ -191,15 +191,15 @@ def main():
 	plot_cumulative_mutations_per_CDS_over_time(mutation_per_day_strat_by_CDS, f"{out_dir}/mutation_sumsum_per_CDS_per_day.pdf")
 
 
-to_plot = mutation_per_day_strat_by_CDS[mutation_per_day_strat_by_CDS["cds"]=="ORF1ab"]
-plt.plot(to_plot["date"], to_plot["cumsum"])
-locs, labels = plt.xticks()
-plt.xticks(locs, labels, rotation=45, ha='right')
+# to_plot = mutation_per_day_strat_by_CDS[mutation_per_day_strat_by_CDS["cds"]=="ORF1ab"]
+# plt.plot(to_plot["date"], to_plot["cumsum"])
+# locs, labels = plt.xticks()
+# plt.xticks(locs, labels, rotation=45, ha='right')
 
-to_plot = mutation_per_day_strat_by_CDS[mutation_per_day_strat_by_CDS["cds"]=="S"]
-plt.plot(to_plot["date"], to_plot["cumsum"])
-locs, labels = plt.xticks()
-plt.xticks(locs, labels, rotation=45, ha='right')
+# to_plot = mutation_per_day_strat_by_CDS[mutation_per_day_strat_by_CDS["cds"]=="S"]
+# plt.plot(to_plot["date"], to_plot["cumsum"])
+# locs, labels = plt.xticks()
+# plt.xticks(locs, labels, rotation=45, ha='right')
 
 
 if __name__ == "__main__":

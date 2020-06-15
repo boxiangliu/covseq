@@ -7,7 +7,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(root.dir = '/Users/boxiang/Documents/work/Baidu/projects/covseq/scripts/')
+knitr::opts_chunk$set(root.dir = '/Users/boxiang/Documents/!-work/Baidu/projects/covseq/scripts/')
 library(data.table)
 library(ggplot2)
 library(knitr)
