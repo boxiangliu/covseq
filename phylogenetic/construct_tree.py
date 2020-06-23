@@ -20,22 +20,60 @@ def make_input(in_dir, out_dir):
 		print(f"Total: {counter} sequences.")
 
 
-def msa(fin, fout):
-	print("Aligning with MAFFT...")
+def msa(mode, fasta_fn, align_fn, existing_alignment=None):
+	assert mode in ["denovo", "add"], \
+		"Argument mode must be denovo or add."
+
+	print("Aligning with MAFFT.")
 	start = time.time()
-	cmd = f"mafft {fin} > {fout}"
+
+	if mode == "denovo":
+		print("mode = denovo.")
+		cmd = f"mafft {fasta_fn} > {align_fn}"
+	else:
+		assert existing_alignment is not None, \
+			"Argument existing_alignment must be provided."
+		print("mode = add.")
+		cmd = f"mafft --add {fasta_fn} {existing_alignment} > {align_fn}"
+
+	print(f"Command: {cmd}")
 	output = subprocess.run(cmd, shell=True, capture_output=True)
+	
 	duration = time.time() - start
-	print(f"Duration: {str(duration)}")
+	print("Finished MSA.")
+	print(f"Time lapsed: {str(duration)}")
 
 
-def construct_tree(fin, out_prefix):
-	print("Contructing evolutionary tree...")
+def construct_tree(software, fin, out_prefix=None,\
+	out_fn=None, log_fn=None):
+	assert software in ["iqtree", "FastTree"], \
+		"Software must be iqtree or FastTree."
+
+	print("Contructing evolutionary tree.")
 	start = time.time()
-	cmd = f"iqtree -s {fin} -pre {out_prefix} -m GTR -T AUTO"
+
+	if software == "iqtree":
+		print("User selected iqtree.")
+		assert out_prefix is not None, \
+			"iqtree requires the out_prefix argument." 
+		cmd = f"iqtree -s {fin} -pre {out_prefix} -m GTR"
+		if os.path.exists(f"{out_prefix}.ckp.gz"):
+			cmd += " -redo"
+	elif software == "FastTree":
+		print("User selected FastTree.")
+		assert (out_fn is not None) and (log_fn is not None), \
+			"FastTree requires out_fn and log_fn arguments."
+		cmd = f"FastTree -nt -gtr -out {out_fn} -log {log_fn} {fin}"
+	else:
+		pass
+
+	print(cmd)
 	output = subprocess.run(cmd, shell=True, capture_output=True)
+
 	duration = time.time() - start 
-	print(f"Duration: {str(duration)}")
+	print("Finished tree construction.")
+	print(f"Time lapsed: {str(duration)}")
+
 
 
 @click.command()

@@ -5,17 +5,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-vcf_fn = "../processed_data/merge_vcfs/filter_sites/gisaid.vcf.gz"
+vcf_fn = "../data/aggregated/vcf/merged/filtered.vcf.gz"
 out_dir = "../processed_data/mutation_distribution/sample_per_mutation/"
 os.makedirs(out_dir, exist_ok=True)
-
 
 def tally_mutations_per_sample(vcf):
 	record = next(vcf)
 	total_samples = len(record.samples.items())
 	vcf.reset()
 	mut_count_dict = defaultdict(int)
-	for record in vcf:
+	for i, record in enumerate(vcf):
+		print(f"Record: {i}")
 		mut_count = 0
 		ref = record.ref
 		for samples in record.samples.items():

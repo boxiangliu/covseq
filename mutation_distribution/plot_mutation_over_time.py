@@ -40,10 +40,11 @@ def validate(date):
 
 
 def get_sorted_date(vcf):
-	human_data = vcf.coldata[vcf.coldata["Host"] == "Human"]
-	valid_date = [validate(x) for x in human_data["Collection date"].tolist()]
-	sample_date = human_data[valid_date][["Accession ID", "Collection date"]]
-	sample_date.sort_values("Collection date", inplace=True)
+	# human_data = vcf.coldata[vcf.coldata["Host"] == "Human"]
+	human_data = vcf.coldata
+	valid_date = [validate(x) for x in human_data["Collection_Date"].tolist()]
+	sample_date = human_data[valid_date][["Accession_ID", "Collection_Date"]]
+	sample_date.sort_values("Collection_Date", inplace=True)
 	return sample_date
 
 
@@ -66,8 +67,8 @@ def get_variant_CDS(vcf, CDS):
 def get_mutation_first_apparence(vcf, sample_date, variant_CDS):
 	mutation_date = {}
 	for _, s_row in sample_date.iterrows():
-		ID = s_row["Accession ID"]
-		date = s_row["Collection date"]
+		ID = s_row["Accession_ID"]
+		date = s_row["Collection_Date"]
 		genotypes = vcf.data.loc[:,ID]
 		variants = vcf.rowdata[genotypes.isin([1])]
 		for _, v_row in variants.iterrows():
@@ -151,7 +152,7 @@ def plot_new_mutations_per_CDS_over_time(mutation_per_day, out_fn):
 	ax.set_xlabel(None)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
-	ax.set_ylabel("Number of Novel Mutations per Nuceotide", fontdict=font)
+	ax.set_ylabel("Number of Novel Mutations\nper Nuceotide", fontdict=font)
 	fig.tight_layout()
 	fig.savefig(out_fn)
 
@@ -164,32 +165,54 @@ def plot_cumulative_mutations_per_CDS_over_time(mutation_per_day_strat_by_CDS, o
 	ax.set_xlabel(None)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
-	ax.set_ylabel("Cum. Number of Novel Mutations per Nuceotide", fontdict=font)
+	ax.set_ylabel("Cum. Number of Novel \nMutations per Nuceotide", fontdict=font)
+	fig.tight_layout()
+	fig.savefig(out_fn)
+
+
+def plot_cumulative_mutations_per_CDS(mutation_per_day_strat_by_CDS, out_fn):
+	latest_date = mutation_per_day_strat_by_CDS["date"].max()
+	to_plot = mutation_per_day_strat_by_CDS[mutation_per_day_strat_by_CDS["date"]==latest_date]
+	to_plot.sort_values("cumsum_per_length", inplace=True)
+	fig, ax = plt.subplots(figsize=(16,4))
+	font = {'family': 'sans-serif', 'color':  'black', 'weight': 'bold', 'size': 12}
+	ax = sns.barplot(data=to_plot, x="cds", y="cumsum_per_length")
+	ax.set_xlabel(None)
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+	ax.set_ylabel("Cum. Number of Novel \nMutations per Nuceotide", fontdict=font)
 	fig.tight_layout()
 	fig.savefig(out_fn)
 
 
 def main():
-	vcf_fn = "../processed_data/merge_vcfs/filter_sites/gisaid.vcf.gz"
-	pheno_fn = "../processed_data/phenotype/phenotype.tsv"
+	vcf_fn = "../data/aggregated/vcf/merged/filtered.vcf.gz"
+	pheno_fn = "../data/aggregated/metadata/merged.tsv"
+	# pheno_fn = "../processed_data/phenotype/phenotype.tsv"
 	out_dir = "../processed_data/mutation_distribution/mutation_over_time/"
 	os.makedirs(out_dir, exist_ok=True)
 
+	print("Reading VCF.")
 	vcf = VCF(vcf_fn, pheno_fn)
+
+	print("Getting CDS.")
 	variant_CDS = get_variant_CDS(vcf, CDS)
 	CDS_length = get_CDS_length(CDS)
+
+	print("Getting date.")
 	sample_date = get_sorted_date(vcf)
 	mutation_date_cds = get_mutation_first_apparence(vcf, sample_date, variant_CDS)
 	mutation_per_day = get_new_mutations_each_day(mutation_date_cds)
 	mutation_per_day_strat_by_CDS = get_new_mutations_each_day_strat_by_CDS(mutation_date_cds, CDS_length)
 	mutation_per_day_strat_by_CDS = fill_in_missing_days(mutation_per_day_strat_by_CDS)
 
+	print("Plotting.")
 	plot_new_mutations_over_time(mutation_per_day, f"{out_dir}/mutation_count_per_day.pdf")
 	plot_cumulative_mutations_over_time(mutation_per_day, f"{out_dir}/mutation_cumsum_per_day.pdf")
 
 	plot_new_mutations_per_CDS_over_time(mutation_per_day_strat_by_CDS, f"{out_dir}/mutation_count_per_CDS_per_day.pdf")
 	plot_cumulative_mutations_per_CDS_over_time(mutation_per_day_strat_by_CDS, f"{out_dir}/mutation_sumsum_per_CDS_per_day.pdf")
-
+	plot_cumulative_mutations_per_CDS(mutation_per_day_strat_by_CDS,f"{out_dir}/mutation_sumsum_per_CDS.pdf")
 
 # to_plot = mutation_per_day_strat_by_CDS[mutation_per_day_strat_by_CDS["cds"]=="ORF1ab"]
 # plt.plot(to_plot["date"], to_plot["cumsum"])

@@ -127,11 +127,12 @@ class VCF():
 		if verbose:
 			print("Reading Phenotype file.")
 		pheno = pd.read_table(pheno_fn)
-		pheno = pheno[pheno["Accession ID"].isin(sample)]
-		pheno.set_index("Accession ID", inplace=True)
+		pheno = pheno[pheno["Accession_ID"].isin(sample)]
+		pheno.set_index("Accession_ID", inplace=True)
+		pheno = pheno.loc[~pheno.index.duplicated(keep='first')]
 		pheno = pheno.reindex(sample)
 		pheno.reset_index(inplace=True)
-		pheno.rename(columns={"index":"Accession ID"}, inplace=True)
+		pheno.rename(columns={"index":"Accession_ID"}, inplace=True)
 		return pheno
 
 
