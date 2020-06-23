@@ -44,7 +44,7 @@ def msa(mode, fasta_fn, align_fn, existing_alignment=None):
 	print(f"Time lapsed: {str(duration)}")
 
 
-def construct_tree(software, fin, out_prefix=None,\
+def construct_tree(software, msa_fn, out_prefix=None,\
 	out_fn=None, log_fn=None):
 	assert software in ["iqtree", "FastTree"], \
 		"Software must be iqtree or FastTree."
@@ -53,21 +53,21 @@ def construct_tree(software, fin, out_prefix=None,\
 	start = time.time()
 
 	if software == "iqtree":
-		print("User selected iqtree.")
+		print("Software = iqtree.")
 		assert out_prefix is not None, \
 			"iqtree requires the out_prefix argument." 
-		cmd = f"iqtree -s {fin} -pre {out_prefix} -m GTR"
+		cmd = f"iqtree -s {msa_fn} -pre {out_prefix} -m GTR"
 		if os.path.exists(f"{out_prefix}.ckp.gz"):
 			cmd += " -redo"
 	elif software == "FastTree":
-		print("User selected FastTree.")
+		print("Software = FastTree.")
 		assert (out_fn is not None) and (log_fn is not None), \
 			"FastTree requires out_fn and log_fn arguments."
-		cmd = f"FastTree -nt -gtr -out {out_fn} -log {log_fn} {fin}"
+		cmd = f"FastTree -nt -gtr -out {out_fn} -log {log_fn} {msa_fn}"
 	else:
 		pass
 
-	print(cmd)
+	print(f"Command: {cmd}")
 	output = subprocess.run(cmd, shell=True, capture_output=True)
 
 	duration = time.time() - start 

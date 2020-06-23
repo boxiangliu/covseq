@@ -11,21 +11,21 @@ import subprocess
 import pickle
 
 gisaid_fasta_fn = "../data/gisaid/fasta/sequences.fasta"
-output_dir = "../processed_data/phylogenetic/runtime_vs_num_seq/"
+out_dir = "../processed_data/phylogenetic/runtime_vs_num_seq/"
 beijing_fasta_fn = "../data/BJ_CDC/4seq.fasta"
-os.makedirs(output_dir, exist_ok=True)
+os.makedirs(out_dir, exist_ok=True)
 num_seq = [10, 100, 200, 300, 400, 500, 600, 700, 900, 1000]
 
 
 
-def sample_fasta(gisaid_fasta_fn, output_dir, num_seq, lb=25000, ub=30000):
+def sample_fasta(gisaid_fasta_fn, out_dir, num_seq, lb=25000, ub=30000):
 	'''
 	lb: sequence length lower bound 
 	ub: sequence length upper bound
 	'''
 	out_fn_list = []
 	for n in num_seq:
-		out_fn = f"{output_dir}/{n}.fasta"
+		out_fn = f"{out_dir}/{n}.fasta"
 		out_fn_list.append(out_fn)
 		with open(out_fn, "w") as fout:
 			records = SeqIO.parse(gisaid_fasta_fn, "fasta")
@@ -93,84 +93,60 @@ def get_tree_runtime(msa_fn_list, num_seq, software):
 
 	container = defaultdict(list)
 	tree_fn_list = []
-	for n, fasta_fn in zip(num_seq, msa_fn_list):
-		print(f"Number of sequence: {n}")
-		container["num"].append(n)
-
-		start = time.time()
-		msa_fn = fasta_fn.replace(".fasta", ".ali")
-		msa_fn_list.append(msa_fn)
-
-		if os.path.exists(msa_fn) and not redo_msa:
-			print(f"Found MSA result: {msa_fn}. Skip.")
-			msa_time = time.time()
-		else:
-			if os.path.exists(msa_fn) and redo_msa:
-				print(f"Found MSA result: {msa_fn}. User forced redo.")
-			msa(fasta_fn, msa_fn)
-			msa_time = time.time()
-			container["msa_time"].append(msa_time - start)
-
-		if software == "iqtree":
-			tree_prefix = msa_fn.replace(".ali", "")
-			construct_tree(fin=msa_fn, out_prefix=tree_prefix)
-		else:
-			tree_fn = msa_fn.replace(".ali", ".fastTree.nh")
-			tree_log = msa_fn.replace(".ali", ".fastTree.log")
-		tree_time = time.time()
-		container["tree_time"].append(tree_time - msa_time)
-	
-	runtime = pd.DataFrame(container)
-	return runtime, msa_fn_list
-
-def get_np1_runtime(msa_fn_list, num_seq, new_sequences):
-	'''
-	Get runtime for MSA using N+1 method
-	'''
-	container = defaultdict(list)
-	msa_np1_fn_list = []
 	for n, msa_fn in zip(num_seq, msa_fn_list):
 		print(f"Number of sequence: {n}")
 		container["num"].append(n)
 
 		start = time.time()
-		msa_np1_fn = msa_fn.replace(".ali", ".np1.ali")
-		msa_np1_fn_list.append(msa_np1_fn)
-		msa_add(msa_fn, new_sequences, msa_np1_fn)
-		msa_time = time.time()
-		container["msa_time"].append(msa_time - start)
 
-		tree_prefix = msa_np1_fn.replace(".ali", "")
-		construct_tree(fin=msa_np1_fn, out_prefix=tree_prefix)
+		if software == "iqtree":
+			tree_prefix = msa_fn.replace(".ali", "")
+			construct_tree(software="iqtree", msa_fn=msa_fn, \
+				out_prefix=tree_prefix)
+			tree_fn_list.append(tree_prefix)
+		else:
+			tree_fn = msa_fn.replace(".ali", ".fastTree.nh")
+			tree_log = msa_fn.replace(".ali", ".fastTree.log")
+			construct_tree(software="FastTree", msa_fn=msa_fn, \
+				out_fn=tree_fn, log_fn=tree_log)
+			tree_fn_list.append(tree_fn)
+
 		tree_time = time.time()
-		container["tree_time"].append(tree_time - msa_time)
+		container["tree_time"].append(tree_time - start)
 	
 	runtime = pd.DataFrame(container)
-	return runtime, msa_np1_fn_list
+	return runtime, tree_fn_list
 
 
-def plot_runtime_vs_num_seq(duration, out_fn):
+def plot_runtime_vs_num_seq(runtime, x, y, out_fn):
+	'''
+	x: a string scalar representing the column name for x axis.
+	y: a string list representing column names for y axes.
+	'''
 	plt.close()
-	fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(6,6))
+	width = 3 * len(y)
+	height = 3 * 2
+	fig, ax = plt.subplots(nrows=2, ncols=len(y), figsize=(width,height))
 	
-	ax[0,0].plot("num", "msa_time", "go", data=duration)
-	ax[0,0].set_title("MSA")
-	ax[0,0].set_xlabel("Number of sequences")
-	ax[0,0].set_ylabel("Runtime (in S)")
+	for iy in y:
+		ax[0,0].plot("num", "msa_time", "go", data=runtime)
+		ax[0,0].set_title("MSA")
+		ax[0,0].set_xlabel("Number of sequences")
+		ax[0,0].set_ylabel("Runtime (in S)")
 
-	ax[1,0].plot("num", "msa_time", "go", data=duration)
-	ax[1,0].set_yscale("log")
-	ax[1,0].set_xscale("log")
-	ax[1,0].set_title("MSA (log-log)")
-	ax[1,0].set_xlabel("log(number of sequences) (in S)")
-	ax[1,0].set_ylabel("log(runtime)")
+		ax[1,0].plot("num", "msa_time", "go", data=runtime)
+		ax[1,0].set_yscale("log")
+		ax[1,0].set_xscale("log")
+		ax[1,0].set_title("MSA (log-log)")
+		ax[1,0].set_xlabel("log(number of sequences) (in S)")
+		ax[1,0].set_ylabel("log(runtime)")
 
-	ax[0,1].plot("num", "tree_time", "go", data=duration)
+	ax[0,1].plot("num", "tree_time", "go", data=runtime)
 	ax[0,1].set_title("Phylogenetic Tree")
 	ax[0,1].set_xlabel("Number of sequences")
 	ax[0,1].set_ylabel("Runtime (in S)")
 
-	ax[1,1].plot("num", "tree_time", "go", data=duration)
+	ax[1,1].plot("num", "tree_time", "go", data=runtime)
 	ax[1,1].set_yscale("log")
 	ax[1,1].set_xscale("log")
 	ax[1,1].set_title("Phylogenetic Tree (log-log)")
@@ -280,26 +256,46 @@ def plot_treebest_runtime_vs_num_seq(treebest_runtime, fig_fn):
 
 
 def main():
-	fasta_fn_list = sample_fasta(gisaid_fasta_fn, output_dir, num_seq)
+	print("Sample FASTA records.")
+	fasta_fn_list = sample_fasta(gisaid_fasta_fn, out_dir, num_seq)
 
-	denovo_runtime, msa_fn_list = get_denovo_runtime(fasta_fn_list, num_seq)
-	denovo_runtime_out_fn = f"{output_dir}/denovo_msa_runtime.tsv"
+	print("Collect de novo runtime statistics.")
+	print("Multiple sequence alignment.")
+	denovo_msa_runtime, denovo_msa_fn_list = get_msa_runtime( \
+		mode="denovo", num_seq=num_seq, fasta_fn_list=fasta_fn_list)
+	with open(f"{out_dir}/denovo_msa_fn.pkl", "wb") as p: 
+		pickle.dump(denovo_msa_fn_list, p)
+
+	print("Phylogenetic tree with IQ-Tree.")
+	denovo_iqtree_runtime, denovo_iqtree_fn_list = get_tree_runtime( \
+		denovo_msa_fn_list, num_seq, software="iqtree")
+	with open(f"{out_dir}/denovo_iqtree_fn.pkl", "wb") as p:
+		pickle.dump(denovo_iqtree_fn_list, p)
+
+	print("Phylogenetic tree with FastTree.")
+	denovo_fastTree_runtime, denovo_fastTree_fn_list = get_tree_runtime( \
+		denovo_msa_fn_list, num_seq, software="FastTree")
+	with open(f"{out_dir}/denovo_fastTree_fn.pkl", "wb") as p:
+		pickle.dump(denovo_fastTree_fn_list, p)
+
+	print("Save runtime statistics.")
+	denovo_runtime = pd.merge(denovo_msa_runtime, denovo_iqtree_runtime, on="num")
+	denovo_runtime = pd.merge(denovo_runtime, denovo_fastTree_runtime, on="num")
+	denovo_runtime_out_fn = f"{out_dir}/denovo_runtime.tsv"
 	denovo_runtime.to_csv(denovo_runtime_out_fn, sep="\t", index=False)
-	msa_fn_list_pkl = f"{output_dir}/denovo_msa_fn.pkl"
-	with open(msa_fn_list_pkl, "wb") as p:
-		pickle.dump(msa_fn_list, p)
-
-	denovo_fig_fn = f"{output_dir}/denovo_runtime_vs_num_seq.png"
+	
+	print("Plot runtime statistics.")
+	denovo_fig_fn = f"{out_dir}/denovo_runtime_vs_num_seq.png"
 	plot_runtime_vs_num_seq(denovo_runtime, denovo_fig_fn)
 
 	np1_runtime, msa_np1_fn_list = get_np1_runtime(msa_fn_list, num_seq, beijing_fasta_fn)
-	np1_runtime_out_fn = f"{output_dir}/np1_msa_runtime.tsv"
+	np1_runtime_out_fn = f"{out_dir}/np1_msa_runtime.tsv"
 	np1_runtime.to_csv(np1_runtime_out_fn, sep="\t", index=False)
-	msa_np1_fn_list_pkl = f"{output_dir}/np1_msa_fn.pkl"
+	msa_np1_fn_list_pkl = f"{out_dir}/np1_msa_fn.pkl"
 	with open(msa_np1_fn_list_pkl, "wb") as p: 
 		pickle.dump(msa_np1_fn_list, p)
 
-	np1_fig_fn = f"{output_dir}/np1_runtime_vs_num_seq.png"
+	np1_fig_fn = f"{out_dir}/np1_runtime_vs_num_seq.png"
 	plot_runtime_vs_num_seq(np1_runtime, np1_fig_fn)
 
 	treebest_nj_runtime = get_treebest_nj_runtime(num_seq, msa_np1_fn_list)
@@ -307,10 +303,10 @@ def main():
 
 	treebest_phyml_runtime = get_treebest_phyml_runtime(num_seq, msa_np1_fn_list)
 	treebest_runtime = pd.merge(treebest_runtime, treebest_phyml_runtime)
-	treebest_runtime_out_fn = f"{output_dir}/treebest_runtime.tsv"
+	treebest_runtime_out_fn = f"{out_dir}/treebest_runtime.tsv"
 	treebest_runtime.to_csv(treebest_runtime_out_fn, sep="\t", index=False)
 
-	treebest_fig_fn = f"{output_dir}/treebest_runtime_vs_num_seq.png"
+	treebest_fig_fn = f"{out_dir}/treebest_runtime_vs_num_seq.png"
 	plot_treebest_runtime_vs_num_seq(treebest_runtime, treebest_fig_fn)
 
 if __name__ == "__main__":
