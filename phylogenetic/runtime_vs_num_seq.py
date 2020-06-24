@@ -269,7 +269,7 @@ def pplacer(ref_pkg, align_fn, out_fn):
 	if not align_fn.endswith(".fasta"):
 		print("Removing .fasta from alignment file.")
 		cmd = f"mv {align_fn}.fasta {align_fn}"
-		subprocess.run(cmd)
+		subprocess.run(cmd, shell=True)
 
 
 def get_placement_runtime(software, ref_tree_fn, new_align_fn, ref_align_fn=None, ref_tree_stat=None):
@@ -375,33 +375,43 @@ def main():
 	# 	np1_msa_fn_list = pickle.load(p)
 
 
-	# np1_runtime, msa_np1_fn_list = get_np1_runtime(msa_fn_list, num_seq, beijing_fasta_fn)
-	# np1_runtime_out_fn = f"{out_dir}/np1_msa_runtime.tsv"
-	# np1_runtime.to_csv(np1_runtime_out_fn, sep="\t", index=False)
-	# msa_np1_fn_list_pkl = f"{out_dir}/np1_msa_fn.pkl"
-	# with open(msa_np1_fn_list_pkl, "wb") as p: 
-		# pickle.dump(msa_np1_fn_list, p)
+	print("N+1 IQ-Tree runtime.")
+	np1_iqtree_runtime, np1_iqtree_fn_list = get_tree_runtime( \
+		np1_msa_fn_list, num_seq, software="iqtree")
+	with open(f"{out_dir}/np1_iqtree_fn.pkl", "wb") as p:
+		pickle.dump(np1_iqtree_fn_list, p)
+	# with open(f"{out_dir}/np1_iqtree_fn.pkl", "rb") as p: 
+	# 	np1_iqtree_fn_list = pickle.load(p)
 
-	print("Plot N+1 runtime statistics.")
-	# np1_fig_fn = f"{out_dir}/np1_runtime_vs_num_seq.png"
-	# plot_runtime_vs_num_seq(np1_runtime, np1_fig_fn)
+	# print("N+1 TreeBest Neighbor Joining")
+	# treebest_nj_runtime = get_treebest_nj_runtime(num_seq, msa_np1_fn_list)
+	# treebest_runtime = pd.merge(np1_runtime, treebest_nj_runtime)
 
-	treebest_nj_runtime = get_treebest_nj_runtime(num_seq, msa_np1_fn_list)
-	treebest_runtime = pd.merge(np1_runtime, treebest_nj_runtime)
+	# print("N+1 TreeBest PhyML")
+	# treebest_phyml_runtime = get_treebest_phyml_runtime(num_seq, msa_np1_fn_list)
+	# treebest_runtime = pd.merge(treebest_runtime, treebest_phyml_runtime)
+	# treebest_runtime_out_fn = f"{out_dir}/treebest_runtime.tsv"
+	# treebest_runtime.to_csv(treebest_runtime_out_fn, sep="\t", index=False)
 
-	treebest_phyml_runtime = get_treebest_phyml_runtime(num_seq, msa_np1_fn_list)
-	treebest_runtime = pd.merge(treebest_runtime, treebest_phyml_runtime)
-	treebest_runtime_out_fn = f"{out_dir}/treebest_runtime.tsv"
-	treebest_runtime.to_csv(treebest_runtime_out_fn, sep="\t", index=False)
+	# treebest_fig_fn = f"{out_dir}/treebest_runtime_vs_num_seq.png"
+	# plot_treebest_runtime_vs_num_seq(treebest_runtime, treebest_fig_fn)
 
-	treebest_fig_fn = f"{out_dir}/treebest_runtime_vs_num_seq.png"
-	plot_treebest_runtime_vs_num_seq(treebest_runtime, treebest_fig_fn)
-
-	print("Getting phylogenetic placement runtime.")
+	print("N+1 phylogenetic placement runtime.")
 	placement_runtime, placement_fn_list = loop_placement_runtime(software="pplacer", num_seq=num_seq, \
 		ref_align_fn_list=denovo_msa_fn_list,ref_tree_fn_list=denovo_fastTree_fn_list, \
 		new_align_fn_list=np1_msa_fn_list)
 
+	np1_runtime = pd.merge(np1_msa_runtime, np1_iqtree_runtime, on="num")
+	np1_runtime = pd.merge(np1_runtime, placement_runtime, on="num")
+	np1_runtime_out_fn = f"{out_dir}/np1_msa_runtime.tsv"
+	np1_runtime.to_csv(np1_runtime_out_fn, sep="\t", index=False)
+
+	print("Plot N+1 runtime statistics.")
+	np1_fig_fn = f"{out_dir}/np1_runtime_vs_num_seq.png"
+	plot_runtime_vs_num_seq(runtime=np1_runtime, x="num", \
+		y_list=["msa_time", "iqtree_time", "pplacer"], \
+		title_list=["MSA", "IQ-Tree", "Pplacer"], \
+		out_fn=np1_fig_fn)
 
 if __name__ == "__main__":
 	main()
