@@ -45,7 +45,7 @@ def msa(mode, fasta_fn, align_fn, existing_alignment=None):
 
 
 def construct_tree(software, msa_fn, out_prefix=None,\
-	out_fn=None, log_fn=None):
+	out_fn=None, log_fn=None, options=""):
 	assert software in ["iqtree", "FastTree"], \
 		"Software must be iqtree or FastTree."
 
