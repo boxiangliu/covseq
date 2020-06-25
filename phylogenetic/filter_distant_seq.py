@@ -22,12 +22,13 @@ def write_fasta(ref_fasta_fn, qry_fasta_fn, out_dir):
 	return out_fn_list
 
 
-def pairwise_alignment(fasta_fn, align_fn=None):
+def pairwise_alignment(fasta_fn, align_fn=None, verbose=False):
 	if align_fn is None:
 		align_fn = fasta_fn.replace(".fasta", ".ali")
 	cmd = f"mafft --retree 1 --maxiterate 0 {fasta_fn} > {align_fn}"
-	print(f"Command: {cmd}")
-	subprocess.run(cmd, shell=True)
+	if verbose:
+		print(f"Command: {cmd}")
+	output = subprocess.run(cmd, shell=True, capture_output=True)
 	return align_fn
 
 
