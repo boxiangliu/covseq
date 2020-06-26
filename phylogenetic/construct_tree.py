@@ -20,36 +20,73 @@ def make_input(in_dir, out_dir):
 		print(f"Total: {counter} sequences.")
 
 
-def msa(mode, fasta_fn, align_fn, existing_alignment=None):
-	assert mode in ["denovo", "add"], \
-		"Argument mode must be denovo or add."
+msa(mode="related", \
+	fasta_fn="../processed_data/phylogenetic/filter_distant_seq/keep.fasta", \
+	align_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
+	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
+
+def msa(mode, fasta_fn, align_fn, existing_alignment=None, ref_fasta_fn=None, uppercase=False):
+	assert mode in ["denovo", "add", "related"], \
+		"Argument mode must be denovo or add or related."
 
 	print("Aligning with MAFFT.")
 	start = time.time()
 
 	if mode == "denovo":
 		print("mode = denovo.")
-		cmd = f"mafft {fasta_fn} > {align_fn}"
-	else:
-		assert existing_alignment is not None, \
-			"Argument existing_alignment must be provided."
-		print("mode = add.")
-		cmd = f"mafft --add {fasta_fn} {existing_alignment} > {align_fn}"
+		cmd = f"mafft --thread -1 {fasta_fn} > {align_fn}"
 
+	elif mode == "add":
+		assert existing_alignment is not None, \
+			"existing_alignment must be provided."
+		print("mode = add.")
+		cmd = f"mafft --thread -1 --add {fasta_fn} {existing_alignment} > {align_fn}"
+
+	elif mode == "related":
+		assert ref_fasta_fn is not None, \
+			"ref_fasta_fn must be provided."
+		print("mode = related (input sequence must have % identity ~ 99%.")
+		cmd = f"mafft --auto --thread -1 --addfragments {fasta_fn} {ref_fasta_fn} > {align_fn}"
+	else:
+		pass
 	print(f"Command: {cmd}")
 	output = subprocess.run(cmd, shell=True, capture_output=True)
 	
-	duration = time.time() - start
-	print("Finished MSA.")
-	print(f"Time lapsed: {str(duration)}")
+	msa_time = time.time()
+	duration = msa_time - start
+	print(f"MSA time: {str(duration)}")
+
+	if uppercase:
+		print("Convert to uppercase")
+		with open(align_fn + ".up", "w") as f:
+			for fasta in SeqIO.parse(align_fn, "fasta"):
+				fasta.seq = fasta.seq.upper()
+				SeqIO.write(fasta, f, "fasta")
+		os.remove(align_fn)
+		os.rename(align_fn + ".up", align_fn)
+
+
+options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
+output = construct_tree(software="VeryFastTree", \
+	msa_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
+	out_fn="../processed_data/phylogenetic/construct_tree/keep.vft.nh", \
+	log_fn="../processed_data/phylogenetic/construct_tree/keep.vft.log", \
+	options=options)
+
+options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
+output = construct_tree(software="VeryFastTree", \
+	msa_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
+	out_fn="../processed_data/phylogenetic/construct_tree/keep.vft.nh", \
+	log_fn="../processed_data/phylogenetic/construct_tree/keep.vft.log", \
+	options=options)
 
 
 def construct_tree(software, msa_fn, out_prefix=None,\
 	out_fn=None, log_fn=None, options=""):
-	assert software in ["iqtree", "FastTree"], \
-		"Software must be iqtree or FastTree."
+	assert software in ["iqtree", "FastTree", "VeryFastTree"], \
+		"Software must be iqtree or FastTree or VeryFastTree."
 
-	print("Contructing evolutionary tree.")
+	print("Contruct evolutionary tree.")
 	start = time.time()
 
 	if software == "iqtree":
@@ -59,11 +96,16 @@ def construct_tree(software, msa_fn, out_prefix=None,\
 		cmd = f"iqtree -s {msa_fn} -pre {out_prefix} -m GTR"
 		if os.path.exists(f"{out_prefix}.ckp.gz"):
 			cmd += " -redo"
-	elif software == "FastTree":
-		print("Software = FastTree.")
+
+	elif software == "FastTree" or software == "VeryFastTree":
 		assert (out_fn is not None) and (log_fn is not None), \
 			"FastTree requires out_fn and log_fn arguments."
-		cmd = f"FastTree -nt -gtr -out {out_fn} -log {log_fn} {msa_fn}"
+		print(f"Software = {software}")
+		cmd = f"{software} -nt -gtr -out {out_fn} -log {log_fn}"
+		if options != "":
+			cmd += " " + options
+		cmd += " " + msa_fn
+
 	else:
 		pass
 
@@ -73,6 +115,7 @@ def construct_tree(software, msa_fn, out_prefix=None,\
 	duration = time.time() - start 
 	print("Finished tree construction.")
 	print(f"Time lapsed: {str(duration)}")
+	return output
 
 
 

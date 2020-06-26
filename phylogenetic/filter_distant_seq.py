@@ -40,45 +40,67 @@ def get_hamming_distance(fasta_fn):
 	return hamming
 
 
-def filter_seq_by_hamming_dist(qry_fasta_fn, hamming, out_fn):
+def filter_seq_by_hamming_dist(qry_fasta_fn, hamming, out_dir):
 	records = SeqIO.parse(qry_fasta_fn, "fasta")
-	with open(out_fn, "w") as f:
-		for h, qry_fasta in zip(hamming, records):
+	keep_fn = f"{out_dir}/keep.fasta"
+	remove_fn = f"{out_dir}/remove.fasta"
+	hamming_fn = f"{out_dir}/hamming.tsv"
+
+	with open(keep_fn, "w") as f_keep, \
+		open(remove_fn, "w") as f_remove, \
+		open(hamming_fn, "w") as f_hamming:
+		for i, (h, qry_fasta) in enumerate(zip(hamming, records)):
 			if h < 300:
-				SeqIO.write(qry_fasta, f, "fasta")
+				SeqIO.write(qry_fasta, f_keep, "fasta")
+			else:
+				SeqIO.write(qry_fasta, f_remove, "fasta")
+			f_hamming.write(f"{i}\t{qry_fasta.id}\t{h}\n")
 
 
-start = time.time()
+def main():
+	print("Start filter_distant_seq.py")
+	start = time.time()
 
-fasta_fn_list = write_fasta(ref_fasta_fn, qry_fasta_fn, out_dir)
+	print("Write FASTA for pairwise alignment.")
+	fasta_fn_list = write_fasta(ref_fasta_fn, qry_fasta_fn, out_dir)
 
-write_time = time.time()
-write_duration = write_time - start
-print(f"Writing took {write_duration} seconds.")
-
-with Pool(40) as p:
-	align_fn_list = p.map(pairwise_alignment, fasta_fn_list)
-
-align_time = time.time()
-align_duration = align_time - write_time
-print(f"Pairwise alignment took {align_duration} seconds.")
+	write_time = time.time()
+	write_duration = write_time - start
+	print(f"Writing took {write_duration} seconds.")
 
 
-with Pool(40) as p:
-	hamming = p.map(get_hamming_distance, align_fn_list)
+	print("Pairwise alignment.")
+	with Pool(40) as p:
+		align_fn_list = p.map(pairwise_alignment, fasta_fn_list)
 
-hamming_time = time.time()
-hamming_duration = hamming_time - align_time
-print(f"Hamming distance calculation took {hamming_duration} seconds.")
+	align_time = time.time()
+	align_duration = align_time - write_time
+	print(f"Pairwise alignment took {align_duration} seconds.")
 
 
-out_fn = f"{out_dir}/filtered.fasta"
-filter_seq_by_hamming_dist(qry_fasta_fn, hamming, out_fn)
+	print("Hamming distance.")
+	with Pool(40) as p:
+		hamming = p.map(get_hamming_distance, align_fn_list)
 
-filter_time = time.time()
-filter_duration = filter_time - hamming_time
-print(f"Filtering took {filter_duration}.")
+	hamming_time = time.time()
+	hamming_duration = hamming_time - align_time
+	print(f"Hamming distance calculation took {hamming_duration} seconds.")
 
-finish_time = time.time()
-finish_duration = finish_time - start
-print(f"Total time: {finish_duration}.")
+
+	print("Filter by Hamming distance.")
+	filter_seq_by_hamming_dist(qry_fasta_fn, hamming, out_dir)
+
+	filter_time = time.time()
+	filter_duration = filter_time - hamming_time
+	print(f"Filtering took {filter_duration} seconds.")
+
+	finish_time = time.time()
+	finish_duration = finish_time - start
+	print(f"Total time: {finish_duration} seconds.")
+
+
+# Writing took 60.859065771102905 seconds.
+# Pairwise alignment took 592.5926842689514 seconds.
+# Hamming distance calculation took 9.643347263336182 seconds.
+# Filtering took 12.368592262268066 seconds. 
+# Total time: 671.4485294818878.
