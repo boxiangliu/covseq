@@ -25,6 +25,12 @@ msa(mode="related", \
 	align_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
 	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
 
+msa(mode="related", \
+	fasta_fn="../processed_data/phylogenetic/append_new_seq/keep_and_new.fasta", \
+	align_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.ali", \
+	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
+
+
 def msa(mode, fasta_fn, align_fn, existing_alignment=None, ref_fasta_fn=None, uppercase=False):
 	assert mode in ["denovo", "add", "related"], \
 		"Argument mode must be denovo or add or related."
@@ -73,13 +79,20 @@ output = construct_tree(software="VeryFastTree", \
 	log_fn="../processed_data/phylogenetic/construct_tree/keep.vft.log", \
 	options=options)
 
-options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
+options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 -fastest "
 output = construct_tree(software="VeryFastTree", \
 	msa_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
-	out_fn="../processed_data/phylogenetic/construct_tree/keep.vft.nh", \
-	log_fn="../processed_data/phylogenetic/construct_tree/keep.vft.log", \
+	out_fn="../processed_data/phylogenetic/construct_tree/keep.fastest.vft.nh", \
+	log_fn="../processed_data/phylogenetic/construct_tree/keep.fastest.vft.log", \
 	options=options)
 
+
+options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
+output = construct_tree(software="VeryFastTree", \
+	msa_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.ali", \
+	out_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.vft.nh", \
+	log_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.vft.log", \
+	options=options)
 
 def construct_tree(software, msa_fn, out_prefix=None,\
 	out_fn=None, log_fn=None, options=""):
