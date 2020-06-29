@@ -1,8 +1,7 @@
 import pandas as pd
 from Bio import SeqIO
 import os
-
-
+import click
 
 
 @click.command()
