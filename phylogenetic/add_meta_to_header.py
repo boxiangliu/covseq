@@ -2,10 +2,7 @@ import pandas as pd
 from Bio import SeqIO
 import os
 
-meta_fn = "../data/gisaid/metadata/metadata.tsv"
-fasta_fn = "../processed_data/phylogenetic/filter_distant_seq/keep.fasta"
-out_dir = "../processed_data/phylogenetic/add_meta_to_header/"
-out_fn = 
+
 
 
 @click.command()
