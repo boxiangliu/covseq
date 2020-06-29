@@ -20,15 +20,20 @@ def make_input(in_dir, out_dir):
 		print(f"Total: {counter} sequences.")
 
 
-msa(mode="related", \
-	fasta_fn="../processed_data/phylogenetic/filter_distant_seq/keep.fasta", \
-	align_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
-	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
+# msa(mode="related", \
+# 	fasta_fn="../processed_data/phylogenetic/filter_distant_seq/keep.fasta", \
+# 	align_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
+# 	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
 
-msa(mode="related", \
-	fasta_fn="../processed_data/phylogenetic/append_new_seq/keep_and_new.fasta", \
-	align_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.ali", \
-	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
+# msa(mode="related", \
+# 	fasta_fn="../processed_data/phylogenetic/append_new_seq/keep_and_new.fasta", \
+# 	align_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.ali", \
+# 	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
+
+# msa(mode="related", \
+# 	fasta_fn="../processed_data/phylogenetic/append_new_seq/sample_and_new.fasta", \
+# 	align_fn="../processed_data/phylogenetic/construct_tree/sample_and_new.ali", \
+# 	ref_fasta_fn="data/NC_045512.2.fasta", uppercase=True)
 
 
 def msa(mode, fasta_fn, align_fn, existing_alignment=None, ref_fasta_fn=None, uppercase=False):
@@ -72,27 +77,36 @@ def msa(mode, fasta_fn, align_fn, existing_alignment=None, ref_fasta_fn=None, up
 		os.rename(align_fn + ".up", align_fn)
 
 
-options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
-output = construct_tree(software="VeryFastTree", \
-	msa_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
-	out_fn="../processed_data/phylogenetic/construct_tree/keep.vft.nh", \
-	log_fn="../processed_data/phylogenetic/construct_tree/keep.vft.log", \
-	options=options)
+# options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
+# output = construct_tree(software="VeryFastTree", \
+# 	msa_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
+# 	out_fn="../processed_data/phylogenetic/construct_tree/keep.vft.nh", \
+# 	log_fn="../processed_data/phylogenetic/construct_tree/keep.vft.log", \
+# 	options=options)
 
-options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 -fastest "
-output = construct_tree(software="VeryFastTree", \
-	msa_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
-	out_fn="../processed_data/phylogenetic/construct_tree/keep.fastest.vft.nh", \
-	log_fn="../processed_data/phylogenetic/construct_tree/keep.fastest.vft.log", \
-	options=options)
+# options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 -fastest "
+# output = construct_tree(software="VeryFastTree", \
+# 	msa_fn="../processed_data/phylogenetic/construct_tree/keep.ali", \
+# 	out_fn="../processed_data/phylogenetic/construct_tree/keep.fastest.vft.nh", \
+# 	log_fn="../processed_data/phylogenetic/construct_tree/keep.fastest.vft.log", \
+# 	options=options)
 
 
-options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
-output = construct_tree(software="VeryFastTree", \
-	msa_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.ali", \
-	out_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.vft.nh", \
-	log_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.vft.log", \
-	options=options)
+# options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
+# output = construct_tree(software="VeryFastTree", \
+# 	msa_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.ali", \
+# 	out_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.vft.nh", \
+# 	log_fn="../processed_data/phylogenetic/construct_tree/keep_and_new.vft.log", \
+# 	options=options)
+
+
+# options = "-threads 12 -double-precision -ext AVX2 -fastexp 2 "
+# output = construct_tree(software="VeryFastTree", \
+# 	msa_fn="../processed_data/phylogenetic/construct_tree/sample_and_new.ali", \
+# 	out_fn="../processed_data/phylogenetic/construct_tree/sample_and_new.vft.nh", \
+# 	log_fn="../processed_data/phylogenetic/construct_tree/sample_and_new.vft.log", \
+# 	options=options)
+
 
 def construct_tree(software, msa_fn, out_prefix=None,\
 	out_fn=None, log_fn=None, options=""):
@@ -134,18 +148,34 @@ def construct_tree(software, msa_fn, out_prefix=None,\
 
 @click.command()
 @click.option("--in_fn", "-i", type=str, help="Input FASTA file.")
-@click.option("--out_dir", "-o", type=str, help="Output directory.")
-@click.option("--make_tree", "-t", is_flag=True, default=False)
-def main(in_fn, out_dir, make_tree):
+@click.option("--out_prefix", "-o", type=str, help="Output prefix.")
+@click.option("--make_tree", "-t", is_flag=True, default=True)
+@click.option("--mafft_mode", type=str, default="related", help="MAFFT run mode: {denovo, add, related}")
+@click.option("--ref_fasta", type=str, default="data/NC_045512.2.fasta", help="Reference fasta file.")
+@click.option("--tree_threads", type=int, default=12, help="Number of threads to use for tree construction.")
+def main(in_fn, out_prefix, make_tree, mafft_mode, ref_fasta, tree_threads):
 	print("##############")
 	print("# MSA / Tree #")
 	print("##############")
 	print(f"FASTA: {in_fn}")
 	print(f"Output: {out_dir}")
 
-	os.makedirs(out_dir, exist_ok=True)
-	msa(in_fn, f"{out_dir}/preprocessed.ali")
-	if make_tree: construct_tree(f"{out_dir}/preprocessed.ali", f"{out_dir}/preprocessed")
+	out_dir = os.path.dirname(out_prefix)
+	os.makedir(out_dir, exist_ok=True)
+
+	msa(mode=mafft_mode, \
+		fasta_fn=in_fn, \
+		align_fn=f"{out_prefix}.align.fasta", \
+		ref_fasta_fn=ref_fasta, uppercase=True)
+
+
+	if make_tree:
+		options = f"-threads {tree_threads} -double-precision -ext AVX2 -fastexp 2 "
+		output = construct_tree(software="VeryFastTree", \
+			msa_fn=f"{out_prefix}.align.fasta", \
+			out_fn=f"{out_prefix}.tree.nh", \
+			log_fn=f"{out_prefix}.tree.log", \
+			options=options)
 
 
 if __name__ == "__main__":
