@@ -5,9 +5,9 @@ import click
 
 
 @click.command()
-@click.option("--meta_fn")
-@click.option("--fasta_fn")
-@click.option("--out_fn")
+@click.option("--meta_fn", help="Metadata file.")
+@click.option("--fasta_fn", help="Fasta file.")
+@click.option("--out_fn", help="Output file.")
 def main(meta_fn, fasta_fn, out_fn):
 	out_dir = os.path.dirname(out_fn)
 	os.makedirs(out_dir, exist_ok=True)
