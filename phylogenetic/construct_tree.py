@@ -158,7 +158,7 @@ def main(in_fn, out_prefix, make_tree, mafft_mode, ref_fasta, tree_threads):
 	print("# MSA / Tree #")
 	print("##############")
 	print(f"FASTA: {in_fn}")
-	print(f"Output: {out_dir}")
+	print(f"Output prefix: {out_prefix}")
 
 	out_dir = os.path.dirname(out_prefix)
 	os.makedir(out_dir, exist_ok=True)

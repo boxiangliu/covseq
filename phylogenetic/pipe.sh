@@ -18,5 +18,6 @@ bash phylogenetic/append_new_seq.sh "../processed_data/phylogenetic/add_meta_to_
 
 # Construct tree:
 python3 phylogenetic/construct_tree.py --in_fn ../processed_data/phylogenetic/append_new_seq/sample_and_new.fasta --out_prefix ../processed_data/phylogenetic/construct_tree/sample_and_new
+
 # Runtime analysis:
 python3 phylogenetic/runtime_vs_num_strains.py
