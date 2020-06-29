@@ -13,7 +13,7 @@ def main(meta_fn, fasta_fn, out_fn):
 	os.makedirs(out_dir, exist_ok=True)
 
 	meta = pd.read_table(meta_fn)
-	meta["new_header"] = meta.apply(lambda x: f'{x["strain"]}|{x["region"]}|{x["country"]}|{x["date"]}', axis=1)
+	meta["new_header"] = meta.apply(lambda x: f'{x["strain"]}.replace(" ", "_")|{x["region"]}|{x["country"]}|{x["date"]}', axis=1)
 	old2new = dict()
 	for row in meta.itertuples():
 		old2new[row.strain] = row.new_header
