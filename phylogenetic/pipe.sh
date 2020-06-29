@@ -10,5 +10,10 @@ python3 phylogenetic/sample_seq.py
 python3 phylogenetic/add_meta_to_header.py --meta_fn "../data/gisaid/metadata/metadata.tsv" --fasta_fn "../processed_data/phylogenetic/filter_distant_seq/keep.fasta" --out_fn "../processed_data/phylogenetic/add_meta_to_header/keep.fasta"
 python3 phylogenetic/add_meta_to_header.py --meta_fn "../data/gisaid/metadata/metadata.tsv" --fasta_fn "../processed_data/phylogenetic/sample_seq/sample.fasta" --out_fn "../processed_data/phylogenetic/add_meta_to_header/sample.fasta"
 
+
+# Append new sequence:
+bash phylogenetic/append_new_seq.sh "../processed_data/phylogenetic/add_meta_to_header/keep.fasta" "../data/BJ_CDC/4seq.fasta" "../processed_data/phylogenetic/append_new_seq/keep_and_new.fasta"
+bash phylogenetic/append_new_seq.sh "../processed_data/phylogenetic/sample_seq/sample.fasta" "../data/BJ_CDC/4seq.fasta" "../processed_data/phylogenetic/append_new_seq/sample_and_new.fasta"
+
 # Runtime analysis:
 python3 phylogenetic/runtime_vs_num_strains.py
