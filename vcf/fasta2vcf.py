@@ -31,7 +31,7 @@ def align(ref_fasta, qry_fasta, out_prefix):
 	elif op_sys == b"Darwin\n":
 		mafft = "ext/mafft-mac/mafft.bat"
 	else:
-		raise Exception("Coviz only supports Linux and MacOS!")
+		raise Exception("Cov-Seq only supports Linux and MacOS!")
 
 	mafft_out_fn = f"{out_prefix}.ali"
 	cmd = f"{mafft} {mafft_in_fn} > {mafft_out_fn}"

@@ -71,10 +71,25 @@ annotation/annotation.py --help
 
 ## 4. Batch processing
 
+In order to extract variants from many sequences all at once, use the batch processing script: 
+
+```
+python3 vcf/fasta2vcf.py \
+-f data/batch.fasta \ # The input fasta file
+-r data/NC_045512.2.fasta \ # The reference fasta file
+-o data/batch/ # The output directory
+```
+
+Replace the options with your fasta files and output directory. The reference fasta is the standard reference for SARS-CoV-2 and does not need to be changed. 
+
+In the output directory (`data/batch/` in this case), there will be N pairs of `*.vcf.gz` and `*.vcf.gz.tbi`, where N is the number of input sequences in the input fasta file. 
+
+
+## 5. Reproducing CoV-Seq results
 The following section describes the pipeline we used to batch process tens of thousands of FASTA sequences available for download on `covseq.baidu.com/browse`.
 
 
-### 4.1 Download genomic data and metadata
+### 5.1 Download genomic data and metadata
 
 The first step is to download data from repositories. All steps assume `covseq` repo as the working directory. 
 
@@ -111,7 +126,7 @@ To download data from CNGB:
 6. Click on Download Excel to download metadata -> Move metadata to `../data/cngb/metadata/`
 
 
-### 4.2 Preprocess
+### 5.2 Preprocess
 
 We will preprocess the data by first concatenating all FASTA files and standardize FASTA headers 
 
@@ -134,7 +149,7 @@ python3 preprocess/filter_fasta.py -i ../data/aggregated/fasta/raw.fasta --out_d
 Note that this command will create a `../processed_data/preprocess/filter_fasta/` to store intermedite files. 
 
 
-### 4.3 Call variants
+### 5.3 Call variants
 
 Now we have preprocessed FASTA files, let's call variants from nucleotide sequences, using the RefSeq sequence `NC_045512.2` as the reference.
 
@@ -172,7 +187,7 @@ Finally we will remove multi-allelic variants and variants within the poly-A tai
 bash vcf/filter_sites.sh ../data/aggregated/vcf/merged/merged.vcf.gz ../data/aggregated/vcf/merged/filtered
 ```
 
-### 4.4 Annotate VCF files 
+### 5.4 Annotate VCF files 
 
 Finally we will annotate VCF files using [snpEff](http://snpeff.sourceforge.net/), which is included in this Git repository. 
 
@@ -190,7 +205,7 @@ python3 snpEff/parse_snpEff.py --vcf_fn ../data/aggregated/vcf/merged/annotated.
 ```
 
 
-### 4.5 Merging metadata
+### 5.5 Merging metadata
 
 Last but not least we aggregate all metadata: 
 
@@ -218,10 +233,10 @@ python3 metadata/merge_metadata.py --in_dir ../data/aggregated/metadata/ --out_p
 All done! You have now generated all the data on the CoV-Seq website. 
 
 
-## 5. Frequently Asked Questions
+## 6. Frequently Asked Questions
 Please see [FAQ](example.com) here. 
 
-## 6. Bug report 
+## 7. Bug report 
 
 We welcome bug report [here](https://github.com/boxiangliu/covseq/issues). Please help us by providing as much information as possible.
 
