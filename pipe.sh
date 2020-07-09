@@ -1,11 +1,11 @@
 # Download COVID-19 sequences from GISAID:
 # Accessed March 24, 2020
 # python3 download/download_gisaid.py -u <username> -p <password> --out_dir /Users/boxiang/Documents/work/Baidu/projects/viraviz/data/gisaid/metadata/
-# python download/download.py
+python download/download.py
 
 # Concatenate all FASTA records.
 # Standardize all headers.
-# python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata ../data/cngb/metadata/CNGBdb_VirusDIP.csv --gisaid_metadata ../data/gisaid/metadata/metadata.tsv
+python3 preprocess/concatenate_fasta.py -i ../data/ -o ../data/aggregated/fasta/raw.fasta --cgnb_metadata ../data/cngb/metadata/CNGBdb_VirusDIP.csv --gisaid_metadata ../data/gisaid/metadata/metadata.tsv
 
 # Filter FASTA records.
 # Remove duplicates.
