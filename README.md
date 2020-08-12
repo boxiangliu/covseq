@@ -163,7 +163,7 @@ This command will create a directory called `../data/aggregated/vcf/individual/`
 
 Some FASTA files have large numbers of sequencing errors and will produce abnormally long lists of variants. Let's filter them out.
 
-2. Filter out variants with > 150 mutations. 
+2. Filter out samples with > 150 mutations. 
 ```
 python3 vcf/filter_samples.py -i ../data/aggregated/vcf/individual/ -o ../processed_data/vcf/filter_samples/ -c 150
 ```
