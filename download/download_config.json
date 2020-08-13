@@ -7,7 +7,7 @@
 "ncbi_metadata_fn": "sequences.csv",
 "ncbi_target_fasta": "../data/ncbi/fasta/sequences.fasta",
 "ncbi_target_metadata": "../data/ncbi/metadata/sequences.csv",
-"embl_fasta_prefix": "ena_sequence",
-"embl_metadata_prefix": "ena_sequence",
+"embl_fasta_prefix": "sequences_fasta",
+"embl_metadata_prefix": "sequences_embl",
 "embl_target_fasta": "../data/embl/fasta/ena_sequence.fasta",
 "embl_target_metadata": "../data/embl/metadata/ena_sequence.txt"}

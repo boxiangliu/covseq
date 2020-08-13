@@ -23,17 +23,25 @@ fi
 echo "Merging VCFs."
 split -l 200 $vcf_dir/filtered_vcf.txt subset_vcfs
 for i in subset_vcfs*; do
-	bcftools merge -0 -l $i -Oz -o $out_dir/merged.$i.vcf.gz
-	tabix -p vcf $out_dir/merged.$i.vcf.gz
+	bcftools merge -0 -l $i -Oz -o $out_dir/merged.$i.1.vcf.gz
+	tabix -p vcf $out_dir/merged.$i.1.vcf.gz
 done
 rm subset_vcfs*
 
-ls $out_dir/merged.*.vcf.gz > subset_vcfs
-bcftools merge -0 -l subset_vcfs -Oz -o $out_dir/merged.vcf.gz
-tabix -p vcf $out_dir/merged.vcf.gz
-rm subset_vcfs
-rm $out_dir/*.subset_vcfs*.vcf.gz*
+ls $out_dir/merged.*.vcf.gz > merged_vcfs
+split -l 200 merged_vcfs subset_vcfs
+for i in subset_vcfs*; do
+    bcftools merge -0 -l $i -Oz -o $out_dir/merged.$i.2.vcf.gz
+    tabix -p vcf $out_dir/merged.$i.2.vcf.gz
+done
+rm subset_vcfs*
+rm $out_dir/*.subset_vcfs*.1.vcf.gz*
 
+ls $out_dir/merged.*.2.vcf.gz > merged_vcfs
+bcftools merge -0 -l merged_vcfs -Oz -o $out_dir/merged.vcf.gz
+tabix -p vcf $out_dir/merged.vcf.gz
+rm merged_vcfs
+rm $out_dir/*.subset_vcfs*.2.vcf.gz*
 
 # Normalize merged vcf:
 echo "Normalizing merged VCF."

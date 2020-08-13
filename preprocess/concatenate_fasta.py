@@ -45,16 +45,16 @@ def concatenate_fasta(in_dir, sub_dirs, out_fn, cngb_id_map, gisaid_id_map):
 					if sd == "gisaid":
 						if "NetherlandsL" in record.description:
 							record.description = record.description.replace("NetherlandsL", "Netherlands")
-						if "Benin/197/2020" in record.description:
-							record.description = "Benin/197/03.2020"
+						# if "Benin/197/2020" in record.description:
+						# 	record.description = "Benin/197/03.2020"
 						seq_header = gisaid_id_map[record.description]
 					elif sd == "ncbi":
 						seq_header = record.description.split("|")[0].strip()
 					elif sd == "embl":
 						seq_header = record.description.split("|")[1].strip()
-					elif sd == "cngb":
-						bn = os.path.basename(fn)
-						seq_header = cngb_id_map[bn]
+					# elif sd == "cngb":
+					# 	bn = os.path.basename(fn)
+					# 	seq_header = cngb_id_map[bn]
 					record.id = record.name = record.description = seq_header
 					SeqIO.write(record, fout, "fasta")
 					counter += 1
@@ -64,16 +64,16 @@ def concatenate_fasta(in_dir, sub_dirs, out_fn, cngb_id_map, gisaid_id_map):
 @click.command()
 @click.option("--in_dir", "-i", type=str, help="Input directory.")
 @click.option("--out_fn", "-o", type=str, help="Output file.")
-@click.option("--cgnb_metadata", type=str, help="CGNB metadata for normalizing header.")
+@click.option("--cngb_metadata", type=str, help="CGNB metadata for normalizing header.")
 @click.option("--gisaid_metadata", type=str, help="GISAID metadata for normalizing header.")
-def main(in_dir, out_fn, cgnb_metadata, gisaid_metadata):
+def main(in_dir, out_fn, cngb_metadata, gisaid_metadata):
 	print("#########################")
 	print("# Concatenate all FASTA #")
 	print("#########################")
 	print(f"Input: {in_dir}")
 	print(f"Output: {out_fn}")
 
-	cngb_id_map = get_cngb_id_map(cgnb_metadata)
+	cngb_id_map = get_cngb_id_map(cngb_metadata)
 	gisaid_id_map = get_gisaid_id_map(gisaid_metadata)
 	concatenate_fasta(in_dir, SUB_DIRS, out_fn, cngb_id_map, gisaid_id_map)
 

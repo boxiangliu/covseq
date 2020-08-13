@@ -7,7 +7,8 @@ import sys
 sys.path.append(".")
 from utils import VCF
 
-SOURCES = ["gisaid","ncbi","embl","cngb"]
+# SOURCES = ["gisaid","ncbi","embl","cngb"]
+SOURCES = ["gisaid","ncbi","embl"]
 COLUMNS = ["Accession_ID",
 	"Virus",
 	"Data_Source",

@@ -50,10 +50,11 @@ If you are using the website, please provide the following:
 SARS-CoV-2 genomic data are downloaded from GISAID, NCBI, EMBL, and CNGB. Please following the links below to read more about these databases: 
 
 - [GISAID](https://www.gisaid.org/)
-- [NCBI Genbank](https://www.ncbi.nlm.nih.gov/genbank/sars-cov-2-seqs/)
-- [EMBL Pathogens](https://www.ebi.ac.uk/ena/pathogens/covid-19)
+- [NCBI Genbank](https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=SARS-CoV-2,%20taxid:2697049)
+- [EMBL Pathogens](https://www.covid19dataportal.org/)
 - [CNGB VirusDIP](https://db.cngb.org/virus/ncov)
 
+Note: we stopped using CNGB on 08/13/2020 because of the lack of the small number of sequences (<100) and the lack of update. 
 
 ## Can you share the FASTA files? 
 

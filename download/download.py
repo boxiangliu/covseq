@@ -15,22 +15,23 @@ import json
 
 GISAID_URL = "https://www.epicov.org/epi3/frontend#5f0352"
 NCBI_URL = "https://www.ncbi.nlm.nih.gov/labs/virus/vssi/#/virus?SeqType_s=Nucleotide&VirusLineage_ss=SARS-CoV-2,%20taxid:2697049"
-EMBL_URL = "https://www.ebi.ac.uk/ena/pathogens/covid-19"
+# EMBL_URL = "https://www.ebi.ac.uk/ena/pathogens/covid-19"
+EMBL_URL = "ftp://ftp.ebi.ac.uk/pub/databases/covid19dataportal/viral_sequences/sequences/"
 CREDENTIALS_FN = "download/credentials.txt"
 CONFIG_FN = "download/download_config.json"
 
 
 def read_config(config_fn):
-	with open(config_fn) as f:
-		config = json.load(f)
-	return config
+    with open(config_fn) as f:
+        config = json.load(f)
+    return config
 
 
 def read_credentials(CREDENTIALS_FN):
-	with open(CREDENTIALS_FN) as f:
-		username = f.readline().split("=")[1].strip()
-		password = f.readline().split("=")[1].strip()
-	return username, password
+    with open(CREDENTIALS_FN) as f:
+        username = f.readline().split("=")[1].strip()
+        password = f.readline().split("=")[1].strip()
+    return username, password
 
 
 # def select_all(driver):
@@ -54,135 +55,137 @@ def read_credentials(CREDENTIALS_FN):
 
 
 def go_to_EpiCov_downloads(main_driver):
-	print("Going to EpiCov browser...")
-	try:
-		WebDriverWait(main_driver, 10).until(
-			EC.presence_of_element_located((By.CLASS_NAME, 'sys-actionbar-action'))
-		)
-	except Exception as e:
-		print(e)
+    print("Going to EpiCov browser...")
+    try:
+        WebDriverWait(main_driver, 10).until(
+            EC.presence_of_element_located(
+                (By.CLASS_NAME, 'sys-actionbar-action'))
+        )
+    except Exception as e:
+        print(e)
 
-	browse = main_driver.find_elements_by_class_name("sys-actionbar-action")[2]
-	browse.click()
-	time.sleep(5)
+    browse = main_driver.find_elements_by_class_name("sys-actionbar-action")[2]
+    browse.click()
+    time.sleep(5)
 
 
 def gisaid_download(driver):
-	iframe = None
-	try:
-		WebDriverWait(driver, 10).until(
-			EC.presence_of_element_located((By.TAG_NAME, 'iframe'))
-		)
-		iframe = driver.find_elements_by_tag_name('iframe')[0]
-	except Exception as e:
-		print(e)
+    iframe = None
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, 'iframe'))
+        )
+        iframe = driver.find_elements_by_tag_name('iframe')[0]
+    except Exception as e:
+        print(e)
 
-	driver.switch_to.frame(iframe)
+    driver.switch_to.frame(iframe)
 
-	downicons = driver.find_elements_by_class_name("downicon")
-	for downicon in downicons:
-		if "nextmeta" in downicon.text:
-			downicon.click()
-			time.sleep(10)
-		elif "nextfasta" in downicon.text:
-			downicon.click()
-			time.sleep(120)
+    downicons = driver.find_elements_by_class_name("downicon")
+    for downicon in downicons:
+        if "nextmeta" in downicon.text:
+            downicon.click()
+            time.sleep(10)
+        elif "nextfasta" in downicon.text:
+            downicon.click()
+            time.sleep(120)
 
 
 def gisaid_decompress(config):
-	while glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*") == []:
-		time.sleep(5)
+    while glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*") == []:
+        time.sleep(5)
 
-	compressed_fasta_fn = glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*")[0]
-	cmd = f"gunzip {compressed_fasta_fn}"
-	output = subprocess.run(cmd, shell=True)
+    compressed_fasta_fn = glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*")[0]
+    cmd = f"gunzip {compressed_fasta_fn}"
+    output = subprocess.run(cmd, shell=True)
 
-	compressed_metadata_fn = glob.glob(f"{config['download_dir']}/{config['gisaid_metadata_prefix']}*")[0]
-	cmd = f"gunzip {compressed_metadata_fn}"
-	output = subprocess.run(cmd, shell=True)
+    compressed_metadata_fn = glob.glob(f"{config['download_dir']}/{config['gisaid_metadata_prefix']}*")[0]
+    cmd = f"gunzip {compressed_metadata_fn}"
+    output = subprocess.run(cmd, shell=True)
 
 
 def gisaid_move(config):
-	src = glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*")[0]
-	os.rename(src, config["gisaid_target_fasta"])
+    src = glob.glob(f"{config['download_dir']}/{config['gisaid_fasta_prefix']}*")[0]
+    os.rename(src, config["gisaid_target_fasta"])
 
-	src = glob.glob(f"{config['download_dir']}/{config['gisaid_metadata_prefix']}*")[0]
-	os.rename(src, config["gisaid_target_metadata"])
+    src = glob.glob(f"{config['download_dir']}/{config['gisaid_metadata_prefix']}*")[0]
+    os.rename(src, config["gisaid_target_metadata"])
 
 
 def ncbi_click_download(driver):
-	for radio_selection in ["Nucleotide", "CSV format"]:
-		download_btn = driver.find_element_by_class_name("ncbi-report-download")
-		download_btn.click()
-		time.sleep(1)
+    for radio_selection in ["Nucleotide", "CSV format"]:
+        download_btn = driver.find_element_by_class_name(
+            "ncbi-report-download")
+        download_btn.click()
+        time.sleep(1)
 
-		radio_btns = driver.find_elements_by_class_name("custom-control")
-		for radio_btn in radio_btns:
-			if radio_btn.text == radio_selection:
-				radio_btn.click()
-				time.sleep(1)
-				break
+        radio_btns = driver.find_elements_by_class_name("custom-control")
+        for radio_btn in radio_btns:
+            if radio_btn.text == radio_selection:
+                radio_btn.click()
+                time.sleep(1)
+                break
 
-		download_btn = driver.find_element_by_class_name("ncbi-download-btn")
-		download_btn.click()
-		time.sleep(1)
+        download_btn = driver.find_element_by_class_name("ncbi-download-btn")
+        download_btn.click()
+        time.sleep(1)
 
-		action_btns = driver.find_elements_by_class_name("ncbi-download-btn")
-		for btn in action_btns:
-			if btn.text == "Next":
-				btn.click()
-				time.sleep(1)
-				break
+        action_btns = driver.find_elements_by_class_name("ncbi-download-btn")
+        for btn in action_btns:
+            if btn.text == "Next":
+                btn.click()
+                time.sleep(1)
+                break
 
-		if radio_selection == "CSV format":
-			checkboxes = driver.find_elements_by_class_name("ncbi-checkbox-label")
-			for checkbox in checkboxes:
-				if checkbox.text == "Select All":
-					checkbox.click()
-					break
+        if radio_selection == "CSV format":
+            checkboxes = driver.find_elements_by_class_name(
+                "ncbi-checkbox-label")
+            for checkbox in checkboxes:
+                if checkbox.text == "Select All":
+                    checkbox.click()
+                    break
 
-		action_btns = driver.find_elements_by_class_name("ncbi-download-btn")
-		for btn in action_btns:
-			if btn.text == "Download":
-				btn.click()
-				time.sleep(1)
-				break
+        action_btns = driver.find_elements_by_class_name("ncbi-download-btn")
+        for btn in action_btns:
+            if btn.text == "Download":
+                btn.click()
+                time.sleep(1)
+                break
 
 
 def ncbi_move(config):
-	src = f"{config['download_dir']}/{config['ncbi_fasta_fn']}"
-	tgt = config["ncbi_target_fasta"]
-	while not os.path.exists(src):
-		time.sleep(5)
-	os.rename(src, tgt)
+    src = f"{config['download_dir']}/{config['ncbi_fasta_fn']}"
+    tgt = config["ncbi_target_fasta"]
+    while not os.path.exists(src):
+        time.sleep(5)
+    os.rename(src, tgt)
 
-	src = f"{config['download_dir']}/{config['ncbi_metadata_fn']}"
-	tgt = config["ncbi_target_metadata"]
-	os.rename(src, tgt)
-
-
-def embl_assembled_sequences(driver):
-	links = driver.find_elements_by_class_name("no-underline")
-	for link in links:
-		if link.text.startswith("Assembled Sequences"):
-			link.click()
-			time.sleep(10)
-			break
+    src = f"{config['download_dir']}/{config['ncbi_metadata_fn']}"
+    tgt = config["ncbi_target_metadata"]
+    os.rename(src, tgt)
 
 
-def embl_download(driver):
-	download_links = driver.find_elements_by_xpath("//a[contains(@class, 'no-underline') and contains(@class, 'ng-star-inserted')]")
-	for link in download_links:
-		link.click()
-		time.sleep(300)
+def embl_download(EMBL_URL, config):
+    cmd = f"wget --directory-prefix={config['download_dir']} -r {EMBL_URL}"
+    subprocess.run(cmd, shell=True)
+
+
+def embl_unzip(config):
+    src = glob.glob(f"{config['download_dir']}/{config['embl_fasta_prefix']}*.txt.gz")[0]
+    cmd = f"gunzip {src}"
+    subprocess.run(cmd, shell=True)
+
+    src = glob.glob(f"{config['download_dir']}/{config['embl_metadata_prefix']}*.txt.gz")[0]
+    cmd = f"gunzip {src}"
+    subprocess.run(cmd, shell=True)
 
 
 def embl_move(config):
-	src = glob.glob(f"{config['download_dir']}/{config['embl_fasta_prefix']}*.fasta")[0]
-	os.rename(src, config["embl_target_fasta"])
+    src = glob.glob(f"{config['download_dir']}/{config['embl_fasta_prefix']}*.txt")[0]
+    os.rename(src, config["embl_target_fasta"])
 
-	src = glob.glob(f"{config['download_dir']}/{config['embl_metadata_prefix']}*.txt")[0]
-	os.rename(src, config["embl_target_metadata"])
+    src = glob.glob(f"{config['download_dir']}/{config['embl_metadata_prefix']}*.txt")[0]
+    os.rename(src, config["embl_target_metadata"])
 
 
 config = read_config(CONFIG_FN)
@@ -203,13 +206,9 @@ ncbi_click_download(driver)
 ncbi_move(config)
 
 
-driver.get(EMBL_URL)
-time.sleep(10)
-embl_assembled_sequences(driver)
-embl_download(driver)
+embl_download(EMBL_URL, config)
+embl_unzip(config)
 embl_move(config)
 
 
 driver.close()
-
-
