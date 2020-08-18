@@ -10,8 +10,8 @@ mutation_count = fread(in_fn, sep="\t", col.names=c("sample", "mutation"))
 p = ggplot(mutation_count, aes(x=mutation)) + 
 	geom_histogram(bins=80) + 
 	scale_y_sqrt(breaks=c(1,50,500,1000,1500,2000)) + 
-	scale_x_log10(breaks=c(1,10,100,150,1000,10000), labels=c(1,10,"100   ","   150",1000,10000)) + 
-	geom_vline(xintercept=150, color="red", linetype="dashed") + 
+	scale_x_log10(breaks=c(1,10,100,350,1000,10000), labels=c(1,10,100,350,1000,10000)) + 
+	geom_vline(xintercept=350, color="red", linetype="dashed") + 
 	xlab("Number of mutations in sample") + 
 	ylab("Frequency")
 print(p)

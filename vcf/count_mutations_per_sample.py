@@ -11,10 +11,13 @@ def get_num_variants(vcf_dir):
 	for vcf_fn in glob.glob(f"{vcf_dir}/*.vcf.gz"):
 		print(vcf_fn)
 		ID = os.path.basename(vcf_fn).replace(".vcf.gz","")
-		vcf = VCF(vcf_fn)
-		num_variants = vcf.rowdata.shape[0]
-		container["ID"].append(ID)
-		container["num_variants"].append(num_variants)
+		try: 
+			vcf = VCF(vcf_fn)
+			num_variants = vcf.rowdata.shape[0]
+			container["ID"].append(ID)
+			container["num_variants"].append(num_variants)
+		except:
+			pass
 	df = pd.DataFrame(container)
 	return df
 
