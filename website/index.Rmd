@@ -66,6 +66,7 @@ CoV-Seq is a suite of tools and datasets for analysis and visualization of genom
 <div class="col-sm-5">
 
 ## News
+- 08-31-2020: Latest update with 113,764 SARS-CoV-2 genomes.
 - 08-13-2020: We have regained access to GISAID. Latest update with 102,899 SARS-CoV-2 genomes.
 - 08-01-2020: We have experienced difficulty accessing GISAID data. We are actively working to address the issue and will resume regular updates shortly. 
 - 07-13-2020: Latest update with 66,911 SARS-CoV-2 genomes.
