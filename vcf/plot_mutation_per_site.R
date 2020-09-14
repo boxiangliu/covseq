@@ -10,5 +10,6 @@ variant_count = fread(in_fn)
 p = ggplot(variant_count[variant_count > 1], aes(x=pos)) + 
 	geom_histogram(bins=100) + 
 	xlab("SARS-CoV-2 Genomic Coordinate") + 
-	ylab("Frequency of Multi-Allelic Sites")
+	ylab("Frequency of Multi-Allelic Sites") +
+    theme_classic()
 save_plot(sprintf("%s/distribution_of_multiallelic_sites.pdf", out_dir), p, base_height=4, base_width=6)
