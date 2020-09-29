@@ -166,18 +166,29 @@ def ncbi_move(config):
 
 
 def embl_download(EMBL_URL, config):
-    cmd = f"wget --directory-prefix={config['download_dir']} -r {EMBL_URL}"
+    cmd = f"wget --no-host-directories --cut-dirs=5 --no-parent --directory-prefix={config['download_dir']} -r {EMBL_URL}"
     subprocess.run(cmd, shell=True)
+
+
+def twice_unzip(src):
+    cmd = f"file {src}".replace(".gz","")
+    output = subprocess.run(cmd, shell=True, capture_output=True)
+    if b"gzip" in output.stdout:
+        os.rename(src.replace(".gz",""), src)
+        cmd = f"gunzip {src}"
+        subprocess.run(cmd, shell=True)
 
 
 def embl_unzip(config):
-    src = glob.glob(f"{config['download_dir']}/{config['embl_fasta_prefix']}*.txt.gz")[0]
+    src = glob.glob(f"{config['download_dir']}/{config['embl_fasta_prefix']}*.txt.gz")[-1]
     cmd = f"gunzip {src}"
     subprocess.run(cmd, shell=True)
+    twice_unzip(src)
 
-    src = glob.glob(f"{config['download_dir']}/{config['embl_metadata_prefix']}*.txt.gz")[0]
+    src = glob.glob(f"{config['download_dir']}/{config['embl_metadata_prefix']}*.txt.gz")[-1]
     cmd = f"gunzip {src}"
     subprocess.run(cmd, shell=True)
+    twice_unzip(src)
 
 
 def embl_move(config):
@@ -192,18 +203,18 @@ config = read_config(CONFIG_FN)
 
 username, password = read_credentials(CREDENTIALS_FN)
 driver = Chrome(ChromeDriverManager().install())
-driver.get(GISAID_URL)
-gisaid_login(driver, username, password)
-go_to_EpiCov(driver)
-go_to_EpiCov_downloads(driver)
-gisaid_download(driver)
-gisaid_decompress(config)
-gisaid_move(config)
+# driver.get(GISAID_URL)
+# gisaid_login(driver, username, password)
+# go_to_EpiCov(driver)
+# go_to_EpiCov_downloads(driver)
+# gisaid_download(driver)
+# gisaid_decompress(config)
+# gisaid_move(config)
 
 
-driver.get(NCBI_URL)
-ncbi_click_download(driver)
-ncbi_move(config)
+# driver.get(NCBI_URL)
+# ncbi_click_download(driver)
+# ncbi_move(config)
 
 
 embl_download(EMBL_URL, config)

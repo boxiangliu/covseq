@@ -42,22 +42,25 @@ def concatenate_fasta(in_dir, sub_dirs, out_fn, cngb_id_map, gisaid_id_map):
 			print(f"Working on directory {wd}")
 			for fn in glob.glob(f"{wd}/*.fasta"):
 				for record in SeqIO.parse(fn, "fasta"):
-					if sd == "gisaid":
-						if "NetherlandsL" in record.description:
-							record.description = record.description.replace("NetherlandsL", "Netherlands")
-						# if "Benin/197/2020" in record.description:
-						# 	record.description = "Benin/197/03.2020"
-						seq_header = gisaid_id_map[record.description]
-					elif sd == "ncbi":
-						seq_header = record.description.split("|")[0].strip()
-					elif sd == "embl":
-						seq_header = record.description.split("|")[1].strip()
-					# elif sd == "cngb":
-					# 	bn = os.path.basename(fn)
-					# 	seq_header = cngb_id_map[bn]
-					record.id = record.name = record.description = seq_header
-					SeqIO.write(record, fout, "fasta")
-					counter += 1
+					try:
+						if sd == "gisaid":
+							if "NetherlandsL" in record.description:
+								record.description = record.description.replace("NetherlandsL", "Netherlands")
+							# if "Benin/197/2020" in record.description:
+							# 	record.description = "Benin/197/03.2020"
+							seq_header = gisaid_id_map[record.description]
+						elif sd == "ncbi":
+							seq_header = record.description.split("|")[0].strip()
+						elif sd == "embl":
+							seq_header = record.description.split("|")[1].strip()
+						# elif sd == "cngb":
+						# 	bn = os.path.basename(fn)
+						# 	seq_header = cngb_id_map[bn]
+						record.id = record.name = record.description = seq_header
+						SeqIO.write(record, fout, "fasta")
+						counter += 1
+					except:
+						pass
 	print(f"Combined {counter} sequences!")
 
 

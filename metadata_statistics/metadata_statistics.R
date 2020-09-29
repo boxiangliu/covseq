@@ -1,7 +1,10 @@
 library(data.table)
 library(lubridate)
+library(ggplot2)
 library(cowplot)
+theme_set(theme_cowplot())
 library(countrycode)
+library(scales)
 
 metadata_fn = "../data/aggregated/metadata/merged.tsv"
 out_dir = "../processed_data/metadata_statistics/"
@@ -44,10 +47,10 @@ plot_sub_by_time = function(sub_by_time){
     p = ggplot(sub_by_time, aes(x=week_start,y=cumsum, color=continent)) + 
         geom_point() + 
         geom_line() + 
-        scale_y_sqrt() + 
+        scale_y_sqrt(labels=comma) + 
         scale_x_datetime(date_breaks="1 month", date_labels="%b") +
         scale_color_discrete(name = "Continent") + 
-        ylab("Cumulative No. of Strains Collected") + 
+        ylab("Cumulative Number of Strains Collected") + 
         xlab("Time") + 
         theme(legend.position=c(0.05, 0.95), 
             legend.justification=c("left", "top"))
@@ -66,7 +69,7 @@ get_sub_by_country = function(metadata){
 plot_sub_by_country = function(sub_by_country){
     p = ggplot(sub_by_country, aes(x=Country, y=submission, fill=continent)) + 
         geom_bar(stat="identity") + 
-        scale_y_log10(expand=c(0,0), name="No. of Submissions") + 
+        scale_y_log10(expand=c(0,0), name="Number of Submissions", labels=comma) + 
         scale_x_discrete(labels=NULL) + 
         scale_fill_discrete(name="Continent") +
         theme(axis.ticks.x = element_blank(), 

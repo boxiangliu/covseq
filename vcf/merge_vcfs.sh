@@ -21,7 +21,7 @@ fi
 
 # Merge VCFs:
 echo "Merging VCFs."
-split -l 200 $vcf_dir/filtered_vcf.txt subset_vcfs
+split -a 5 -l 200 $vcf_dir/filtered_vcf.txt subset_vcfs
 for i in subset_vcfs*; do
 	bcftools merge -0 -l $i -Oz -o $out_dir/merged.$i.1.vcf.gz
 	tabix -p vcf $out_dir/merged.$i.1.vcf.gz
@@ -29,7 +29,7 @@ done
 rm subset_vcfs*
 
 ls $out_dir/merged.*.vcf.gz > merged_vcfs
-split -l 200 merged_vcfs subset_vcfs
+split -a 5 -l 200 merged_vcfs subset_vcfs
 for i in subset_vcfs*; do
     bcftools merge -0 -l $i -Oz -o $out_dir/merged.$i.2.vcf.gz
     tabix -p vcf $out_dir/merged.$i.2.vcf.gz
