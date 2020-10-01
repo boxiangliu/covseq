@@ -34,6 +34,7 @@ process_metadata = function(metadata){
 
 get_sub_by_time = function(metadata){
     sub_by_time = metadata[, list(num=.N), by=c("week_start", "continent")]
+    sub_by_time = sub_by_time[!is.na(continent)]
     setorder(sub_by_time, 'week_start')
     sub_by_time[, cumsum := cumsum(num), by="continent"]
     sub_by_time_2 = sub_by_time[, list(continent="Total", num=sum(num)), by="week_start"]
@@ -60,6 +61,7 @@ plot_sub_by_time = function(sub_by_time){
 
 get_sub_by_country = function(metadata){
     sub_by_country = metadata[, list(submission=.N), by=c("Country", "continent")]
+    sub_by_country = sub_by_country[!is.na(continent)]
     setorder(sub_by_country, cols=-'submission')
     sub_by_country[,Country:=factor(Country, levels=Country)]
     return(sub_by_country)
